@@ -8,6 +8,8 @@ const claims = {
 	backupsRiyadh: 'hidden',
 	twoStepSignIn: 'hidden',
 	privacyTools: 'hidden',
+	whatsapp: 'available',
+	tiktok: 'available',
 	telegram: 'soon',
 	email: 'soon',
 	conversationToOpportunity: 'soon',

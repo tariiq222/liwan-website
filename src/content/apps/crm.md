@@ -6,7 +6,7 @@ status: available
 plan: paid
 featureKey: crm.enabled
 name:
-  ar: "العملاء"
+  ar: "إدارة العملاء"
   en: "CRM"
 headline:
   ar: "لا تضيع صفقة بعد اليوم"

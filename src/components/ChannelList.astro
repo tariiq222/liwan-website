@@ -1,0 +1,73 @@
+---
+// A row of customer-message channels: available channels in their brand colour, coming-soon
+// channels muted with the «قريبًا» label. Hidden channels are left out.
+import Icon from './Icon.astro';
+import { CHANNELS } from '../brand/channels';
+import { claim } from '../config/claims';
+
+const channels = CHANNELS.map((channel) => ({ ...channel, state: claim(channel.key) })).filter(
+	(channel) => channel.state !== 'hidden',
+);
+---
+
+<ul class="channels">
+	{
+		channels.map((c) => (
+			<li class:list={['channel', { soon: c.state === 'soon' }]}>
+				{c.logo ? (
+					<svg class="logo" viewBox="0 0 24 24" aria-hidden="true" style={`--brand: #${c.logo.hex}`}>
+						<path d={c.logo.path} />
+					</svg>
+				) : (
+					c.icon && <Icon name={c.icon} size={16} class="logo" />
+				)}
+				<span>{c.name}</span>
+				{c.state === 'soon' && <span class="badge soon">قريبًا</span>}
+			</li>
+		))
+	}
+</ul>
+
+<style>
+	.channels {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-2);
+	}
+	.channel {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		padding: 0.3rem 0.75rem;
+		border: 1px solid var(--border);
+		border-radius: var(--radius-full);
+		background: var(--surface);
+		font-size: var(--text-sm);
+		font-weight: 600;
+	}
+	.logo {
+		width: 16px;
+		height: 16px;
+		flex-shrink: 0;
+		fill: var(--brand);
+	}
+	/* TikTok's brand colour is black; in dark mode it follows the text colour. */
+	.channel :global(svg[style*='#000000']) {
+		fill: var(--text);
+	}
+	.channel.soon {
+		color: var(--text-muted);
+		border-style: dashed;
+	}
+	.channel.soon .logo {
+		fill: var(--text-muted);
+		color: var(--text-muted);
+		opacity: 0.8;
+	}
+	.channel .badge {
+		padding-block: 0;
+	}
+</style>
