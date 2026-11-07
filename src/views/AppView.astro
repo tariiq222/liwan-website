@@ -1,7 +1,21 @@
 ---
+// One application page (spec 2J, Arabic): hero with status, headline, price and call to action;
+// key capabilities with small CSS mocks; how it connects to the other applications; a «قريبًا»
+// block only for items the claims register marks soon; closing call. Copy lives in
+// src/components/apps/app-pages.ts; name, status, plan and icon come from the content entry.
+import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import PagePlaceholder from '../components/PagePlaceholder.astro';
-import type { Locale } from '../i18n';
+import Section from '../components/Section.astro';
+import Icon from '../components/Icon.astro';
+import ChannelList from '../components/ChannelList.astro';
+import Mock from '../components/apps/Mock.astro';
+import AppCta from '../components/apps/AppCta.astro';
+import { AI_SOON, APP_COPY, priceFor } from '../components/apps/app-pages';
+import { claim } from '../config/claims';
+import { registerUrl } from '../lib/links';
+import { getPricing } from '../lib/pricing';
+import { localePath, type Locale } from '../i18n';
 import type { CollectionEntry } from 'astro:content';
 
 interface Props {
@@ -10,9 +24,271 @@ interface Props {
 }
 
 const { locale, app } = Astro.props;
-const { name, headline, summary, slug } = app.data;
+const { name, headline, summary, slug, icon, plan, status, featureKey } = app.data;
+
+const isArabic = locale === 'ar';
+const copy = APP_COPY[slug];
+const pricing = isArabic ? await getPricing() : null;
+const price = priceFor(pricing, featureKey);
+const free = plan === 'free';
+
+const all = isArabic ? await getCollection('apps', ({ data }) => data.status !== 'hidden') : [];
+const bySlug = new Map(all.map((entry) => [entry.data.slug, entry.data]));
+const connects = (copy?.connects ?? []).map((c) => ({ ...c, target: bySlug.get(c.to) }));
+const soonClaims = (copy?.soonClaims ?? []).filter((item) => claim(item.claim) === 'soon');
+const heroMock = copy?.capabilities[0];
 ---
 
-<Base locale={locale} title={name[locale]} description={summary[locale]} path={`/apps/${slug}/`}>
-	<PagePlaceholder locale={locale} title={headline[locale]} pageKey="app" />
-</Base>
+{
+	!isArabic || !copy ? (
+		<Base locale={locale} title={name[locale]} description={summary[locale]} path={`/apps/${slug}/`}>
+			<PagePlaceholder locale={locale} title={headline[locale]} pageKey="app" />
+		</Base>
+	) : (
+		<Base locale="ar" title={name.ar} description={`${headline.ar}. ${summary.ar}`} path={`/apps/${slug}/`}>
+			<section class="hero">
+				<div class="aurora" aria-hidden="true"></div>
+				<div class="container inner">
+					<div class="text">
+						<nav class="crumbs" aria-label="مسار التصفح" data-reveal>
+							<a href={localePath('ar', '/apps/')}>التطبيقات</a>
+						</nav>
+						<div class="tags" data-reveal style="--i: 1">
+							<span class:list={['badge', free ? 'free' : 'available']}>{free ? 'مجاني دائمًا' : 'متاح الآن'}</span>
+							<span class="tag">
+								<Icon name={icon} size={16} />
+								{name.ar}
+							</span>
+						</div>
+						<h1 data-reveal style="--i: 2">{headline.ar}</h1>
+						<p class="lead" data-reveal style="--i: 3">{summary.ar}</p>
+						{slug === 'inbox' && <div data-reveal style="--i: 3"><ChannelList /></div>}
+						<p class="price" data-reveal style="--i: 4">
+							{free ? 'مجاني مع كل حساب.' : price ? `${price.monthly} شهريًا للشركة، أو ${price.annual} سنويًا.` : 'تواصل معنا للسعر.'}
+						</p>
+						<div class="actions" data-reveal style="--i: 4">
+							<a class="button large" href={registerUrl('ar')} data-app-link>{free ? 'ابدأ مجانًا' : 'جرّبه ١٤ يومًا مجانًا'}</a>
+							{!free && !price && <a class="button large secondary" href={localePath('ar', '/contact/')}>تواصل معنا</a>}
+						</div>
+					</div>
+					{heroMock && (
+						<div class="hero-mock" data-reveal="scale" style="--i: 2">
+							<Mock kind={heroMock.mock} labels={heroMock.labels} />
+						</div>
+					)}
+				</div>
+			</section>
+
+			<Section id="capabilities" eyebrow="ماذا يقدم لك" title={slug === 'ai' ? 'ما يفعله ليوان AI اليوم' : 'ما تحصل عليه'}>
+				<div class="caps">
+					{copy.capabilities.map((cap, i) => (
+						<article class="cap card" data-reveal style={`--i: ${i % 2}`}>
+							<Mock kind={cap.mock} labels={cap.labels} />
+							<h3>{cap.title}</h3>
+							<p>{cap.line}</p>
+						</article>
+					))}
+				</div>
+			</Section>
+
+			{(slug === 'ai' || soonClaims.length > 0) && (
+				<Section id="soon" tone="sand" eyebrow="قريبًا" title="ما نجهّزه لك">
+					<ul class="soon-list">
+						{slug === 'ai'
+							? AI_SOON.map((label) => (
+									<li class="soon-item" data-reveal>
+										<span>{label}</span>
+										<span class="badge soon">قريبًا</span>
+									</li>
+								))
+							: soonClaims.map((item) => (
+									<li class="soon-item wide" data-reveal>
+										<span>
+											<strong>{item.title}</strong>
+											<small>{item.line}</small>
+										</span>
+										<span class="badge soon">قريبًا</span>
+									</li>
+								))}
+					</ul>
+				</Section>
+			)}
+
+			<Section id="connects" tone="sunken" eyebrow="الربط" title="يعمل مع بقية تطبيقاتك">
+				<ul class="connects">
+					{connects.map((c, i) => {
+						const Tag = c.target ? 'a' : 'div';
+						return (
+							<li data-reveal style={`--i: ${i}`}>
+								<Tag class="connect card lift" href={c.target ? localePath('ar', `/apps/${c.to}/`) : undefined}>
+									<span class="connect-name">
+										<Icon name={c.target?.icon ?? 'layers'} size={18} />
+										{c.target ? c.target.name.ar : 'منصة ليوان'}
+										{c.soon && <span class="badge soon">قريبًا</span>}
+									</span>
+									<span class="connect-line">{c.line}</span>
+								</Tag>
+							</li>
+						);
+					})}
+				</ul>
+			</Section>
+
+			<AppCta
+				title={free ? `${name.ar} مجانًا مع كل حساب` : `جرّب ${name.ar} ١٤ يومًا`}
+				line={free ? 'سجّل وابدأ اليوم.' : 'كل التطبيقات مفتوحة لك خلال التجربة.'}
+				button={free ? 'ابدأ مجانًا' : 'جرّب ١٤ يومًا مجانًا'}
+			/>
+		</Base>
+	)
+}
+
+<style>
+	.hero {
+		position: relative;
+		overflow: hidden;
+		isolation: isolate;
+		padding-block: clamp(3rem, 2rem + 5vw, 6.5rem);
+	}
+	.inner {
+		position: relative;
+		z-index: 1;
+		display: grid;
+		grid-template-columns: 1.1fr 0.9fr;
+		gap: var(--space-12);
+		align-items: center;
+	}
+	.text {
+		display: grid;
+		gap: var(--space-4);
+		justify-items: start;
+		min-width: 0;
+	}
+	.crumbs a {
+		color: var(--text-muted);
+		font-size: var(--text-sm);
+		text-decoration: none;
+	}
+	.crumbs a:hover {
+		color: var(--accent);
+	}
+	.tags {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--space-2);
+	}
+	.tag {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		color: var(--accent);
+		font-weight: 600;
+		font-size: var(--text-sm);
+	}
+	h1 {
+		font-size: clamp(2rem, 1.4rem + 2.6vw, 3.4rem);
+		line-height: 1.25;
+	}
+	.lead {
+		font-size: var(--text-xl);
+		color: var(--text-muted);
+	}
+	.price {
+		font-weight: 600;
+	}
+	.actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-3);
+	}
+	.hero-mock {
+		min-width: 0;
+	}
+	.caps {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: var(--space-6);
+	}
+	.cap {
+		display: grid;
+		gap: var(--space-2);
+		align-content: start;
+	}
+	.cap h3 {
+		margin-top: var(--space-3);
+		font-size: var(--text-xl);
+	}
+	.cap p {
+		color: var(--text-muted);
+	}
+	.soon-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+		gap: var(--space-3);
+	}
+	.soon-item {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-3);
+		padding: var(--space-4) var(--space-6);
+		border: 1px dashed var(--border-strong);
+		border-radius: var(--radius-lg);
+		background: var(--surface);
+		font-weight: 600;
+	}
+	.soon-item small {
+		display: block;
+		color: var(--text-muted);
+		font-weight: 400;
+		margin-top: 2px;
+	}
+	.connects {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+		gap: var(--space-4);
+	}
+	.connects li {
+		display: flex;
+	}
+	.connect {
+		flex: 1;
+		display: grid;
+		gap: var(--space-2);
+		align-content: start;
+		color: inherit;
+		text-decoration: none;
+	}
+	.connect-name {
+		display: inline-flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--space-2);
+		font-weight: 700;
+		color: var(--accent);
+	}
+	.connect-line {
+		color: var(--text-muted);
+	}
+	@media (max-width: 900px) {
+		.inner {
+			grid-template-columns: 1fr;
+			gap: var(--space-8);
+		}
+		.caps {
+			grid-template-columns: 1fr;
+		}
+	}
+	@media (max-width: 480px) {
+		.actions .button {
+			flex: 1 1 100%;
+		}
+	}
+</style>

@@ -1,5 +1,165 @@
 ---
-import SimplePage from '../../views/SimplePage.astro';
+// /apps/: the applications index (spec 2J). Hero, four platform pillars, the grid of
+// applications (paid first, then free), the comparison, the yearly calculator and a closing call.
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Section from '../../components/Section.astro';
+import Icon from '../../components/Icon.astro';
+import AppTile from '../../components/apps/AppTile.astro';
+import AppCta from '../../components/apps/AppCta.astro';
+import Compare from '../../components/apps/Compare.astro';
+import YearCalc from '../../components/apps/YearCalc.astro';
+import { priceFor } from '../../components/apps/app-pages';
+import { registerUrl } from '../../lib/links';
+import { getPricing } from '../../lib/pricing';
+import { localePath } from '../../i18n';
+import type { IconName } from '../../brand/icons';
+
+const PILLARS: { icon: IconName; title: string; line: string }[] = [
+	{ icon: 'lock', title: 'دخول واحد', line: 'حساب واحد لكل تطبيقاتك.' },
+	{ icon: 'shield', title: 'صلاحيات واحدة', line: 'كل موظف يرى ما يخصه فقط.' },
+	{ icon: 'sparkles', title: 'مساعد واحد', line: 'ليوان AI يعمل عبر تطبيقاتك.' },
+	{ icon: 'database', title: 'بياناتك في مكان واحد', line: 'تطبيقاتك كلها تقرأ من المصدر نفسه.' },
+];
+
+const pricing = await getPricing();
+const all = await getCollection('apps', ({ data }) => data.status !== 'hidden');
+const tiles = all
+	.map((entry) => entry.data)
+	.sort((a, b) => Number(a.plan === 'free') - Number(b.plan === 'free') || a.order - b.order);
 ---
 
-<SimplePage locale="ar" pageKey="apps" path="/apps/" />
+<Base
+	locale="ar"
+	title="التطبيقات"
+	description="تطبيقات تعمل معًا بحساب واحد وصلاحيات واحدة: العملاء، الرسائل، المهام، المحادثات، الاجتماعات، المستندات، العمليات، وليوان AI."
+	path="/apps/"
+>
+	<section class="hero">
+		<div class="aurora" aria-hidden="true"></div>
+		<div class="container inner">
+			<h1 data-reveal>منصة ليوان: <span class="text-gradient">نظام واحد تدير به شركتك</span></h1>
+			<p data-reveal style="--i: 1">تطبيقات تعمل معًا بحساب واحد وصلاحيات واحدة.</p>
+			<div class="actions" data-reveal style="--i: 2">
+				<a class="button large" href={registerUrl('ar')} data-app-link>جرّب ١٤ يومًا مجانًا</a>
+				<a class="button large secondary" href="#grid">شاهد التطبيقات</a>
+			</div>
+		</div>
+	</section>
+
+	<section class="pillars">
+		<div class="container grid">
+			{
+				PILLARS.map((p, i) => (
+					<div class="pillar" data-reveal style={`--i: ${i}`}>
+						<span class="pillar-icon"><Icon name={p.icon} size={22} /></span>
+						<h2>{p.title}</h2>
+						<p>{p.line}</p>
+					</div>
+				))
+			}
+		</div>
+	</section>
+
+	<Section id="grid" eyebrow="التطبيقات" title="ابدأ بما يحتاجه فريقك اليوم">
+		<div class="tiles">
+			{
+				tiles.map((data, i) => (
+					<AppTile
+						icon={data.icon}
+						name={data.name.ar}
+						line={data.summary.ar}
+						href={localePath('ar', `/apps/${data.slug}/`)}
+						free={data.plan === 'free'}
+						soon={data.status === 'soon'}
+						price={priceFor(pricing, data.featureKey)?.monthly}
+						index={i}
+					/>
+				))
+			}
+		</div>
+	</Section>
+
+	<Compare />
+	<YearCalc />
+	<AppCta title="جاهز تجمع شركتك في مكان واحد؟" line="جرّب كل التطبيقات ١٤ يومًا مجانًا." button="جرّب ١٤ يومًا مجانًا" />
+</Base>
+
+<style>
+	.hero {
+		position: relative;
+		overflow: hidden;
+		isolation: isolate;
+		padding-block: clamp(4rem, 3rem + 6vw, 8rem) clamp(2.5rem, 2rem + 3vw, 4rem);
+		text-align: center;
+	}
+	.inner {
+		position: relative;
+		z-index: 1;
+		display: grid;
+		justify-items: center;
+		gap: var(--space-4);
+	}
+	h1 {
+		font-size: var(--text-display);
+		max-width: 18ch;
+	}
+	.hero p {
+		font-size: var(--text-xl);
+		color: var(--text-muted);
+	}
+	.actions {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: var(--space-3);
+		margin-top: var(--space-2);
+	}
+	.pillars {
+		padding-block: 0 clamp(3rem, 2rem + 3vw, 5rem);
+	}
+	.grid {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: var(--space-6);
+	}
+	.pillar {
+		display: grid;
+		gap: var(--space-2);
+		align-content: start;
+	}
+	.pillar-icon {
+		display: grid;
+		place-items: center;
+		width: 44px;
+		height: 44px;
+		border-radius: 50%;
+		background: var(--accent-soft);
+		color: var(--accent);
+	}
+	.pillar h2 {
+		font-size: var(--text-lg);
+	}
+	.pillar p {
+		color: var(--text-muted);
+		font-size: var(--text-sm);
+	}
+	.tiles {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+		gap: var(--space-4);
+	}
+	@media (max-width: 820px) {
+		.grid {
+			grid-template-columns: repeat(2, 1fr);
+		}
+	}
+	@media (max-width: 480px) {
+		.grid {
+			grid-template-columns: 1fr;
+		}
+		.actions .button {
+			flex: 1 1 100%;
+		}
+	}
+</style>

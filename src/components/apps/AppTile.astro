@@ -1,0 +1,82 @@
+---
+// An application card for the /apps grid: icon, status, name, one line and the price (or «مجاني»).
+// Same look as AppCard; this one adds the price row, which comes from the pricing object.
+import Icon from '../Icon.astro';
+import type { IconName } from '../../brand/icons';
+
+interface Props {
+	icon: IconName;
+	name: string;
+	line: string;
+	href: string;
+	free: boolean;
+	soon?: boolean;
+	// Paid apps: the formatted monthly price, or undefined when pricing is unavailable.
+	price?: string;
+	index?: number;
+}
+
+const { icon, name, line, href, free, soon = false, price, index = 0 } = Astro.props;
+const status = soon ? 'soon' : free ? 'free' : 'available';
+const label = soon ? 'قريبًا' : free ? 'مجاني' : 'متاح الآن';
+---
+
+<div class="wrap" data-reveal style={`--i: ${index % 4}`}>
+	<a class="tile gradient-border lift" data-spotlight href={href}>
+		<div class="top">
+			<span class="icon"><Icon name={icon} size={22} /></span>
+			<span class:list={['badge', status]}>{label}</span>
+		</div>
+		<h3>{name}</h3>
+		<p>{line}</p>
+		<span class="price">
+			{free ? 'مجاني مع كل حساب' : price ? `${price} شهريًا للشركة` : 'تواصل معنا للسعر'}
+		</span>
+	</a>
+</div>
+
+<style>
+	.wrap {
+		display: flex;
+	}
+	.tile {
+		flex: 1;
+		display: grid;
+		align-content: start;
+		gap: var(--space-2);
+		padding: var(--space-6);
+		border-radius: var(--radius-lg);
+		box-shadow: var(--shadow-sm);
+		color: inherit;
+		text-decoration: none;
+	}
+	.top {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: var(--space-2);
+	}
+	.icon {
+		display: grid;
+		place-items: center;
+		width: 44px;
+		height: 44px;
+		border-radius: 50%;
+		background: var(--accent-soft);
+		color: var(--accent);
+	}
+	h3 {
+		font-size: var(--text-lg);
+	}
+	p {
+		color: var(--text-muted);
+		font-size: var(--text-sm);
+		line-height: 1.7;
+	}
+	.price {
+		margin-top: var(--space-2);
+		font-weight: 600;
+		font-size: var(--text-sm);
+		color: var(--accent);
+	}
+</style>
