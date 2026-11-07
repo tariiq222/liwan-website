@@ -2,6 +2,7 @@
 import { getCollection, render } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import { localePath, type Locale } from '../i18n';
+import { NUMBER_LOCALE } from '../lib/numbers';
 
 type Slug = 'terms' | 'privacy' | 'refund' | 'dpa';
 
@@ -52,7 +53,7 @@ const ui = {
 
 const titles = Object.fromEntries(all.filter((e) => e.data.locale === locale).map((e) => [e.data.page, e.data.title]));
 const order: Slug[] = ['terms', 'privacy', 'refund', 'dpa'];
-const date = new Intl.DateTimeFormat(locale === 'ar' ? 'ar-SA-u-nu-latn-ca-gregory' : 'en-GB', {
+const date = new Intl.DateTimeFormat(locale === 'ar' ? `${NUMBER_LOCALE}-ca-gregory` : 'en-GB', {
 	dateStyle: 'long',
 	timeZone: 'UTC',
 }).format(updated);
