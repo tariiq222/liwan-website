@@ -76,8 +76,8 @@ the site may say. Where this document disagrees, the contract wins:
 
 ## 2A. Approved hero
 
-Copy: headline «كل أعمال شركتك في مكان واحد وبذكاء واحد» (owner wording); sub-line
-«تطبيقاتك كلها حول فناء واحد، ومعها ليوان AI»; primary action «ابدأ تجربة 14 يومًا» with
+Copy (owner, revised 2026-11-07): headline «كل أعمالك بنظام ذكي واحد» with the gradient on
+«بنظام ذكي واحد»; sub-line «تطبيقاتك كلها في ليوان واحد.»; primary action «ابدأ تجربة 14 يومًا» with
 «بدون بطاقة ائتمان» under it. No before/after toggle: the scene loops on its own.
 
 **Before (≈2.6 s).** Twelve small system windows scattered with slight rotation and a gentle
@@ -116,6 +116,18 @@ Animation uses `transform`, `opacity` and SVG stroke offsets only, starts when t
 the viewport, and is static (final Liwan state) under reduced motion. Brand colours are the
 fixed tokens of DESIGN.md (lavender, sand, ink, brown); icons in production are the product's
 Lucide set or a dedicated SVG set, not the preview's icon font.
+
+**Owner revisions, 2026-11-07 (built, these win over the text above):**
+
+- «Before»: each system is a small card with an icon and a generic system name only (no
+  sign-in form), joined to its neighbours by dashed links cut in the middle by an amber ✕.
+- «With Liwan» grows from the centre: the Liwan AI circle, lines out to the triangle tips, the
+  triangles, the arches opening outward (no stroke drawing), the lines out to the apps, then
+  each app lights up when its line reaches it, then the names; pulses flow inward.
+- Colours: apps are sand circles with a lavender ring and lavender icon; Liwan AI is the
+  lavender circle with a sand icon; ring lines are light grey and dashed, and each enters its
+  triangle through the middle of the triangle's base.
+- The header carries a light/dark toggle; the page follows the device until the visitor picks.
 
 ## 2B. Approved trust strip (home section 2)
 
@@ -298,7 +310,7 @@ band «ما لقيت جوابك؟ اكتب لنا، ونرد عليك بنفسن
   وجرّب كل التطبيقات ١٤ يومًا بلا بطاقة.»; buttons «جرّب ١٤ يومًا مجانًا» (white) and «تسجيل
   الدخول» (outline).
 - The slim Sadu band in sand separates it from the footer.
-- Footer: brand column (mark, «ليوان», «كل أعمال شركتك في مكان واحد وبذكاء واحد.»); المنتج
+- Footer: brand column (mark, «ليوان», «كل أعمالك بنظام ذكي واحد.»); المنتج
   (التطبيقات `/product`، ليوان AI، الأسعار `/pricing`); الشركة (الأمان والبيانات `/security`،
   تواصل معنا `/contact`، تسجيل الدخول); قانوني (`/terms`، `/privacy`، `/refund`، `/dpa`). Bottom
   line: «© ٢٠٢٦ ليوان», WhatsApp, «English» (`/en`). No email address anywhere: the domain cannot
