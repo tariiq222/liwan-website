@@ -2,10 +2,11 @@
 // (see PricingGlance.astro); this script only does the arithmetic of pricing-format.ts and writes
 // the results into the elements the page marked with data- attributes.
 import type { Pricing } from '../lib/pricing';
+import { NUMBER_LOCALE } from '../lib/numbers';
 import {
 	buildQuote,
 	nextStorage,
-	numberAr,
+	formatNumber,
 	previousStorage,
 	storageBlockPrice,
 	storageLabel,
@@ -20,7 +21,7 @@ function initCalculator(root: HTMLElement): void {
 	const raw = root.querySelector('script[data-calc-data]')?.textContent;
 	if (!raw) return;
 	const pricing = JSON.parse(raw) as Pricing;
-	const money = new Intl.NumberFormat('ar-SA', { style: 'currency', currency: pricing.currency, maximumFractionDigits: 0 });
+	const money = new Intl.NumberFormat(NUMBER_LOCALE, { style: 'currency', currency: pricing.currency, maximumFractionDigits: 0 });
 
 	const one = <T extends Element>(selector: string): T => {
 		const el = root.querySelector<T>(selector);
@@ -55,7 +56,7 @@ function initCalculator(root: HTMLElement): void {
 			if (line) one(`[data-line-app="${app.key}"] [data-amount]`).textContent = money.format(line.amount);
 		}
 		show('[data-line-users]', quote.extraUsers > 0);
-		set('[data-line-users] [data-qty]', `× ${numberAr(quote.extraUsers)}`);
+		set('[data-line-users] [data-qty]', `× ${formatNumber(quote.extraUsers)}`);
 		set('[data-line-users] [data-amount]', money.format(quote.extraUsersAmount));
 		show('[data-line-storage]', quote.extraStorageGb > 0);
 		set('[data-line-storage] [data-qty]', `+ ${storageLabel(quote.extraStorageGb)}`);

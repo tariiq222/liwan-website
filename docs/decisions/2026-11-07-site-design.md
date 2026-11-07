@@ -85,6 +85,9 @@ the platform and never called an application. Every application is «تطبيق 
 «تطبيق إدارة العملاء»), taken from `src/content/apps`. This overrides the bare app names
 («العملاء», «الرسائل») used in the sections below.
 
+**Numbers (owner, 2026-11-08):** every number on the site uses Latin digits (0–9), Arabic pages
+included; Arabic-Indic digits in the sections below are superseded.
+
 ## 2A. Approved hero
 
 Copy (owner, revised 2026-11-07): headline «كل أعمالك بنظام ذكي واحد» with the gradient on
