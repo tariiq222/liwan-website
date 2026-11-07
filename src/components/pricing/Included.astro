@@ -1,0 +1,62 @@
+---
+// «في كل اشتراك»: what every subscription carries. Only statements the spec lists for /pricing.
+import Icon from '../Icon.astro';
+import type { IconName } from '../../brand/icons';
+
+const items: { icon: IconName; title: string }[] = [
+	{ icon: 'layers', title: 'المنصة كاملة بكل تحديثاتها' },
+	{ icon: 'sparkles', title: 'ليوان AI يجيب عن أسئلتك أولًا' },
+	{ icon: 'circle-help', title: 'دعم يصلك إذا احتجت أكثر' },
+	{ icon: 'plus', title: 'أضف تطبيقًا أو مستخدمًا متى شئت' },
+	{ icon: 'credit-card', title: 'الدفع ببطاقة أو بتحويل بنكي' },
+	{ icon: 'database', title: 'بياناتك تصلك عند الطلب' },
+];
+---
+
+<ul class="included">
+	{
+		items.map((item, i) => (
+			<li data-reveal style={`--i: ${i % 3}`}>
+				<span class="ico"><Icon name={item.icon} size={22} /></span>
+				<span>{item.title}</span>
+			</li>
+		))
+	}
+</ul>
+
+<style>
+	.included {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: var(--space-4) var(--space-6);
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	li {
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+		font-weight: 600;
+	}
+	.ico {
+		display: grid;
+		flex-shrink: 0;
+		place-items: center;
+		width: 44px;
+		height: 44px;
+		border-radius: 50%;
+		background: var(--accent-soft);
+		color: var(--accent);
+	}
+	@media (max-width: 820px) {
+		.included {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+	@media (max-width: 560px) {
+		.included {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+</style>
