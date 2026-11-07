@@ -37,13 +37,13 @@ and served by nginx with `nginx.conf.template`:
   (fetch and form posts).
 - `X-Robots-Tag` comes from the `ROBOTS_TAG` environment variable. Staging sets it to
   `noindex, nofollow` in the Openship project env. Production leaves it unset (empty, header not sent).
-- The container listens on port 80.
+- The container listens on port 8080 (port 80 belongs to the Openship edge on the server).
 
 Test locally:
 
 ```bash
 docker build -t liwan-site .
-docker run --rm -p 8080:80 -e ROBOTS_TAG="noindex, nofollow" liwan-site
+docker run --rm -p 8080:8080 -e ROBOTS_TAG="noindex, nofollow" liwan-site
 ```
 
 ## Staging domain on liwanos.com (owner chose `staging.liwanos.com`)

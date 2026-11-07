@@ -1,7 +1,7 @@
 # Rendered by the nginx image entrypoint (envsubst). Only ${ROBOTS_TAG} is substituted;
 # nginx's own variables ($uri, ...) are left alone because they are not defined env vars.
 server {
-    listen 80;
+    listen 8080;
     server_name _;
     root /usr/share/nginx/html;
     index index.html;
