@@ -1,5 +1,5 @@
 ---
-// A small application card: icon, name, status badge and one benefit line. A link when `href`
+// A small application card: icon, name, status badge and an optional benefit line. A link when `href`
 // is given. The entrance wrapper is separate from the card so the hover lift is not overridden.
 import Icon from './Icon.astro';
 import type { IconName } from '../brand/icons';
@@ -9,7 +9,7 @@ type Status = 'free' | 'available' | 'soon';
 interface Props {
 	icon: IconName;
 	name: string;
-	benefit: string;
+	benefit?: string;
 	status: Status;
 	href?: string;
 	index?: number;
@@ -28,7 +28,7 @@ const Tag = href ? 'a' : 'div';
 			<span class:list={['badge', status]}>{BADGE_LABEL[status]}</span>
 		</div>
 		<h3>{name}</h3>
-		<p>{benefit}</p>
+		{benefit && <p>{benefit}</p>}
 	</Tag>
 </div>
 

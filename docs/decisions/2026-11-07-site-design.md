@@ -74,6 +74,11 @@ the site may say. Where this document disagrees, the contract wins:
 9. Prices are shown **without VAT**, stated on the pricing page.
 10. **Hero (approved by the owner, 2026-11-07).** See §2A.
 
+**Copy trim (owner, 2026-11-07):** the owner found the home page too wordy; about 40% of the
+words were cut (section leads, audience tags, card descriptions, panel and step explanations,
+FAQ down to four short questions). Where the wording in sections 2A–2I below differs from the
+built components in `src/components/home/`, the built wording is current.
+
 ## 2A. Approved hero
 
 Copy (owner, revised 2026-11-07): headline «كل أعمالك بنظام ذكي واحد» with the gradient on

@@ -5,10 +5,8 @@
 import Icon from '../Icon.astro';
 import Section from '../Section.astro';
 import { registerUrl } from '../../lib/links';
-import { localePath } from '../../i18n';
 
 const register = registerUrl('ar');
-const contact = localePath('ar', '/contact');
 const CHECKLIST = [
 	{ label: 'بيانات الشركة', done: true },
 	{ label: 'رقم واتساب', done: true },
@@ -17,7 +15,7 @@ const CHECKLIST = [
 const TEAM = ['مدير', 'مبيعات', 'خدمة العملاء'];
 ---
 
-<Section id="start" tone="sunken" eyebrow="البداية" title="تشتغل على ليوان من أول يوم" lead="ثلاث خطوات في جلسة واحدة، وليوان AI معك في كل خطوة.">
+<Section id="start" tone="sunken" eyebrow="البداية" title="تشتغل على ليوان من أول يوم">
 	<ol class="start-steps" data-start>
 		<li class="start-step" data-start-step data-reveal style="--i: 0">
 			<span class="rail" aria-hidden="true">
@@ -25,7 +23,6 @@ const TEAM = ['مدير', 'مبيعات', 'خدمة العملاء'];
 				<span class="seg"><i></i></span>
 			</span>
 			<h3>سجّل شركتك</h3>
-			<p>اسم شركتك وجوالك، وتبدأ تجربتك فورًا بلا بطاقة.</p>
 			<div class="mock" aria-hidden="true">
 				<div class="field">
 					<span class="label">اسم الشركة</span>
@@ -45,7 +42,6 @@ const TEAM = ['مدير', 'مبيعات', 'خدمة العملاء'];
 				<span class="seg"><i></i></span>
 			</span>
 			<h3>جهّزها على طريقتك</h3>
-			<p>اربط رقم واتساب، واختر ما يناسب نشاطك.</p>
 			<div class="mock" aria-hidden="true">
 				<ul class="checklist">
 					{
@@ -69,7 +65,6 @@ const TEAM = ['مدير', 'مبيعات', 'خدمة العملاء'];
 				<span class="node"><b>٣</b><Icon name="check" size={20} strokeWidth={2.6} /></span>
 			</span>
 			<h3>ادعُ فريقك</h3>
-			<p>كل واحد يدخل بصلاحياته، ويبدأ الشغل.</p>
 			<div class="mock" aria-hidden="true">
 				<ul class="team">
 					{
@@ -88,13 +83,6 @@ const TEAM = ['مدير', 'مبيعات', 'خدمة العملاء'];
 
 	<div class="start-foot" data-reveal>
 		<a class="button large" href={register} data-app-link>جرّب ١٤ يومًا مجانًا</a>
-		<p>
-			تفضّل أن نجهّزه معك؟
-			<a href={contact}>
-				إعداد مع فريقنا
-				<Icon name="arrow-left" size={16} />
-			</a>
-		</p>
 	</div>
 </Section>
 
@@ -348,19 +336,6 @@ const TEAM = ['مدير', 'مبيعات', 'خدمة العملاء'];
 		justify-content: center;
 		gap: var(--space-4) var(--space-8);
 		margin-top: var(--space-12);
-	}
-	.start-foot p {
-		color: var(--text-muted);
-	}
-	.start-foot p a {
-		display: inline-flex;
-		align-items: center;
-		gap: var(--space-1);
-		font-weight: 600;
-		text-decoration: none;
-	}
-	.start-foot p a:hover {
-		text-decoration: underline;
 	}
 
 	@media (max-width: 860px) {

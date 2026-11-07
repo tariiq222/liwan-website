@@ -13,18 +13,12 @@ const SOLD = [
 	{
 		slug: 'crm',
 		headline: 'لا تضيع صفقة بعد اليوم',
-		audience: 'لفريق المبيعات ومديره',
-		benefits: ['كل فرصة بمرحلتها ومسؤولها، أمام عينك', 'تذكير بالمتابعة في وقتها', 'لوحة تُريك أين يقف فريقك'],
+		benefits: ['كل فرصة بمرحلتها ومسؤولها', 'تذكير بالمتابعة في وقتها'],
 	},
 	{
 		slug: 'inbox',
 		headline: 'كل محادثات عملائك في صندوق واحد',
-		audience: 'لخدمة العملاء والمبيعات',
-		benefits: [
-			'واتساب وتيك توك في مكان واحد',
-			'فريقك يرد من صندوق مشترك، بلا جوال واحد يتناقلونه',
-			'حملات لعملائك الموافقين، وتقرير يريك سرعة رد فريقك',
-		],
+		benefits: ['واتساب وتيك توك معًا', 'فريقك كله يرد من صندوق مشترك'],
 	},
 ];
 const FREE_SLUGS = ['meetings', 'documents', 'operations', 'tasks', 'chat'];
@@ -53,7 +47,6 @@ const CRM_STAGES = [
 	id="apps"
 	eyebrow="التطبيقات"
 	title="ابدأ بما يحتاجه فريقك اليوم، وكبّر متى كبرت"
-	lead="كل تطبيق تضيفه ينضم للنظام نفسه: دخول واحد، صلاحيات واحدة، ومساعد واحد يعرفه."
 >
 	<div class="sold-grid">
 		{
@@ -119,7 +112,6 @@ const CRM_STAGES = [
 									<Icon name={card.data.icon} size={18} />
 									{card.data.name.ar}
 								</span>
-								<span class="badge neutral">{card.audience}</span>
 							</div>
 							<h3>{card.headline}</h3>
 							<ul class="benefits">
@@ -151,7 +143,6 @@ const CRM_STAGES = [
 <Section tone="sand">
 	<div class="free-head" data-reveal>
 		<h3>ومعك من أول يوم، بلا تكلفة إضافية</h3>
-		<p>تطبيقات يحتاجها كل فريق، تأتيك مع أي اشتراك</p>
 	</div>
 	<div class="free-grid">
 		{
@@ -160,7 +151,6 @@ const CRM_STAGES = [
 					<AppCard
 						icon={app.icon}
 						name={app.name.ar}
-						benefit={app.headline.ar}
 						status="free"
 						href={localePath('ar', `/apps/${app.slug}`)}
 						index={i}

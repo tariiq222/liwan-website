@@ -33,7 +33,6 @@ const calcJson = pricing ? JSON.stringify(pricing).replace(/</g, '\\u003c') : ''
 	id="pricing"
 	eyebrow="الأسعار"
 	title="سعر واضح، يكبر مع فريقك"
-	lead="ابدأ مجانًا، وادفع فقط للتطبيقات التي تحتاجها وللمستخدمين الذين تضيفهم."
 >
 	<div class:list={['glance', { 'no-prices': !pricing }]} data-calc={pricing ? '' : undefined}>
 		{pricing && <script is:inline type="application/json" data-calc-data set:html={calcJson} />}
@@ -135,7 +134,6 @@ const calcJson = pricing ? JSON.stringify(pricing).replace(/</g, '\\u003c') : ''
 							<input type="checkbox" data-onboarding />
 							<span class="option-name">
 								إعداد مع فريقنا
-								<small>نجهّز معك كل شيء خلال شهر، بزيارات لمقرّك أو اجتماعات</small>
 							</span>
 							<span class="option-price">{money(pricing.onboarding.one_time)} مرة واحدة</span>
 						</label>

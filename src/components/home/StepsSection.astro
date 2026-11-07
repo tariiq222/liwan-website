@@ -34,7 +34,6 @@ const APPROVERS = ['صاحب الطلب', 'مدير القسم', 'المدير �
 	tone="sunken"
 	eyebrow="الخطوات"
 	title="شغلك كله له مكان في ليوان"
-	lead="من أول رسالة إلى آخر ريال، لكل خطوة تطبيقها. وكل تطبيق تضبطه على طريقة شركتك: مراحلك، وموافقاتك، وردودك."
 >
 	<div class="steps-wrap" data-steps>
 		<ol class="steps">
@@ -75,7 +74,6 @@ const APPROVERS = ['صاحب الطلب', 'مدير القسم', 'المدير �
 					<button type="button" class="switch" role="switch" aria-checked="true" aria-label="تشغيل الرد التلقائي" data-switch><i></i></button>
 				</div>
 				<p class="auto-reply">أهلًا بك! استلمنا رسالتك وسنرد عليك مع بداية دوام الفريق.</p>
-				<p class="view-note">وأوقات الدوام تحددها أنت.</p>
 			</div>
 
 			<div class="view" data-view="stages" inert>
@@ -88,7 +86,6 @@ const APPROVERS = ['صاحب الطلب', 'مدير القسم', 'المدير �
 						</button>
 					</li>
 				</ol>
-				<p class="view-note">مراحل تناسب طريقة بيعك، تضيف منها وترتب كما تشاء.</p>
 			</div>
 
 			<div class="view" data-view="approval" inert>
@@ -101,7 +98,6 @@ const APPROVERS = ['صاحب الطلب', 'مدير القسم', 'المدير �
 						</button>
 					</li>
 				</ol>
-				<p class="view-note">كل طلب يمرّ على من تحدده، بالترتيب الذي تريده.</p>
 			</div>
 		</div>
 	</div>
@@ -279,10 +275,6 @@ const APPROVERS = ['صاحب الطلب', 'مدير القسم', 'المدير �
 		gap: var(--space-2);
 		color: var(--accent);
 		font-weight: 600;
-	}
-	.view-note {
-		color: var(--text-muted);
-		font-size: var(--text-sm);
 	}
 
 	.switch-row {
