@@ -3,6 +3,15 @@
 // belong to the layout.
 import Mark from '../Mark.astro';
 import { loginUrl, registerUrl } from '../../lib/links';
+
+// The defaults are the home page's copy; application pages pass their own.
+interface Props {
+	title?: string;
+	line?: string;
+	button?: string;
+}
+
+const { title = 'جاهز تجمع شركتك في مكان واحد؟', line = 'جرّب كل التطبيقات 14 يومًا مجانًا.', button = 'جرّب 14 يومًا مجانًا' } = Astro.props;
 ---
 
 <section class="closing">
@@ -10,10 +19,10 @@ import { loginUrl, registerUrl } from '../../lib/links';
 		<div class="mark" data-reveal="fade">
 			<Mark size={104} inverted animated />
 		</div>
-		<h2 data-reveal style="--i: 1">جاهز تجمع شركتك في مكان واحد؟</h2>
-		<p data-reveal style="--i: 2">جرّب كل التطبيقات 14 يومًا مجانًا.</p>
+		<h2 data-reveal style="--i: 1">{title}</h2>
+		<p data-reveal style="--i: 2">{line}</p>
 		<div class="actions" data-reveal style="--i: 3">
-			<a class="button large white" href={registerUrl('ar')} data-app-link>جرّب 14 يومًا مجانًا</a>
+			<a class="button large white" href={registerUrl('ar')} data-app-link>{button}</a>
 			<a class="button large secondary outline" href={loginUrl('ar')} data-app-link>تسجيل الدخول</a>
 		</div>
 	</div>

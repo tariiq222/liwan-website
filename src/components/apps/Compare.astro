@@ -1,0 +1,92 @@
+---
+// «منصة ليوان أو أدوات منفصلة؟» Two columns only, no competitor names (spec 2J, owner corrections).
+// The separate-tools column is qualified with «غالبًا» wherever it varies.
+import Section from '../Section.astro';
+import { t } from '../../i18n';
+
+const platform = t('ar', 'brand.platform');
+
+const rows = [
+	{ topic: 'الدخول', liwan: 'حساب واحد لكل التطبيقات', other: 'غالبًا حساب لكل أداة' },
+	{ topic: 'الاشتراكات', liwan: 'اشتراك واحد، وأغلب التطبيقات مجانية', other: 'غالبًا اشتراك لكل أداة' },
+	{ topic: 'البداية', liwan: 'تسجّل وتبدأ', other: 'غالبًا إعداد وربط لكل أداة' },
+	{ topic: 'تحليل البيانات', liwan: 'لوحة في كل تطبيق، وليوان AI يجيب من بياناتك', other: 'غالبًا تصدير الأرقام وجمعها يدويًا' },
+	{ topic: 'الربط', liwan: 'تطبيقاتك على منصة واحدة، ومربوطة بواتساب وتيك توك', other: 'غالبًا ربط تقني بين الأدوات' },
+	{ topic: 'المساعد', liwan: 'ليوان AI عبر تطبيقاتك', other: 'غالبًا مساعد لكل أداة، أو بلا مساعد' },
+	{ topic: 'إضافة تطبيق', liwan: 'تفعّله من حسابك', other: 'غالبًا أداة جديدة واشتراك جديد' },
+];
+---
+
+<Section id="compare" tone="sunken" eyebrow="المقارنة" title={`${platform} أو أدوات منفصلة؟`}>
+	<div class="table" role="table" aria-label={`${platform} أو أدوات منفصلة؟`}>
+		<div class="row head" role="row">
+			<span role="columnheader" class="sr-only">الموضوع</span>
+			<span role="columnheader" class="col-liwan">{platform}</span>
+			<span role="columnheader">أدوات منفصلة</span>
+		</div>
+		{
+			rows.map((row, i) => (
+				<div class="row" role="row" data-reveal style={`--i: ${i % 3}`}>
+					<span role="rowheader" class="topic">{row.topic}</span>
+					<span role="cell" class="col-liwan" data-label={platform}>{row.liwan}</span>
+					<span role="cell" data-label="أدوات منفصلة">{row.other}</span>
+				</div>
+			))
+		}
+	</div>
+</Section>
+
+<style>
+	.sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+	}
+	.table {
+		display: grid;
+		border: 1px solid var(--border);
+		border-radius: var(--radius-lg);
+		background: var(--surface);
+		overflow: hidden;
+		box-shadow: var(--shadow-sm);
+	}
+	.row {
+		display: grid;
+		grid-template-columns: 0.7fr 1.3fr 1.1fr;
+		gap: var(--space-4);
+		padding: var(--space-4) var(--space-6);
+		align-items: center;
+	}
+	.row + .row {
+		border-top: 1px solid var(--border);
+	}
+	.head {
+		font-weight: 700;
+		background: var(--surface-sunken);
+	}
+	.topic {
+		font-weight: 700;
+	}
+	.col-liwan {
+		color: var(--accent);
+		font-weight: 600;
+	}
+	@media (max-width: 720px) {
+		.head {
+			display: none;
+		}
+		.row {
+			grid-template-columns: 1fr;
+			gap: var(--space-1);
+			padding: var(--space-4);
+		}
+		.row [data-label]::before {
+			content: attr(data-label) ': ';
+			color: var(--text-muted);
+			font-weight: 400;
+		}
+	}
+</style>
