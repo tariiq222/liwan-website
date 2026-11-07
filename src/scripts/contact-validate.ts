@@ -1,0 +1,51 @@
+// Pure checks for the contact form. No DOM, no storage. Messages are the Arabic wording shown
+// under each field.
+
+const ARABIC_DIGITS = '٠١٢٣٤٥٦٧٨٩';
+
+export function toLatinDigits(value: string): string {
+	return value.replace(/[٠-٩]/g, (d) => String(ARABIC_DIGITS.indexOf(d)));
+}
+
+// Providers that sell personal mailboxes. A match is "provider.tld" (or provider.co.xx), so a
+// company domain such as mail.example.com or live.example.sa is not caught.
+const PERSONAL_PROVIDER =
+	/^(?:gmail|googlemail|hotmail|outlook|live|msn|yahoo|ymail|icloud|aol|yandex|gmx|zoho)\.(?:[a-z]{2,}|(?:com?|net|org|ac|gov|edu)\.[a-z]{2})$/;
+const PERSONAL_EXACT = new Set(['me.com', 'mac.com', 'mail.com', 'proton.me', 'protonmail.com', 'pm.me', 'proton.com']);
+
+export function isPersonalMailDomain(domain: string): boolean {
+	const d = domain.trim().toLowerCase();
+	return PERSONAL_EXACT.has(d) || PERSONAL_PROVIDER.test(d);
+}
+
+export type EmailCheck = 'ok' | 'empty' | 'malformed' | 'personal';
+
+export function checkEmail(raw: string): EmailCheck {
+	const value = raw.trim();
+	if (!value) return 'empty';
+	if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value)) return 'malformed';
+	return isPersonalMailDomain(value.slice(value.lastIndexOf('@') + 1)) ? 'personal' : 'ok';
+}
+
+// A Saudi mobile: nine digits starting with 5, typed with or without 0, 966 or +966.
+// Returns the E.164 form, or null.
+export function toE164(raw: string): string | null {
+	let digits = toLatinDigits(raw).replace(/[\s\-().+]/g, '');
+	if (digits.startsWith('00966')) digits = digits.slice(5);
+	else if (digits.startsWith('966')) digits = digits.slice(3);
+	else if (digits.startsWith('0')) digits = digits.slice(1);
+	return /^5\d{8}$/.test(digits) ? `+966${digits}` : null;
+}
+
+export const MESSAGES = {
+	name: 'اكتب اسمك',
+	company: 'اكتب اسم شركتك',
+	mobile: 'اكتب جوالًا سعوديًا يبدأ بـ 5',
+	emailEmpty: 'اكتب بريد شركتك',
+	emailMalformed: 'البريد غير صحيح',
+	emailPersonal: 'اكتب بريد شركتك، لا بريدًا شخصيًا',
+	users: 'اكتب رقمًا صحيحًا',
+	message: 'اكتب رسالتك',
+	consent: 'وافق على سياسة الخصوصية للمتابعة',
+	turnstile: 'أكّد أنك لست برنامجًا آليًا',
+} as const;

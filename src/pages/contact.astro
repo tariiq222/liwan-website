@@ -1,5 +1,35 @@
 ---
-import SimplePage from '../views/SimplePage.astro';
+import Base from '../layouts/Base.astro';
+import Section from '../components/Section.astro';
+import PageHero from '../components/pricing/PageHero.astro';
+import ContactAside from '../components/contact/ContactAside.astro';
+import ContactForm from '../components/contact/ContactForm.astro';
+import { t } from '../i18n';
+
+const title = t('ar', 'page.contact');
 ---
 
-<SimplePage locale="ar" pageKey="contact" path="/contact/" />
+<Base locale="ar" title={title} path="/contact/">
+	<PageHero title="تواصل معنا" />
+	<Section>
+		<div class="cols">
+			<ContactAside />
+			<ContactForm />
+		</div>
+	</Section>
+</Base>
+
+<style>
+	.cols {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+		gap: var(--space-12);
+		align-items: start;
+	}
+	@media (max-width: 900px) {
+		.cols {
+			grid-template-columns: minmax(0, 1fr);
+			gap: var(--space-8);
+		}
+	}
+</style>
