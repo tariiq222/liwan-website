@@ -79,6 +79,12 @@ words were cut (section leads, audience tags, card descriptions, panel and step 
 FAQ down to four short questions). Where the wording in sections 2A–2I below differs from the
 built components in `src/components/home/`, the built wording is current.
 
+**Naming (owner, 2026-11-07):** the product is «منصة ليوان» in the header, footer, page titles,
+sharing cards and sentences; the copyright keeps «© ليوان». The assistant is «ليوان AI», part of
+the platform and never called an application. Every application is «تطبيق …» (for example
+«تطبيق إدارة العملاء»), taken from `src/content/apps`. This overrides the bare app names
+(«العملاء», «الرسائل») used in the sections below.
+
 ## 2A. Approved hero
 
 Copy (owner, revised 2026-11-07): headline «كل أعمالك بنظام ذكي واحد» with the gradient on
