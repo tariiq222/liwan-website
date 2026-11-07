@@ -1,7 +1,9 @@
 ---
-// Home hero (spec 2A with 1A): eight scattered sign-in windows (seven apps plus an AI
-// assistant) fold into one ring around the LiwanOS mark, with Liwan AI at its heart.
-// The loop is driven by src/scripts/hero.ts; under reduced motion it shows the Liwan state.
+// Home hero (spec 2A with 1A, simplified by the owner 2026-11-07): eight scattered system cards
+// (seven apps plus an AI assistant), joined by cut links, fold into one ring around the LiwanOS
+// mark with Liwan AI at its heart; each app's line enters its Sadu triangle through the middle
+// of the triangle's base. The loop is driven by src/scripts/hero.ts; under reduced motion it
+// shows the Liwan state.
 import { getCollection } from 'astro:content';
 import Icon from '../Icon.astro';
 import { MARK_ARCHES, MARK_TRIANGLES } from '../../brand/mark';
@@ -23,17 +25,33 @@ const SYSTEM_NAMES: Record<(typeof RING)[number], string> = {
 	chat: 'تطبيق الدردشة',
 };
 
-// Scattered window positions (percent of the square scene) and tilt in degrees.
+// Scattered card positions (top-left corner, percent of the square scene) and tilt in degrees.
+const CARD_W = 30;
+const CARD_H = 11;
 const SCATTER = [
-	[3, 5, -4],
-	[36, 1, 3],
-	[68, 7, -2],
-	[1, 39, 3],
-	[69, 41, 4],
-	[5, 73, -3],
-	[67, 75, -2],
+	[3, 8, -4],
+	[36, 2, 3],
+	[69, 12, -3],
+	[1, 44, 3],
+	[69, 48, 4],
+	[7, 80, -3],
+	[62, 84, -2],
 ] as const;
-const AI_SCATTER = [35, 37, -3] as const;
+const AI_SCATTER = [35, 42, -2] as const;
+
+// Cut links between neighbouring cards: the systems do not talk to each other. Indexes into
+// SCATTER; 'ai' is the assistant card.
+const CUT_LINKS = [
+	[0, 1],
+	[1, 2],
+	[0, 3],
+	[2, 4],
+	[3, 'ai'],
+	['ai', 4],
+	[3, 5],
+	[4, 6],
+	[5, 6],
+] as const;
 
 // Geometry of the Liwan state, in scene percent. The mark (64 units) is drawn 44% wide at the centre.
 const CENTER = 50;
@@ -63,15 +81,51 @@ function quadrant(angle: number): keyof typeof TRIANGLES {
 const entries = await getCollection('apps');
 const bySlug = new Map(entries.map((e) => [e.data.slug, e.data]));
 
+const round = (v: number) => +v.toFixed(2);
+
+// A smooth line that leaves the app circle toward the centre and arrives at the middle of the
+// triangle's base along the triangle's own axis, so it enters the triangle head-on.
+function lineInto(x: number, y: number, corner: keyof typeof TRIANGLES): string {
+	const { base, tip } = TRIANGLES[corner];
+	const toCenter = Math.hypot(CENTER - x, CENTER - y);
+	const ux = (CENTER - x) / toCenter;
+	const uy = (CENTER - y) / toCenter;
+	const axisLength = Math.hypot(base[0] - tip[0], base[1] - tip[1]);
+	const ax = (base[0] - tip[0]) / axisLength;
+	const ay = (base[1] - tip[1]) / axisLength;
+	const start = [x + ux * (NODE / 2 + 0.6), y + uy * (NODE / 2 + 0.6)];
+	const c1 = [start[0] + ux * 9, start[1] + uy * 9];
+	const c2 = [base[0] + ax * 9, base[1] + ay * 9];
+	return `M${round(start[0])} ${round(start[1])} C${round(c1[0])} ${round(c1[1])} ${round(c2[0])} ${round(c2[1])} ${base[0]} ${base[1]}`;
+}
+
+function cardCenter(index: number | 'ai'): [number, number] {
+	const [bx, by] = index === 'ai' ? AI_SCATTER : SCATTER[index];
+	return [bx + CARD_W / 2, by + CARD_H / 2];
+}
+
+// Each cut link is two dashed halves with a gap in the middle, where a small ✕ sits.
+const cuts = CUT_LINKS.map(([from, to]) => {
+	const [x1, y1] = cardCenter(from);
+	const [x2, y2] = cardCenter(to);
+	const mx = (x1 + x2) / 2;
+	const my = (y1 + y2) / 2;
+	const length = Math.hypot(x2 - x1, y2 - y1);
+	const gx = ((x2 - x1) / length) * 2.2;
+	const gy = ((y2 - y1) / length) * 2.2;
+	return {
+		path: `M${round(x1)} ${round(y1)} L${round(mx - gx)} ${round(my - gy)} M${round(mx + gx)} ${round(my + gy)} L${round(x2)} ${round(y2)}`,
+		cross: `M${round(mx - 1)} ${round(my - 1)} L${round(mx + 1)} ${round(my + 1)} M${round(mx + 1)} ${round(my - 1)} L${round(mx - 1)} ${round(my + 1)}`,
+	};
+});
+
 const nodes = RING.map((slug, i) => {
 	const app = bySlug.get(slug);
 	if (!app) throw new Error(`Hero: app "${slug}" is missing from src/content/apps`);
 	const angle = -90 + (i * 360) / RING.length;
 	const rad = (angle * Math.PI) / 180;
-	const x = +(CENTER + RING_RADIUS * Math.cos(rad)).toFixed(2);
-	const y = +(CENTER + RING_RADIUS * Math.sin(rad)).toFixed(2);
-	const target = TRIANGLES[quadrant(angle)].base;
-	const ctrl = [+(CENTER + 20 * Math.cos(rad)).toFixed(2), +(CENTER + 20 * Math.sin(rad)).toFixed(2)];
+	const x = round(CENTER + RING_RADIUS * Math.cos(rad));
+	const y = round(CENTER + RING_RADIUS * Math.sin(rad));
 	const [bx, by, rot] = SCATTER[i];
 	return {
 		slug,
@@ -81,16 +135,17 @@ const nodes = RING.map((slug, i) => {
 		x,
 		y,
 		labelAbove: y < CENTER,
-		line: `M${x} ${y} Q${ctrl[0]} ${ctrl[1]} ${target[0]} ${target[1]}`,
+		line: lineInto(x, y, quadrant(angle)),
 		style: `--bx:${bx}%;--by:${by}%;--rot:${rot}deg;--ax:${x - NODE / 2}%;--ay:${y - NODE / 2}%;--i:${i}`,
 	};
 });
 
-const aiInset = Math.hypot(AI_NODE / 2, 0) / Math.SQRT2;
+// A short straight line from each triangle's tip to the edge of the AI circle.
+const aiInset = (AI_NODE / 2 + 0.8) / Math.SQRT2;
 const tipLines = Object.values(TRIANGLES).map(({ tip }) => {
 	const dx = Math.sign(CENTER - tip[0]);
 	const dy = Math.sign(CENTER - tip[1]);
-	return `M${tip[0]} ${tip[1]} L${CENTER - dx * aiInset} ${CENTER - dy * aiInset}`;
+	return `M${tip[0]} ${tip[1]} L${round(CENTER - dx * aiInset)} ${round(CENTER - dy * aiInset)}`;
 });
 const aiStyle = `--bx:${AI_SCATTER[0]}%;--by:${AI_SCATTER[1]}%;--rot:${AI_SCATTER[2]}deg;--ax:${CENTER - AI_NODE / 2}%;--ay:${CENTER - AI_NODE / 2}%;--i:${RING.length}`;
 const before = RING.length + 1;
@@ -124,6 +179,16 @@ const stats = [
 
 		<figure class="stage" data-reveal="fade" style="--i: 1">
 			<div class="scene" data-hero-scene aria-hidden="true">
+				<svg class="cut-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+					{
+						cuts.map((c) => (
+							<g>
+								<path class="cut-line" d={c.path} />
+								<path class="cut-cross" d={c.cross} />
+							</g>
+						))
+					}
+				</svg>
 				<svg class="scene-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
 					<g class="app-lines">
 						{nodes.map((n) => <path id={`hero-line-${n.slug}`} d={n.line} pathLength="1" />)}
@@ -152,18 +217,8 @@ const stats = [
 					nodes.map((n) => (
 						<div class="node" style={n.style}>
 							<div class="win">
-								<div class="win-bar">
-									<span class="dots"><i /><i /><i /></span>
-									<span class="win-name">{n.system}</span>
-								</div>
-								<div class="win-field">اسم المستخدم</div>
-								<div class="win-field pass">
-									<span class="typing" />
-								</div>
-								<div class="win-foot">
-									<span class="win-btn">دخول</span>
-									<span class="win-tag">اشتراك</span>
-								</div>
+								<Icon name={n.icon} class="win-icon" />
+								<span class="win-name">{n.system}</span>
 							</div>
 							<span class="node-icon">
 								<Icon name={n.icon} size={22} strokeWidth={2} />
@@ -173,18 +228,8 @@ const stats = [
 				}
 				<div class="node node-ai" style={aiStyle}>
 					<div class="win">
-						<div class="win-bar">
-							<span class="dots"><i /><i /><i /></span>
-							<span class="win-name">مساعد ذكي</span>
-						</div>
-						<div class="win-field">اسم المستخدم</div>
-						<div class="win-field pass">
-							<span class="typing" />
-						</div>
-						<div class="win-foot">
-							<span class="win-btn">دخول</span>
-							<span class="win-tag">اشتراك</span>
-						</div>
+						<Icon name="sparkles" class="win-icon" />
+						<span class="win-name">مساعد ذكي</span>
 					</div>
 					<span class="node-icon">
 						<Icon name="sparkles" size={22} strokeWidth={2} />
@@ -296,24 +341,49 @@ const stats = [
 	.is-arrived .scene-svg {
 		opacity: 1;
 	}
+	/* Lines are drawn in scene units (no non-scaling stroke), so the pathLength dash reveal
+	   stays one continuous stroke. */
 	.app-lines path,
 	.tip-lines path {
 		fill: none;
 		stroke: var(--accent);
-		stroke-width: 0.45;
+		stroke-width: 0.5;
 		stroke-linecap: round;
-		vector-effect: non-scaling-stroke;
 		stroke-dasharray: 1;
 		stroke-dashoffset: 1;
-		opacity: 0.55;
+		opacity: 0.75;
 	}
-	.app-lines path {
-		stroke-width: 2;
-		opacity: 0.7;
+
+	/* «Before»: dashed links between the systems, cut in the middle. */
+	.cut-svg {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		overflow: visible;
+		transition: opacity 200ms linear;
 	}
-	.tip-lines path {
-		stroke-width: 1.5;
-		opacity: 0.8;
+	.is-fading .cut-svg {
+		opacity: 0;
+	}
+	.cut-line {
+		fill: none;
+		stroke: var(--border-strong);
+		stroke-width: 0.35;
+		stroke-dasharray: 1.2 1.2;
+		stroke-linecap: round;
+		animation: cut-flow 1.6s linear infinite;
+	}
+	@keyframes cut-flow {
+		to {
+			stroke-dashoffset: -2.4;
+		}
+	}
+	.cut-cross {
+		fill: none;
+		stroke: var(--warning);
+		stroke-width: 0.45;
+		stroke-linecap: round;
 	}
 	.is-arrived .app-lines path,
 	.is-arrived .tip-lines path {
@@ -368,13 +438,13 @@ const stats = [
 		left: var(--bx);
 		top: var(--by);
 		width: 30%;
-		height: 21%;
+		height: 11%;
 		rotate: var(--rot);
 		border-radius: 1.6cqw;
 		background: var(--surface);
 		border: 1px solid var(--border);
 		box-shadow: var(--shadow);
-		font-size: 2.15cqw;
+		font-size: 2.6cqw;
 		line-height: 1.3;
 		transition:
 			left 750ms cubic-bezier(0.65, 0, 0.35, 1),
@@ -398,82 +468,24 @@ const stats = [
 	.win {
 		position: absolute;
 		inset: 0;
-		display: grid;
-		grid-template-rows: auto 1fr 1fr auto;
-		gap: 0.35em;
-		padding: 0.5em 0.6em;
+		display: flex;
+		align-items: center;
+		gap: 0.6em;
+		padding-inline: 0.8em;
+		font-weight: 600;
+		white-space: nowrap;
 		overflow: hidden;
 		transition: opacity 150ms linear;
 	}
-	.win-bar {
-		display: flex;
-		align-items: center;
-		gap: 0.5em;
-		font-weight: 600;
-		white-space: nowrap;
-		overflow: hidden;
-	}
-	.dots {
-		display: inline-flex;
-		gap: 0.25em;
-	}
-	.dots i {
-		width: 0.5em;
-		height: 0.5em;
+	.win :global(.win-icon) {
+		flex-shrink: 0;
+		width: 1.5em;
+		height: 1.5em;
+		padding: 0.3em;
+		box-sizing: content-box;
 		border-radius: 50%;
-		background: var(--border-strong);
-	}
-	.win-field {
-		display: flex;
-		align-items: center;
-		padding-inline: 0.5em;
-		border: 1px solid var(--border);
-		border-radius: 0.4em;
-		color: var(--text-muted);
 		background: var(--surface-sunken);
-		white-space: nowrap;
-		overflow: hidden;
-	}
-	.typing {
-		display: block;
-		height: 0.55em;
-		width: 4.2em;
-		background: radial-gradient(circle, var(--text-muted) 0.18em, transparent 0.2em) 0 50% / 0.7em 0.55em repeat-x;
-		clip-path: inset(0 100% 0 0);
-		animation: typing 2.2s steps(6, end) infinite;
-	}
-	:global([dir='rtl']) .typing {
-		clip-path: inset(0 0 0 100%);
-		animation-name: typing-rtl;
-	}
-	@keyframes typing {
-		to {
-			clip-path: inset(0 0 0 0);
-		}
-	}
-	@keyframes typing-rtl {
-		to {
-			clip-path: inset(0 0 0 0);
-		}
-	}
-	.win-foot {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-	}
-	.win-btn {
-		padding: 0.15em 0.9em;
-		border-radius: 0.4em;
-		background: var(--text);
-		color: var(--bg);
-		font-weight: 600;
-	}
-	.win-tag {
-		padding: 0.1em 0.6em;
-		border-radius: 999px;
-		background: var(--warning-bg);
-		color: var(--warning-text);
-		font-weight: 600;
+		color: var(--text-muted);
 	}
 	.node-icon {
 		position: absolute;
@@ -643,7 +655,7 @@ const stats = [
 		.node,
 		.is-arrived .mark-tri-hero,
 		.is-arrived .node-ai,
-		.typing {
+		.cut-line {
 			animation: none;
 		}
 		.pulses {
