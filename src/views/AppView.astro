@@ -10,12 +10,13 @@ import Section from '../components/Section.astro';
 import Icon from '../components/Icon.astro';
 import ChannelList from '../components/ChannelList.astro';
 import Mock from '../components/apps/Mock.astro';
-import AppCta from '../components/apps/AppCta.astro';
-import { AI_SOON, APP_COPY, priceFor } from '../components/apps/app-pages';
+import ClosingCta from '../components/home/ClosingCta.astro';
+import { AI_SOON, APP_COPY } from '../components/apps/app-pages';
+import { priceFor } from '../lib/app-price';
 import { claim } from '../config/claims';
 import { registerUrl } from '../lib/links';
 import { getPricing } from '../lib/pricing';
-import { localePath, type Locale } from '../i18n';
+import { localePath, t, type Locale } from '../i18n';
 import type { CollectionEntry } from 'astro:content';
 
 interface Props {
@@ -34,7 +35,16 @@ const free = plan === 'free';
 
 const all = isArabic ? await getCollection('apps', ({ data }) => data.status !== 'hidden') : [];
 const bySlug = new Map(all.map((entry) => [entry.data.slug, entry.data]));
-const connects = (copy?.connects ?? []).map((c) => ({ ...c, target: bySlug.get(c.to) }));
+// A connection follows its claim (hidden -> dropped, soon -> pill) and is dropped when its target
+// application is missing or hidden; only the account-wide line has no target.
+const platform = t('ar', 'brand.platform');
+const connects = (copy?.connects ?? []).flatMap((c) => {
+	const state = c.claim ? claim(c.claim) : 'available';
+	const target = bySlug.get(c.to);
+	if (state === 'hidden' || (c.to !== 'platform' && !target)) return [];
+	return [{ ...c, target, soon: state === 'soon' }];
+});
+const aiSoon = AI_SOON.filter((item) => claim(item.claim) === 'soon');
 const soonClaims = (copy?.soonClaims ?? []).filter((item) => claim(item.claim) === 'soon');
 const heroMock = copy?.capabilities[0];
 ---
@@ -91,11 +101,11 @@ const heroMock = copy?.capabilities[0];
 				</div>
 			</Section>
 
-			{(slug === 'ai' || soonClaims.length > 0) && (
+			{((slug === 'ai' && aiSoon.length > 0) || (slug !== 'ai' && soonClaims.length > 0)) && (
 				<Section id="soon" tone="sand" eyebrow="قريبًا" title="ما نجهّزه لك">
 					<ul class="soon-list">
 						{slug === 'ai'
-							? AI_SOON.map((label) => (
+							? aiSoon.map(({ label }) => (
 									<li class="soon-item" data-reveal>
 										<span>{label}</span>
 										<span class="badge soon">قريبًا</span>
@@ -123,7 +133,7 @@ const heroMock = copy?.capabilities[0];
 								<Tag class="connect card lift" href={c.target ? localePath('ar', `/apps/${c.to}/`) : undefined}>
 									<span class="connect-name">
 										<Icon name={c.target?.icon ?? 'layers'} size={18} />
-										{c.target ? c.target.name.ar : 'منصة ليوان'}
+										{c.target ? c.target.name.ar : platform}
 										{c.soon && <span class="badge soon">قريبًا</span>}
 									</span>
 									<span class="connect-line">{c.line}</span>
@@ -134,7 +144,7 @@ const heroMock = copy?.capabilities[0];
 				</ul>
 			</Section>
 
-			<AppCta
+			<ClosingCta
 				title={free ? `${name.ar} مجانًا مع كل حساب` : `جرّب ${name.ar} 14 يومًا`}
 				line={free ? 'سجّل وابدأ اليوم.' : 'كل التطبيقات مفتوحة لك خلال التجربة.'}
 				button={free ? 'ابدأ مجانًا' : 'جرّب 14 يومًا مجانًا'}

@@ -21,7 +21,7 @@ const bars = [72, 48, 86];
 					{labels.map((label, c) => (
 						<div class="col">
 							<span class="head">{label}</span>
-							{Array.from({ length: c === 1 ? 2 : c === 0 ? 2 : 1 }, () => (
+							{Array.from({ length: c < 2 ? 2 : 1 }, () => (
 								<div class="mini">
 									<span class="line long" />
 									<span class="line short" />

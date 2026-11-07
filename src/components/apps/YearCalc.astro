@@ -1,14 +1,14 @@
 ---
 // «كم تدفع في السنة؟» The visitor types the number of employees and what they pay a year for each
 // tool they use (empty = not used). The Liwan side reads only the pricing object (annual prices);
-// nothing here knows a price. The arithmetic is in src/scripts/apps-calc.ts. With no pricing the
-// section shows «تواصل معنا» instead.
+// nothing here knows a price. The arithmetic is in src/scripts/apps-calc.ts. With no pricing, or
+// above the user limit, the section says «تواصل معنا» instead of numbers.
 import { getCollection } from 'astro:content';
 import Section from '../Section.astro';
 import { claim } from '../../config/claims';
+import { priceKey } from '../../lib/app-price';
 import { getPricing } from '../../lib/pricing';
-import { priceKey } from './app-pages';
-import { localePath } from '../../i18n';
+import { localePath, t } from '../../i18n';
 
 // Each tool the visitor may pay for maps to one Liwan application.
 const TOOLS = [
@@ -21,19 +21,20 @@ const TOOLS = [
 	{ key: 'operations', label: 'أداة الطلبات والموافقات' },
 ];
 
+const platform = t('ar', 'brand.platform');
+const contact = localePath('ar', '/contact/');
 const pricing = await getPricing();
 const apps = await getCollection('apps', ({ data }) => data.status !== 'hidden');
 const bySlug = new Map(apps.map((entry) => [entry.data.slug, entry.data]));
 
+// A paid application whose price is missing stays in the list with a contact note: the visitor's
+// number for it cannot be compared, so the totals ask them to get in touch.
 const tools = TOOLS.flatMap((tool) => {
 	const data = bySlug.get(tool.key);
 	if (!data || data.status !== 'available') return [];
-	if (data.plan === 'paid') {
-		const price = pricing?.apps.find((app) => app.key === priceKey(data.featureKey));
-		if (!price) return [];
-		return [{ ...tool, appName: data.name.ar, annual: price.annual }];
-	}
-	return [{ ...tool, appName: data.name.ar }];
+	const paid = data.plan === 'paid';
+	const price = paid ? pricing?.apps.find((app) => app.key === priceKey(data.featureKey)) : undefined;
+	return [{ ...tool, appName: data.name.ar, paid, annual: price?.annual }];
 });
 
 const data = pricing && {
@@ -43,25 +44,31 @@ const data = pricing && {
 	extraUserAnnual: pricing.extra_user.annual,
 	storageGb: pricing.free.storage_gb,
 	hosting: claim('saudiHosting') === 'available',
-	tools,
+	tools: tools.map(({ key, appName, paid, annual }) => ({ key, appName, paid, annual })),
 };
 ---
 
-<Section id="calculator" eyebrow="الحاسبة" title="كم تدفع في السنة؟" lead="اكتب ما تدفعه سنويًا لكل أداة تستخدمها، واترك ما لا تستخدمه فارغًا.">
+<Section
+	id="calculator"
+	eyebrow="الحاسبة"
+	title="كم تدفع في السنة؟"
+	lead={data ? 'اكتب ما تدفعه سنويًا لكل أداة تستخدمها، واترك ما لا تستخدمه فارغًا.' : undefined}
+>
 	{
 		data ? (
 			<div class="calc" data-year-calc>
 				<script is:inline type="application/json" data-calc-data set:html={JSON.stringify(data)} />
 				<label class="employees gradient-border">
 					<span>كم موظفًا في شركتك؟</span>
-					<input type="number" inputmode="numeric" min="1" max={data.maxUsers} value="5" data-employees />
+					<input type="number" inputmode="numeric" min="1" step="1" value="5" data-employees />
 				</label>
 
 				<div class="tools">
 					{tools.map((tool) => (
 						<label class="tool card">
 							<span class="tool-name">{tool.label}</span>
-							<span class="tool-map">يقابلها في ليوان: {tool.appName}</span>
+							<span class="tool-map">يقابلها في {platform}: {tool.appName}</span>
+							{tool.paid && tool.annual === undefined && <span class="tool-map">سعره: تواصل معنا</span>}
 							<span class="field">
 								<input type="text" inputmode="decimal" placeholder="0" autocomplete="off" data-tool={tool.key} aria-label={`${tool.label}: ما تدفعه في السنة`} />
 								<span class="unit">{data.currency === 'SAR' ? 'ر.س / سنة' : `${data.currency} / سنة`}</span>
@@ -70,32 +77,37 @@ const data = pricing && {
 					))}
 				</div>
 
-				<div class="results" aria-live="polite">
+				<div class="contact card" data-contact hidden>
+					<p>لحساب هذا الرقم بدقة، تواصل معنا.</p>
+					<a class="button" href={contact}>تواصل معنا</a>
+				</div>
+
+				<div class="results" data-results>
 					<div class="result card">
 						<span class="r-label">تدفع اليوم في السنة</span>
-						<strong data-today>—</strong>
+						<strong data-today aria-live="polite">—</strong>
 					</div>
 					<div class="result card liwan">
-						<span class="r-label">مع منصة ليوان في السنة</span>
-						<strong data-liwan>—</strong>
+						<span class="r-label">مع {platform} في السنة</span>
+						<strong data-liwan aria-live="polite">—</strong>
 						<ul class="counted" data-counted />
 					</div>
 					<div class="result card diff" data-diff-card>
 						<span class="r-label" data-diff-label>الفرق في السنة</span>
-						<strong data-diff>—</strong>
+						<strong data-diff aria-live="polite">—</strong>
 					</div>
 				</div>
-				<p class="note">رسوم ميتا خارج الحسابين.</p>
+				<p class="note" data-note>رسوم ميتا خارج الحسابين.</p>
 
-				<div class="extras" data-extras hidden>
-					<h3>ومع ليوان تحصل أيضًا على</h3>
+				<div class="extras">
+					<h3>ومع {platform} تحصل أيضًا على</h3>
 					<ul data-extras-list />
 				</div>
 			</div>
 		) : (
 			<div class="fallback card">
 				<p>للسعر المناسب لشركتك، تواصل معنا.</p>
-				<a class="button" href={localePath('ar', '/contact/')}>تواصل معنا</a>
+				<a class="button" href={contact}>تواصل معنا</a>
 			</div>
 		)
 	}
@@ -151,12 +163,12 @@ const data = pricing && {
 	.tool-map {
 		color: var(--text-muted);
 		font-size: var(--text-sm);
-		margin-bottom: var(--space-2);
 	}
 	.field {
 		display: flex;
 		align-items: center;
 		gap: var(--space-2);
+		margin-top: var(--space-2);
 	}
 	.unit {
 		color: var(--text-muted);
@@ -202,6 +214,17 @@ const data = pricing && {
 		color: var(--text-muted);
 		font-size: var(--text-sm);
 	}
+	.contact,
+	.fallback {
+		display: grid;
+		justify-items: start;
+		gap: var(--space-4);
+	}
+	.contact[hidden],
+	.results[hidden],
+	.note[hidden] {
+		display: none;
+	}
 	.extras {
 		padding: var(--space-6);
 		border-radius: var(--radius-lg);
@@ -220,16 +243,12 @@ const data = pricing && {
 		grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
 		gap: var(--space-2) var(--space-6);
 	}
-	.extras li::before {
+	/* The items are created by the calculator script, so the scoped selector must reach them. */
+	.extras ul :global(li)::before {
 		content: '✓';
 		color: var(--success);
 		margin-inline-end: var(--space-2);
 		font-weight: 700;
-	}
-	.fallback {
-		display: grid;
-		justify-items: start;
-		gap: var(--space-4);
 	}
 	@media (max-width: 820px) {
 		.results {

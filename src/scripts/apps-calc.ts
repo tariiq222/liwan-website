@@ -1,10 +1,13 @@
-import { NUMBER_LOCALE } from '../lib/numbers';
 // The yearly calculator on /apps (see YearCalc.astro). All amounts come from the pricing numbers
 // the page embedded as JSON; the competitor side is only what the visitor types.
+import { NUMBER_LOCALE } from '../lib/numbers';
+import { formatNumber, storageLabel } from './pricing-format';
+
 interface Tool {
 	key: string;
-	label: string;
 	appName: string;
+	paid: boolean;
+	// The annual price; missing for a paid application whose price is unavailable.
 	annual?: number;
 }
 
@@ -18,16 +21,22 @@ interface CalcData {
 	tools: Tool[];
 }
 
-const ARABIC_DIGITS = "\u0660\u0661\u0662\u0663\u0664\u0665\u0666\u0667\u0668\u0669";
+const ARABIC_INDIC = '\u0660\u0661\u0662\u0663\u0664\u0665\u0666\u0667\u0668\u0669';
 
-// Visitors may type Arabic-Indic digits, a thousands separator or an Arabic decimal comma.
-function parseAmount(raw: string): number {
-	const latin = raw
-		.replace(/[\u0660-\u0669]/g, (d) => String(ARABIC_DIGITS.indexOf(d)))
-		.replace(/[\u066c,\s]/g, '')
+// A plain number, or one with a comma as thousands separator (only before exactly three digits).
+// Empty is 0 (not used); anything else that is not a number is null (invalid).
+function parseAmount(raw: string): number | null {
+	const text = raw
+		.replace(/[\u0660-\u0669]/g, (d) => String(ARABIC_INDIC.indexOf(d)))
+		.replace(/\s/g, '')
+		.replace(/\u066c/g, ',')
 		.replace('\u066b', '.');
-	const value = Number.parseFloat(latin);
-	return Number.isFinite(value) && value > 0 ? value : 0;
+	const plain = /^\d+(\.\d+)?$/.test(text);
+	const grouped = /^\d{1,3}(,\d{3})+(\.\d+)?$/.test(text);
+	if (text === '') return 0;
+	if (!plain && !grouped) return null;
+	const value = Number.parseFloat(text.replace(/,/g, ''));
+	return Number.isFinite(value) && value >= 0 ? value : null;
 }
 
 function init(root: HTMLElement): void {
@@ -35,7 +44,6 @@ function init(root: HTMLElement): void {
 	if (!raw) return;
 	const data = JSON.parse(raw) as CalcData;
 	const money = new Intl.NumberFormat(NUMBER_LOCALE, { style: 'currency', currency: data.currency, maximumFractionDigits: 0 });
-	const count = new Intl.NumberFormat(NUMBER_LOCALE);
 
 	const employees = root.querySelector<HTMLInputElement>('[data-employees]');
 	const inputs = new Map(data.tools.map((t) => [t.key, root.querySelector<HTMLInputElement>(`[data-tool="${t.key}"]`)]));
@@ -50,7 +58,9 @@ function init(root: HTMLElement): void {
 	const diffCard = out('[data-diff-card]');
 	const diffLabel = out('[data-diff-label]');
 	const diff = out('[data-diff]');
-	const extras = out('[data-extras]');
+	const contact = out('[data-contact]');
+	const results = out('[data-results]');
+	const note = out('[data-note]');
 	const extrasList = out('[data-extras-list]');
 
 	const fill = (list: HTMLElement, lines: string[]): void => {
@@ -63,20 +73,45 @@ function init(root: HTMLElement): void {
 		);
 	};
 
-	function render(): void {
-		const people = Math.min(data.maxUsers, Math.max(1, Math.floor(parseAmount(employees?.value ?? '') || 1)));
-		const entered = data.tools.map((tool) => ({ tool, amount: parseAmount(inputs.get(tool.key)?.value ?? '') }));
-		const used = entered.filter((e) => e.amount > 0);
-		const unused = entered.filter((e) => e.amount === 0);
+	function reset(): void {
+		today.textContent = '—';
+		liwan.textContent = '—';
+		diff.textContent = '—';
+		diffLabel.textContent = 'الفرق في السنة';
+		diffCard.classList.remove('save', 'more');
+		fill(counted, []);
+	}
 
-		if (used.length === 0) {
-			today.textContent = '—';
-			liwan.textContent = '—';
-			diff.textContent = '—';
-			diffLabel.textContent = 'الفرق في السنة';
-			diffCard.classList.remove('save', 'more');
-			fill(counted, []);
-			extras.hidden = true;
+	function render(): void {
+		const parsedPeople = parseAmount(employees?.value ?? '');
+		const people = parsedPeople ?? 0;
+		const validPeople = Number.isInteger(people) && people >= 1;
+		const entered = data.tools.map((tool) => {
+			const amount = parseAmount(inputs.get(tool.key)?.value ?? '');
+			inputs.get(tool.key)?.setAttribute('aria-invalid', String(amount === null));
+			return { tool, amount: amount ?? 0, invalid: amount === null };
+		});
+		employees?.setAttribute('aria-invalid', String(!validPeople));
+		const used = entered.filter((e) => e.amount > 0);
+		// A value the calculator cannot read is never skipped: totals wait until it is fixed.
+		const hasInvalid = entered.some((e) => e.invalid);
+
+		// Above the user limit, or a paid application without a price, there is no honest total.
+		const needsContact = validPeople && (people > data.maxUsers || used.some((e) => e.tool.paid && e.tool.annual === undefined));
+		contact.hidden = !needsContact;
+		results.hidden = needsContact;
+		note.hidden = needsContact;
+
+		const more = entered
+			.filter((e) => !e.tool.paid && e.amount === 0)
+			.map((e) => `${e.tool.appName} مجانًا`);
+		more.push('ليوان AI داخل تطبيقاتك', `${storageLabel(data.storageGb)} تخزين`, 'صلاحيات واحدة لفريقك');
+		if (data.hosting) more.push('استضافة داخل السعودية');
+		if (used.length >= 2) more.push(`دخول واحد بدل ${formatNumber(used.length)}`);
+		fill(extrasList, more);
+
+		if (needsContact || hasInvalid || !validPeople || used.length === 0) {
+			reset();
 			return;
 		}
 
@@ -95,7 +130,7 @@ function init(root: HTMLElement): void {
 		if (extraUsers > 0) {
 			const amount = extraUsers * data.extraUserAnnual;
 			liwanTotal += amount;
-			lines.push(`مستخدمون إضافيون (${count.format(extraUsers)}): ${money.format(amount)}`);
+			lines.push(`مستخدمون إضافيون (${formatNumber(extraUsers)}): ${money.format(amount)}`);
 		}
 
 		today.textContent = money.format(todayTotal);
@@ -107,15 +142,6 @@ function init(root: HTMLElement): void {
 		diffCard.classList.toggle('more', gap < 0);
 		diffLabel.textContent = gap > 0 ? 'توفّر في السنة' : gap < 0 ? 'تزيد في السنة' : 'الفرق في السنة';
 		diff.textContent = gap === 0 ? 'بلا فرق' : money.format(Math.abs(gap));
-
-		const more: string[] = unused.map((e) => `${e.tool.appName} مجانًا`).filter((_, i) => unused[i].tool.annual === undefined);
-		more.push('ليوان AI داخل تطبيقاتك');
-		more.push(`${count.format(data.storageGb)} جيجابايت تخزين`);
-		more.push('صلاحيات واحدة لفريقك');
-		if (data.hosting) more.push('استضافة داخل السعودية');
-		if (used.length >= 2) more.push(`دخول واحد بدل ${count.format(used.length)}`);
-		fill(extrasList, more);
-		extras.hidden = false;
 	}
 
 	root.addEventListener('input', render);

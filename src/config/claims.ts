@@ -15,6 +15,11 @@ const claims = {
 	email: 'soon',
 	conversationToOpportunity: 'soon',
 	aiReplySuggestion: 'soon',
+	// Soon AI items the home AI section already shows (decision doc section 1A).
+	aiFormDrafts: 'soon',
+	aiReports: 'soon',
+	aiPdfReading: 'soon',
+	aiExcelImport: 'soon',
 } as const satisfies Record<string, ClaimState>;
 
 export type ClaimName = keyof typeof claims;

@@ -5,14 +5,14 @@ import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Section from '../../components/Section.astro';
 import Icon from '../../components/Icon.astro';
-import AppTile from '../../components/apps/AppTile.astro';
-import AppCta from '../../components/apps/AppCta.astro';
+import AppCard from '../../components/AppCard.astro';
+import ClosingCta from '../../components/home/ClosingCta.astro';
 import Compare from '../../components/apps/Compare.astro';
 import YearCalc from '../../components/apps/YearCalc.astro';
-import { priceFor } from '../../components/apps/app-pages';
+import { priceFor } from '../../lib/app-price';
 import { registerUrl } from '../../lib/links';
 import { getPricing } from '../../lib/pricing';
-import { localePath } from '../../i18n';
+import { localePath, t } from '../../i18n';
 import type { IconName } from '../../brand/icons';
 
 const PILLARS: { icon: IconName; title: string; line: string }[] = [
@@ -27,18 +27,28 @@ const all = await getCollection('apps', ({ data }) => data.status !== 'hidden');
 const tiles = all
 	.map((entry) => entry.data)
 	.sort((a, b) => Number(a.plan === 'free') - Number(b.plan === 'free') || a.order - b.order);
+
+const platform = t('ar', 'brand.platform');
+// Application names come from the content collection, never retyped.
+const description = `${platform}: ${tiles.map((data) => data.name.ar).join('، ')}.`;
+
+function priceLine(data: (typeof tiles)[number]): string {
+	if (data.plan === 'free') return 'مجاني مع كل حساب';
+	const price = priceFor(pricing, data.featureKey);
+	return price ? `${price.monthly} شهريًا للشركة` : 'تواصل معنا للسعر';
+}
 ---
 
 <Base
 	locale="ar"
 	title="التطبيقات"
-	description="تطبيقات تعمل معًا بحساب واحد وصلاحيات واحدة: العملاء، الرسائل، المهام، المحادثات، الاجتماعات، المستندات، العمليات، وليوان AI."
+	description={description}
 	path="/apps/"
 >
 	<section class="hero">
 		<div class="aurora" aria-hidden="true"></div>
 		<div class="container inner">
-			<h1 data-reveal>منصة ليوان: <span class="text-gradient">نظام واحد تدير به شركتك</span></h1>
+			<h1 data-reveal>{platform}: <span class="text-gradient">نظام واحد تدير به شركتك</span></h1>
 			<p data-reveal style="--i: 1">تطبيقات تعمل معًا بحساب واحد وصلاحيات واحدة.</p>
 			<div class="actions" data-reveal style="--i: 2">
 				<a class="button large" href={registerUrl('ar')} data-app-link>جرّب 14 يومًا مجانًا</a>
@@ -65,15 +75,14 @@ const tiles = all
 		<div class="tiles">
 			{
 				tiles.map((data, i) => (
-					<AppTile
+					<AppCard
 						icon={data.icon}
 						name={data.name.ar}
-						line={data.summary.ar}
+						benefit={data.summary.ar}
+						price={priceLine(data)}
 						href={localePath('ar', `/apps/${data.slug}/`)}
-						free={data.plan === 'free'}
-						soon={data.status === 'soon'}
-						price={priceFor(pricing, data.featureKey)?.monthly}
-						index={i}
+						status={data.status === 'soon' ? 'soon' : data.plan === 'free' ? 'free' : 'available'}
+						index={i % 4}
 					/>
 				))
 			}
@@ -82,7 +91,7 @@ const tiles = all
 
 	<Compare />
 	<YearCalc />
-	<AppCta title="جاهز تجمع شركتك في مكان واحد؟" line="جرّب كل التطبيقات 14 يومًا مجانًا." button="جرّب 14 يومًا مجانًا" />
+	<ClosingCta />
 </Base>
 
 <style>

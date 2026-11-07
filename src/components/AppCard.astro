@@ -10,6 +10,8 @@ interface Props {
 	icon: IconName;
 	name: string;
 	benefit?: string;
+	// An optional price line under the benefit (already formatted).
+	price?: string;
 	status: Status;
 	href?: string;
 	index?: number;
@@ -17,7 +19,7 @@ interface Props {
 
 const BADGE_LABEL: Record<Status, string> = { free: 'مجاني', available: 'متاح الآن', soon: 'قريبًا' };
 
-const { icon, name, benefit, status, href, index = 0 } = Astro.props;
+const { icon, name, benefit, price, status, href, index = 0 } = Astro.props;
 const Tag = href ? 'a' : 'div';
 ---
 
@@ -29,6 +31,7 @@ const Tag = href ? 'a' : 'div';
 		</div>
 		<h3>{name}</h3>
 		{benefit && <p>{benefit}</p>}
+		{price && <span class="app-card-price">{price}</span>}
 	</Tag>
 </div>
 
@@ -64,6 +67,12 @@ const Tag = href ? 'a' : 'div';
 	}
 	h3 {
 		font-size: var(--text-lg);
+	}
+	.app-card-price {
+		margin-top: var(--space-2);
+		color: var(--accent);
+		font-size: var(--text-sm);
+		font-weight: 600;
 	}
 	p {
 		color: var(--text-muted);
