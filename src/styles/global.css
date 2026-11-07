@@ -128,13 +128,28 @@ p {
 	line-height: 1.7;
 	white-space: nowrap;
 }
+/* «مجاني» */
 .badge.free {
-	background: var(--free-bg);
-	color: var(--free-text);
+	background: var(--success-bg);
+	color: var(--success-text);
 }
+/* «متاح الآن»: green with a live dot. */
+.badge.available {
+	background: var(--success-bg);
+	color: var(--success-text);
+}
+.badge.available::before {
+	content: '';
+	width: 0.45em;
+	height: 0.45em;
+	border-radius: 50%;
+	background: var(--success);
+	box-shadow: 0 0 0 0.2em color-mix(in srgb, var(--success) 25%, transparent);
+}
+/* «قريبًا» */
 .badge.soon {
-	background: var(--soon-bg);
-	color: var(--soon-text);
+	background: var(--warning-bg);
+	color: var(--warning-text);
 }
 .badge.neutral {
 	background: var(--accent-soft);

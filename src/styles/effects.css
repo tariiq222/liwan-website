@@ -33,10 +33,6 @@
 	transform: translateY(0) scale(0.98);
 }
 
-.badge.free {
-	background: var(--gradient-accent);
-}
-
 /* Text gradient for one highlighted phrase in a heading. */
 .text-gradient {
 	background: var(--gradient-text);

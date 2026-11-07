@@ -7,7 +7,7 @@ import Mark from '../components/Mark.astro';
 const brandColors = [
 	{ name: 'بنفسجي ليوان', token: '--lavender', hex: '#7843C6', role: 'اللون الأساسي: الأزرار والروابط والشعار' },
 	{ name: 'بنفسجي فاتح', token: '--lavender-dark', hex: '#C2AAE5', role: 'اللون الأساسي في الوضع الداكن' },
-	{ name: 'رملي', token: '--sand', hex: '#EADFC8', role: 'خلفيات دافئة والسدو و«قريبًا»' },
+	{ name: 'رملي', token: '--sand', hex: '#EADFC8', role: 'خلفيات دافئة والسدو' },
 	{ name: 'حبر', token: '--ink', hex: '#14102A', role: 'النص وخلفية الوضع الداكن' },
 	{ name: 'بني', token: '--brown', hex: '#6B4E2E', role: 'لمسة أرضية في السدو والوسوم' },
 ];
@@ -170,7 +170,7 @@ const sampleApps = [
 		<section class="container block">
 			<header class="block-head">
 				<h2>الأزرار والوسوم</h2>
-				<p>زر رئيسي واحد في كل قسم. «مجاني» بلون واضح، و«قريبًا» رملي هادئ حتى لا ينافس الموجود.</p>
+				<p>زر رئيسي واحد في كل قسم. الحالات بألوانها المعروفة: الأخضر لـ«مجاني» و«متاح الآن»، والكهرماني لـ«قريبًا». البنفسجي لوسوم الهوية فقط.</p>
 			</header>
 			<div class="row">
 				<a class="button large" href="#">ابدأ مجانًا</a>
@@ -183,7 +183,7 @@ const sampleApps = [
 				<span class="badge free">مجاني</span>
 				<span class="badge soon">قريبًا</span>
 				<span class="badge neutral">ليوان AI</span>
-				<span class="badge neutral">متاح الآن</span>
+				<span class="badge available">متاح الآن</span>
 			</div>
 		</section>
 
