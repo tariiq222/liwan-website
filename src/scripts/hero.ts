@@ -1,6 +1,7 @@
 // Drives the home hero loop (spec 2A): «before» (scattered sign-in windows) for 2.6 s, then the
 // windows fold into the Liwan ring and colour on arrival, hold 7.5 s, and fold back in reverse.
 // It runs only while the hero is on screen; under reduced motion it shows the Liwan state.
+import { NUMBER_LOCALE } from '../lib/numbers';
 const BEFORE_MS = 2600;
 const HOLD_MS = 7500;
 const FADE_MS = 150;
@@ -10,7 +11,7 @@ const COUNT_STEP_MS = 90;
 
 const scene = document.querySelector<HTMLElement>('[data-hero-scene]');
 const counters = [...document.querySelectorAll<HTMLElement>('[data-hero-stats] [data-count]')];
-const formatter = new Intl.NumberFormat('ar-SA');
+const formatter = new Intl.NumberFormat(NUMBER_LOCALE);
 const total = scene ? scene.querySelectorAll('.node').length : 0;
 
 let timers: number[] = [];

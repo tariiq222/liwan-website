@@ -24,7 +24,7 @@ export const ar = {
 	'footer.ai': 'ليوان AI',
 	'footer.security': 'الأمان والبيانات',
 	'footer.whatsapp': 'واتساب',
-	'footer.copyright': '© ٢٠٢٦ ليوان',
+	'footer.copyright': '© 2026 ليوان',
 
 	'page.home': 'الرئيسية',
 	'page.apps': 'التطبيقات',
