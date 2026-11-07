@@ -152,7 +152,9 @@ const aiStyle = `--bx:${AI_SCATTER[0]}%;--by:${AI_SCATTER[1]}%;--rot:${AI_SCATTE
 const before = RING.length + 1;
 
 const pricing = await getPricing();
-const freeLine = pricing ? `مجاني لأول ${pricing.free.users.toLocaleString('ar-SA')} مستخدمين، دائمًا` : 'الأساس مجاني، دائمًا';
+const freeLine = pricing
+	? `تطبيقات أساسية مجانية دائمًا، حتى ${pricing.free.users.toLocaleString('ar-SA')} مستخدمين`
+	: 'تطبيقات أساسية مجانية دائمًا';
 
 const stats = [
 	{ key: 'systems', label: 'أنظمة' },
