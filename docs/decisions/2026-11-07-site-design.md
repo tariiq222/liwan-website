@@ -199,7 +199,7 @@ and labelled so.
 Written for the buyer (owner decision 2026-11-07: every word in a design speaks to the customer
 decision maker in outcome language; internal labels and caveats never appear in the design).
 
-- Eyebrow «التطبيقات»; heading «ابدأ بما يحتاجه فريقك اليوم، وكبّر متى كبرت»; line «كل تطبيق
+- Eyebrow «التطبيقات»; heading «ابدأ بما يحتاجه فريقك اليوم، وأضف التطبيقات مع نمو شركتك»; line «كل تطبيق
   تضيفه ينضم للنظام نفسه: دخول واحد، صلاحيات واحدة، ومساعد واحد يعرفه.»
 - **Two large cards for the sold applications,** each with: app name, outcome headline, an
   audience tag, a real product screenshot, three benefit lines, the live price «… ر.س شهريًا»
