@@ -1,0 +1,61 @@
+---
+// Monthly / annual switch. The calculator script (pricing-calculator.ts) reads the checked radio.
+// The free-months badge is derived from the pricing object.
+import type { Pricing } from '../../lib/pricing';
+import { annualFreeMonths, freeMonthsLabel } from '../../scripts/pricing-page-months';
+
+interface Props {
+	pricing: Pricing;
+}
+const badge = freeMonthsLabel(annualFreeMonths(Astro.props.pricing));
+---
+
+<div class="billing" role="radiogroup" aria-label="دورة الدفع">
+	<label>
+		<input type="radio" name="billing" value="monthly" checked />
+		<span class="seg">شهري</span>
+	</label>
+	<label>
+		<input type="radio" name="billing" value="annual" />
+		<span class="seg">سنوي {badge && <span class="badge free">{badge}</span>}</span>
+	</label>
+</div>
+
+<style>
+	.billing {
+		display: inline-flex;
+		padding: 4px;
+		border: 1px solid var(--border);
+		border-radius: var(--radius-full);
+		background: var(--surface);
+	}
+	label {
+		position: relative;
+	}
+	input {
+		position: absolute;
+		opacity: 0;
+		pointer-events: none;
+	}
+	.seg {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-2);
+		min-height: 40px;
+		padding: 0 1.1rem;
+		border-radius: var(--radius-full);
+		font-weight: 600;
+		cursor: pointer;
+		transition:
+			background var(--duration) var(--ease),
+			color var(--duration) var(--ease);
+	}
+	input:checked + .seg {
+		background: var(--accent);
+		color: var(--on-accent);
+	}
+	input:focus-visible + .seg {
+		outline: 2px solid var(--focus);
+		outline-offset: 2px;
+	}
+</style>

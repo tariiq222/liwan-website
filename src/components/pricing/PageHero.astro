@@ -1,0 +1,51 @@
+---
+// Top of an inner page: one heading, at most one short line, and an optional slot for a control
+// (the billing switch on /pricing). Shared by /pricing, /security and /contact.
+interface Props {
+	title: string;
+	lead?: string;
+}
+
+const { title, lead } = Astro.props;
+---
+
+<header class="page-hero">
+	<div class="aurora" aria-hidden="true"></div>
+	<div class="container inner">
+		<h1 data-reveal>{title}</h1>
+		{lead && <p class="lead" data-reveal style="--i: 1">{lead}</p>}
+		<div class="extra" data-reveal style="--i: 2"><slot /></div>
+	</div>
+</header>
+
+<style>
+	.page-hero {
+		position: relative;
+		overflow: hidden;
+		isolation: isolate;
+		padding-block: clamp(3rem, 2rem + 4vw, 5.5rem) clamp(1.5rem, 1rem + 2vw, 3rem);
+		text-align: center;
+	}
+	.inner {
+		position: relative;
+		z-index: 1;
+		display: grid;
+		justify-items: center;
+		gap: var(--space-4);
+	}
+	h1 {
+		max-width: 22ch;
+		font-size: var(--text-display);
+	}
+	.lead {
+		max-width: 38rem;
+		color: var(--text-muted);
+		font-size: var(--text-lg);
+	}
+	.extra:empty {
+		display: none;
+	}
+	.extra {
+		margin-top: var(--space-2);
+	}
+</style>

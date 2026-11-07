@@ -1,0 +1,73 @@
+---
+// Right column: three reasons to write, and the note for existing customers.
+import Icon from '../Icon.astro';
+import type { IconName } from '../../brand/icons';
+
+const reasons: { icon: IconName; text: string }[] = [
+	{ icon: 'sparkles', text: 'عرض يناسب شركتك' },
+	{ icon: 'users', text: 'سعر لفريق كبير' },
+	{ icon: 'building', text: 'إعداد مع فريقنا' },
+];
+---
+
+<aside class="aside">
+	<h2 data-reveal>تكلّم معنا</h2>
+	<p class="promise" data-reveal style="--i: 1">نتواصل معك بأنفسنا.</p>
+	<ul class="reasons">
+		{
+			reasons.map((r, i) => (
+				<li data-reveal style={`--i: ${i + 1}`}>
+					<span class="ico"><Icon name={r.icon} size={20} /></span>
+					{r.text}
+				</li>
+			))
+		}
+	</ul>
+	<p class="note" data-reveal>عميل حالي؟ اسأل ليوان AI داخل المنصة أولًا.</p>
+</aside>
+
+<style>
+	.aside {
+		display: grid;
+		align-content: start;
+		gap: var(--space-4);
+	}
+	h2 {
+		font-size: var(--text-3xl);
+	}
+	.promise {
+		color: var(--text-muted);
+		font-size: var(--text-lg);
+	}
+	.reasons {
+		display: grid;
+		gap: var(--space-3);
+		margin: var(--space-2) 0 0;
+		padding: 0;
+		list-style: none;
+	}
+	.reasons li {
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+		font-weight: 600;
+	}
+	.ico {
+		display: grid;
+		flex-shrink: 0;
+		place-items: center;
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		background: var(--accent-soft);
+		color: var(--accent);
+	}
+	.note {
+		margin-top: var(--space-4);
+		padding: var(--space-4) var(--space-6);
+		border-radius: var(--radius);
+		background: var(--gradient-sand);
+		border: 1px solid var(--border);
+		font-size: var(--text-sm);
+	}
+</style>

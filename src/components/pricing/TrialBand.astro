@@ -1,0 +1,64 @@
+---
+// Trial, then refund. The refund period comes from the pricing object; without it the second
+// half is left out.
+import Icon from '../Icon.astro';
+import type { Pricing } from '../../lib/pricing';
+import { daysLabel } from '../../scripts/pricing-format';
+
+interface Props {
+	pricing: Pricing | null;
+}
+const { pricing } = Astro.props;
+---
+
+<div class="band" data-reveal>
+	<span class="item"><Icon name="check" size={18} strokeWidth={2.4} />14 يومًا تجربة مجانية بلا بطاقة</span>
+	{
+		pricing && (
+			<>
+				<Icon name="arrow-left" size={18} class="arrow" />
+				<span class="item"><Icon name="shield" size={18} />ثم {daysLabel(pricing.refund_days)} ضمان استرداد كامل من أول دفعة</span>
+			</>
+		)
+	}
+</div>
+
+<style>
+	.band {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-3) var(--space-4);
+		padding: var(--space-4) var(--space-6);
+		border-radius: var(--radius-full);
+		background: var(--accent-soft);
+		font-weight: 600;
+	}
+	.item {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-2);
+	}
+	.item :global(svg),
+	.band :global(.arrow) {
+		color: var(--accent);
+	}
+	@media (max-width: 560px) {
+		.band {
+			flex-direction: column;
+			align-items: flex-start;
+			border-radius: var(--radius-lg);
+		}
+		.item {
+			align-items: flex-start;
+		}
+		.item :global(svg) {
+			flex-shrink: 0;
+			margin-top: 0.3em;
+		}
+		.band :global(.arrow) {
+			display: none;
+		}
+	}
+</style>

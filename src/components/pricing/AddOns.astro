@@ -1,0 +1,72 @@
+---
+// Extra user, extra storage and assisted onboarding. Prices are rewritten by the calculator
+// script when the billing switch changes.
+import Icon from '../Icon.astro';
+import { formatMoney, type Pricing } from '../../lib/pricing';
+import { storageLabel, usersLabel } from '../../scripts/pricing-format';
+
+interface Props {
+	pricing: Pricing;
+}
+
+const { pricing } = Astro.props;
+const money = (amount: number) => formatMoney('ar', amount, pricing.currency);
+---
+
+<ul class="addons">
+	<li class="card" data-reveal>
+		<Icon name="user-plus" size={24} />
+		<h3>مستخدم إضافي</h3>
+		<p class="price"><strong data-price-user>{money(pricing.extra_user.monthly)}</strong> <span data-period-word>شهريًا</span></p>
+		<p class="note">بعد أول {usersLabel(pricing.free.users)}</p>
+	</li>
+	<li class="card" data-reveal style="--i: 1">
+		<Icon name="database" size={24} />
+		<h3>تخزين إضافي</h3>
+		<p class="price"><strong data-price-storage>{money(pricing.extra_storage.block_monthly)}</strong> <span data-period-word>شهريًا</span></p>
+		<p class="note">لكل {storageLabel(pricing.extra_storage.block_gb)}</p>
+	</li>
+	<li class="card" data-reveal style="--i: 2">
+		<Icon name="building" size={24} />
+		<h3>إعداد مع فريقنا</h3>
+		<p class="price"><strong>{money(pricing.onboarding.one_time)}</strong></p>
+		<p class="note">مرة واحدة</p>
+	</li>
+</ul>
+
+<style>
+	.addons {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: var(--space-6);
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	li {
+		display: grid;
+		justify-items: start;
+		gap: var(--space-2);
+	}
+	li :global(svg) {
+		color: var(--accent);
+	}
+	h3 {
+		font-size: var(--text-xl);
+	}
+	.price strong {
+		font-size: var(--text-2xl);
+	}
+	.price,
+	.note {
+		color: var(--text-muted);
+	}
+	.note {
+		font-size: var(--text-sm);
+	}
+	@media (max-width: 820px) {
+		.addons {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+</style>

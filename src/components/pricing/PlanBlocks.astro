@@ -1,0 +1,157 @@
+---
+// The free base and one card per paid application. Prices come from the pricing object and are
+// rewritten by the calculator script when the billing switch changes. Messaging limits are not
+// part of the pricing object, so that card points to the application page instead.
+import Icon from '../Icon.astro';
+import { formatMoney, type Pricing } from '../../lib/pricing';
+import { storageLabel, usersLabel } from '../../scripts/pricing-format';
+import { localePath } from '../../i18n';
+import { registerUrl } from '../../lib/links';
+import { BENEFITS } from './benefits';
+
+interface Props {
+	pricing: Pricing | null;
+	freeApps: string[];
+	appNames: Record<string, string>;
+}
+
+const { pricing, freeApps, appNames } = Astro.props;
+const money = (amount: number) => (pricing ? formatMoney('ar', amount, pricing.currency) : '');
+const baseFacts = [pricing && `حتى ${usersLabel(pricing.free.users)}`, ...freeApps, pricing && `${storageLabel(pricing.free.storage_gb)} للتخزين`].filter(
+	(fact): fact is string => Boolean(fact),
+);
+---
+
+<div class:list={['blocks', { single: !pricing }]}>
+	<article class="base" data-reveal>
+		<span class="badge free">مجانًا، دائمًا</span>
+		<h2>الأساس</h2>
+		<ul class="facts">
+			{
+				baseFacts.map((fact) => (
+					<li>
+						<Icon name="check" size={16} strokeWidth={2.4} />
+						{fact}
+					</li>
+				))
+			}
+		</ul>
+		<a class="button" href={registerUrl('ar')} data-app-link>ابدأ مجانًا</a>
+	</article>
+
+	{
+		pricing ? (
+			pricing.apps.map((app, i) => (
+				<article class="app gradient-border" data-reveal style={`--i: ${i + 1}`}>
+					<h2>{appNames[app.key]}</h2>
+					<p class="price">
+						<strong data-price-app={app.key}>{money(app.monthly)}</strong> <span data-period-word>شهريًا</span>
+					</p>
+					<ul class="facts">
+						{(BENEFITS[app.key] ?? []).map((line) => (
+							<li>
+								<Icon name="check" size={16} strokeWidth={2.4} />
+								{line}
+							</li>
+						))}
+					</ul>
+					{app.key === 'inbox' && (
+						<a class="limits" href={localePath('ar', '/apps/inbox')}>
+							تفاصيل الحدود في صفحة التطبيق
+							<Icon name="arrow-left" size={16} />
+						</a>
+					)}
+					<a class="button" href={registerUrl('ar')} data-app-link>جرّبه 14 يومًا</a>
+				</article>
+			))
+		) : (
+			<article class="app gradient-border" data-reveal style="--i: 1">
+				<h2>التطبيقات المدفوعة</h2>
+				<p class="muted">اسأل عن السعر المناسب لشركتك.</p>
+				<a class="button" href={localePath('ar', '/contact')}>تواصل معنا</a>
+			</article>
+		)
+	}
+</div>
+
+<style>
+	.blocks {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: var(--space-6);
+		align-items: stretch;
+	}
+	.blocks.single {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+	article {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--space-4);
+		padding: var(--space-8);
+		border-radius: var(--radius-lg);
+	}
+	.base {
+		border: 1px solid var(--border-strong);
+		background: var(--gradient-sand);
+	}
+	.app {
+		box-shadow: var(--shadow);
+	}
+	h2 {
+		font-size: var(--text-2xl);
+	}
+	.price {
+		color: var(--text-muted);
+	}
+	.price strong {
+		color: var(--text);
+		font-size: var(--text-3xl);
+	}
+	.facts {
+		display: grid;
+		gap: var(--space-2);
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	.facts li {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--space-2);
+	}
+	.facts :global(svg) {
+		flex-shrink: 0;
+		margin-top: 0.4em;
+		color: var(--success);
+	}
+	.limits {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-1);
+		font-size: var(--text-sm);
+		font-weight: 600;
+		text-decoration: none;
+	}
+	.limits:hover {
+		text-decoration: underline;
+	}
+	.muted {
+		color: var(--text-muted);
+	}
+	.button {
+		margin-top: auto;
+	}
+	@media (max-width: 900px) {
+		.blocks,
+		.blocks.single {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+	@media (max-width: 560px) {
+		article {
+			padding: var(--space-6) var(--space-4);
+		}
+	}
+</style>

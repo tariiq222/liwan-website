@@ -1,7 +1,18 @@
 ---
+import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import PagePlaceholder from '../components/PagePlaceholder.astro';
+import Section from '../components/Section.astro';
+import PageHero from '../components/pricing/PageHero.astro';
+import BillingSwitch from '../components/pricing/BillingSwitch.astro';
+import PlanBlocks from '../components/pricing/PlanBlocks.astro';
+import AddOns from '../components/pricing/AddOns.astro';
+import Calculator from '../components/pricing/Calculator.astro';
+import Included from '../components/pricing/Included.astro';
+import TrialBand from '../components/pricing/TrialBand.astro';
+import FaqList from '../components/pricing/FaqList.astro';
 import { formatMoney, getPricing } from '../lib/pricing';
+import { daysLabel, usersLabel } from '../scripts/pricing-format';
 import { localePath, t, type Locale } from '../i18n';
 
 interface Props {
@@ -10,42 +21,130 @@ interface Props {
 
 const { locale } = Astro.props;
 const title = t(locale, 'page.pricing');
-const pricing = await getPricing();
+const fetched = await getPricing();
+
+// Arabic is the built page; the English page keeps its placeholder until phase 6.
+const arabic = locale === 'ar';
+const catalog = arabic ? await getCollection('apps') : [];
+const apps = catalog.map((entry) => entry.data);
+const appNames: Record<string, string> = Object.fromEntries(
+	apps.filter((app) => app.featureKey).map((app) => [app.featureKey!.replace(/\.enabled$/, ''), app.name.ar]),
+);
+const freeApps = apps
+	.filter((app) => app.plan === 'free' && app.status === 'available')
+	.sort((a, b) => a.order - b.order)
+	.map((app) => app.name.ar);
+// Only applications that exist in src/content/apps are shown, always named from `name.ar`.
+const pricing = fetched && arabic ? { ...fetched, apps: fetched.apps.filter((app) => app.key in appNames) } : fetched;
 const money = (amount: number) => formatMoney(locale, amount, pricing?.currency ?? 'SAR');
+const calcJson = pricing ? JSON.stringify(pricing).replace(/</g, '\\u003c') : '';
+
+const faq = [
+	{ q: 'ماذا يحدث بعد التجربة؟', a: 'تبقى على التطبيقات المجانية دائمًا. تدفع فقط إذا أبقيت تطبيقًا مدفوعًا.' },
+	{
+		q: 'هل أسترجع مبلغي؟',
+		a: pricing
+			? `نعم، كاملًا خلال ${daysLabel(pricing.refund_days)} من أول دفعة، للاشتراك الشهري والسنوي. التجديدات لا تُسترجع.`
+			: 'نعم، كاملًا خلال فترة الضمان من أول دفعة. التجديدات لا تُسترجع.',
+	},
+	...(pricing
+		? [
+				{
+					q: 'كيف يُحسب عدد المستخدمين؟',
+					a: `أول ${usersLabel(pricing.free.users)} مجانًا لكل شركة، وكل مستخدم بعدهم له سعر شهري واحد.`,
+				},
+				{ q: `ماذا لو زاد فريقي عن ${usersLabel(pricing.extra_user.max_users)}؟`, a: 'تواصل معنا ونجهّز لك سعرًا يناسب حجم شركتك.' },
+			]
+		: []),
+	{ q: 'هل هناك رسوم أخرى؟', a: 'رسائل واتساب التسويقية تحاسبك عليها ميتا مباشرة من حسابك، وبوابة الدفع تحاسبك بنفسها. لا شيء غير ذلك عندنا.' },
+];
 ---
 
 <Base locale={locale} title={title} path="/pricing/">
-	<PagePlaceholder locale={locale} title={title} pageKey="pricing" />
-	<div class="container prices">
-		{
-			pricing ? (
-				<ul>
-					{pricing.apps.map((app) => (
-						<li>
-							{locale === 'ar' ? app.name_ar : app.name_en}: {money(app.monthly)} {t(locale, 'pricing.monthly')}, {money(app.annual)} {t(locale, 'pricing.annual')}
-						</li>
-					))}
-					<li>
-						{t(locale, 'pricing.extraUser')}: {money(pricing.extra_user.monthly)} {t(locale, 'pricing.monthly')}
-					</li>
-					<li>
-						{t(locale, 'pricing.extraStorage')} ({pricing.extra_storage.block_gb} GB): {money(pricing.extra_storage.block_monthly)} {t(locale, 'pricing.monthly')}
-					</li>
-					<li>
-						{t(locale, 'pricing.onboarding')}: {money(pricing.onboarding.one_time)}
-					</li>
-				</ul>
-			) : (
-				<p>
-					<a href={localePath(locale, '/contact')}>{t(locale, 'pricing.unavailable')}</a>
-				</p>
-			)
-		}
-	</div>
+	{
+		arabic ? (
+			<>
+				<div data-calc={pricing ? '' : undefined}>
+					{pricing && <script is:inline type="application/json" data-calc-data set:html={calcJson} />}
+					<PageHero title="ابدأ مجانًا، وادفع لما تحتاجه فقط" lead="لا باقات ولا ميزات مقفلة. تضيف ما تحتاجه وقتما تحتاجه.">
+						{pricing && <BillingSwitch pricing={pricing} />}
+					</PageHero>
+
+					<Section>
+						<PlanBlocks pricing={pricing} freeApps={freeApps} appNames={appNames} />
+					</Section>
+
+					{
+						pricing && (
+							<>
+								<Section tone="sunken" eyebrow="إضافات" title="كبّر على مقاسك">
+									<AddOns pricing={pricing} />
+								</Section>
+								<Section id="calculator">
+									<Calculator pricing={pricing} appNames={appNames} />
+								</Section>
+							</>
+						)
+					}
+				</div>
+
+				<Section tone="sunken" eyebrow="في كل اشتراك" title="ما تحصل عليه دائمًا">
+					<Included />
+				</Section>
+
+				<Section>
+					<TrialBand pricing={pricing} />
+					<p class="fine">رسائل واتساب التسويقية تحاسبك عليها ميتا مباشرة من حسابك.</p>
+				</Section>
+
+				<Section eyebrow="أسئلة شائعة" title="قبل أن تشترك" align="center">
+					<FaqList items={faq} group="pricing-faq" />
+				</Section>
+			</>
+		) : (
+			<>
+				<PagePlaceholder locale={locale} title={title} pageKey="pricing" />
+				<div class="container prices">
+					{pricing ? (
+						<ul>
+							{pricing.apps.map((app) => (
+								<li>
+									{app.name_en}: {money(app.monthly)} {t(locale, 'pricing.monthly')}, {money(app.annual)} {t(locale, 'pricing.annual')}
+								</li>
+							))}
+							<li>
+								{t(locale, 'pricing.extraUser')}: {money(pricing.extra_user.monthly)} {t(locale, 'pricing.monthly')}
+							</li>
+							<li>
+								{t(locale, 'pricing.extraStorage')} ({pricing.extra_storage.block_gb} GB): {money(pricing.extra_storage.block_monthly)} {t(locale, 'pricing.monthly')}
+							</li>
+							<li>
+								{t(locale, 'pricing.onboarding')}: {money(pricing.onboarding.one_time)}
+							</li>
+						</ul>
+					) : (
+						<p>
+							<a href={localePath(locale, '/contact')}>{t(locale, 'pricing.unavailable')}</a>
+						</p>
+					)}
+				</div>
+			</>
+		)
+	}
 </Base>
+
+<script>
+	import '../scripts/pricing-calculator';
+</script>
 
 <style>
 	.prices {
 		padding-bottom: 2rem;
+	}
+	.fine {
+		margin-top: var(--space-4);
+		color: var(--text-muted);
+		font-size: var(--text-sm);
+		text-align: center;
 	}
 </style>
