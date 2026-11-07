@@ -67,7 +67,7 @@ const heroMock = copy?.capabilities[0];
 							{free ? 'مجاني مع كل حساب.' : price ? `${price.monthly} شهريًا للشركة، أو ${price.annual} سنويًا.` : 'تواصل معنا للسعر.'}
 						</p>
 						<div class="actions" data-reveal style="--i: 4">
-							<a class="button large" href={registerUrl('ar')} data-app-link>{free ? 'ابدأ مجانًا' : 'جرّبه ١٤ يومًا مجانًا'}</a>
+							<a class="button large" href={registerUrl('ar')} data-app-link>{free ? 'ابدأ مجانًا' : 'جرّبه 14 يومًا مجانًا'}</a>
 							{!free && !price && <a class="button large secondary" href={localePath('ar', '/contact/')}>تواصل معنا</a>}
 						</div>
 					</div>
@@ -135,9 +135,9 @@ const heroMock = copy?.capabilities[0];
 			</Section>
 
 			<AppCta
-				title={free ? `${name.ar} مجانًا مع كل حساب` : `جرّب ${name.ar} ١٤ يومًا`}
+				title={free ? `${name.ar} مجانًا مع كل حساب` : `جرّب ${name.ar} 14 يومًا`}
 				line={free ? 'سجّل وابدأ اليوم.' : 'كل التطبيقات مفتوحة لك خلال التجربة.'}
-				button={free ? 'ابدأ مجانًا' : 'جرّب ١٤ يومًا مجانًا'}
+				button={free ? 'ابدأ مجانًا' : 'جرّب 14 يومًا مجانًا'}
 			/>
 		</Base>
 	)

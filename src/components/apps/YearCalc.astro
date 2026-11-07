@@ -63,7 +63,7 @@ const data = pricing && {
 							<span class="tool-name">{tool.label}</span>
 							<span class="tool-map">يقابلها في ليوان: {tool.appName}</span>
 							<span class="field">
-								<input type="text" inputmode="decimal" placeholder="٠" autocomplete="off" data-tool={tool.key} aria-label={`${tool.label}: ما تدفعه في السنة`} />
+								<input type="text" inputmode="decimal" placeholder="0" autocomplete="off" data-tool={tool.key} aria-label={`${tool.label}: ما تدفعه في السنة`} />
 								<span class="unit">{data.currency === 'SAR' ? 'ر.س / سنة' : `${data.currency} / سنة`}</span>
 							</span>
 						</label>

@@ -1,3 +1,4 @@
+import { NUMBER_LOCALE } from '../lib/numbers';
 // The yearly calculator on /apps (see YearCalc.astro). All amounts come from the pricing numbers
 // the page embedded as JSON; the competitor side is only what the visitor types.
 interface Tool {
@@ -17,14 +18,14 @@ interface CalcData {
 	tools: Tool[];
 }
 
-const ARABIC_DIGITS = '٠١٢٣٤٥٦٧٨٩';
+const ARABIC_DIGITS = "\u0660\u0661\u0662\u0663\u0664\u0665\u0666\u0667\u0668\u0669";
 
 // Visitors may type Arabic-Indic digits, a thousands separator or an Arabic decimal comma.
 function parseAmount(raw: string): number {
 	const latin = raw
-		.replace(/[٠-٩]/g, (d) => String(ARABIC_DIGITS.indexOf(d)))
-		.replace(/[٬,\s]/g, '')
-		.replace('٫', '.');
+		.replace(/[\u0660-\u0669]/g, (d) => String(ARABIC_DIGITS.indexOf(d)))
+		.replace(/[\u066c,\s]/g, '')
+		.replace('\u066b', '.');
 	const value = Number.parseFloat(latin);
 	return Number.isFinite(value) && value > 0 ? value : 0;
 }
@@ -33,8 +34,8 @@ function init(root: HTMLElement): void {
 	const raw = root.querySelector('script[data-calc-data]')?.textContent;
 	if (!raw) return;
 	const data = JSON.parse(raw) as CalcData;
-	const money = new Intl.NumberFormat('ar-SA', { style: 'currency', currency: data.currency, maximumFractionDigits: 0 });
-	const count = new Intl.NumberFormat('ar-SA');
+	const money = new Intl.NumberFormat(NUMBER_LOCALE, { style: 'currency', currency: data.currency, maximumFractionDigits: 0 });
+	const count = new Intl.NumberFormat(NUMBER_LOCALE);
 
 	const employees = root.querySelector<HTMLInputElement>('[data-employees]');
 	const inputs = new Map(data.tools.map((t) => [t.key, root.querySelector<HTMLInputElement>(`[data-tool="${t.key}"]`)]));
