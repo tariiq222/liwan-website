@@ -1,0 +1,52 @@
+# Rendered by the nginx image entrypoint (envsubst). Only ${ROBOTS_TAG} is substituted;
+# nginx's own variables ($uri, ...) are left alone because they are not defined env vars.
+server {
+    listen 80;
+    server_name _;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Astro emits <path>/index.html with trailingSlash: "always".
+    absolute_redirect off;
+    error_page 404 /404.html;
+
+    gzip on;
+    gzip_types text/css application/javascript application/json image/svg+xml text/plain application/xml;
+
+    # Security headers. Repeated in each location block that adds its own headers,
+    # because nginx drops inherited add_header values when a block defines any.
+    set $csp "default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://app.liwanos.com; form-action 'self' https://app.liwanos.com; frame-src https://challenges.cloudflare.com; base-uri 'self'; object-src 'none'; frame-ancestors 'none'";
+
+    location / {
+        try_files $uri $uri/index.html =404;
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header X-Frame-Options "DENY" always;
+        add_header Content-Security-Policy $csp always;
+        add_header X-Robots-Tag "${ROBOTS_TAG}" always;
+        add_header Cache-Control "public, max-age=0, must-revalidate" always;
+    }
+
+    location /_astro/ {
+        try_files $uri =404;
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header X-Frame-Options "DENY" always;
+        add_header Content-Security-Policy $csp always;
+        add_header X-Robots-Tag "${ROBOTS_TAG}" always;
+        add_header Cache-Control "public, max-age=31536000, immutable" always;
+    }
+
+    location = /404.html {
+        internal;
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header X-Frame-Options "DENY" always;
+        add_header Content-Security-Policy $csp always;
+        add_header X-Robots-Tag "${ROBOTS_TAG}" always;
+        add_header Cache-Control "public, max-age=0, must-revalidate" always;
+    }
+}
