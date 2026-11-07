@@ -14,8 +14,19 @@ interface Props {
 const { locale, slug } = Astro.props;
 
 const all = await getCollection('legal');
-const entry = all.find((e) => e.data.page === slug && e.data.locale === locale);
+// The entry id (<locale>/<page>) is the source of truth; front matter must agree with it, so a
+// duplicate or misfiled page fails the build instead of silently shadowing another.
+for (const e of all) {
+	if (e.id !== `${e.data.locale}/${e.data.page}`) {
+		throw new Error(`Legal entry ${e.id} has front matter ${e.data.locale}/${e.data.page}; they must match.`);
+	}
+}
+const entry = all.find((e) => e.id === `${locale}/${slug}`);
 if (!entry) throw new Error(`Missing legal entry: ${locale}/${slug}`);
+// A final text may not carry unfilled {{PLACEHOLDERS}}.
+if (entry.data.status === 'final' && /\{\{/.test(entry.body ?? '')) {
+	throw new Error(`Legal entry ${entry.id} is status: final but still contains {{ placeholders.`);
+}
 const { Content, headings } = await render(entry);
 const { title, version, updated, status, summary } = entry.data;
 
@@ -25,6 +36,7 @@ const noindex = all.some((e) => e.data.status === 'draft');
 const toc = headings.filter((h) => h.depth === 2);
 const words = (entry.body ?? '').split(/\s+/).filter(Boolean).length;
 const minutes = Math.max(1, Math.round(words / (locale === 'ar' ? 180 : 220)));
+const readingAr = minutes === 1 ? 'دقيقة للقراءة' : minutes === 2 ? 'دقيقتان للقراءة' : minutes <= 10 ? `${minutes} دقائق للقراءة` : `${minutes} دقيقة للقراءة`;
 
 const ui = {
 	ar: {
@@ -32,8 +44,8 @@ const ui = {
 		toc: 'محتويات الوثيقة',
 		updated: 'آخر تحديث',
 		version: 'الإصدار',
-		reading: `${minutes} دقائق للقراءة`,
-		draft: 'مسودة قيد المراجعة القانونية. قد يتغير النص قبل الإطلاق.',
+		reading: readingAr,
+		draft: 'مسودة قيد المراجعة القانونية. بيانات الشركة النظامية لم تكتمل بعد، وقد يتغير النص قبل الإطلاق.',
 		question: 'سؤال عن هذه الوثيقة؟',
 		contact: 'تواصل معنا',
 		other: 'وثائق أخرى',
@@ -44,7 +56,7 @@ const ui = {
 		updated: 'Last updated',
 		version: 'Version',
 		reading: `${minutes} min read`,
-		draft: 'Draft under legal review. The text may change before launch.',
+		draft: 'Draft under legal review. The company details are still pending, and the text may change before launch.',
 		question: 'A question about this document?',
 		contact: 'Contact us',
 		other: 'Other documents',
@@ -60,7 +72,7 @@ const date = new Intl.DateTimeFormat(locale === 'ar' ? `${NUMBER_LOCALE}-ca-greg
 const iso = updated.toISOString().slice(0, 10);
 ---
 
-<Base locale={locale} title={title} path={`/${slug}/`} noindex={noindex}>
+<Base locale={locale} title={title} description={summary[0]} path={`/${slug}/`} noindex={noindex}>
 	<div class="container legal">
 		<header class="head">
 			<h1>{title}</h1>
@@ -70,10 +82,10 @@ const iso = updated.toISOString().slice(0, 10);
 				<span>{ui.reading}</span>
 			</p>
 			{status === 'draft' && <p class="draft" role="note">{ui.draft}</p>}
-			<aside class="brief" aria-labelledby="brief-title">
+			<section class="brief" aria-labelledby="brief-title">
 				<h2 id="brief-title">{ui.summary}</h2>
 				<ul>{summary.map((s) => <li>{s}</li>)}</ul>
-			</aside>
+			</section>
 		</header>
 
 		<div class="layout">
@@ -296,8 +308,7 @@ const iso = updated.toISOString().slice(0, 10);
 	}
 
 	@media print {
-		.toc,
-		.draft {
+		.toc {
 			display: none;
 		}
 		.layout {
