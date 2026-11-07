@@ -352,11 +352,11 @@ const stats = [
 		position: relative;
 		aspect-ratio: 1;
 		container-type: inline-size;
-		/* Apps: sand circles with a lavender ring and icon; Liwan AI is the lavender heart.
-		   Connecting lines are a quiet grey so the apps and the mark lead. */
-		--node-bg: var(--sand);
-		--node-ring: var(--lavender);
-		--node-icon: var(--lavender);
+		/* Apps: outlined circles with no fill, ring and icon in the brand lavender; Liwan AI is
+		   the sand heart. Connecting lines are a quiet grey so the apps and the mark lead. */
+		--node-bg: transparent;
+		--node-ring: var(--accent);
+		--node-icon: var(--accent);
 		--line: light-dark(#d2cfdb, #3f3a58);
 	}
 	.scene-svg {
@@ -583,25 +583,25 @@ const stats = [
 		background: var(--node-bg);
 		border-color: var(--node-ring);
 		border-width: 0.45cqw;
-		box-shadow: 0 8px 20px -8px var(--glow);
+		box-shadow: none;
 		transition-delay: calc(var(--t-apps) + var(--i) * 30ms);
 	}
 	.is-arrived .node-ai {
 		transition-delay: 0ms;
-		background: var(--lavender);
-		border-color: var(--lavender);
+		background: var(--sand);
+		border-color: var(--sand-300);
 		box-shadow:
-			0 0 0 0.9cqw color-mix(in srgb, var(--lavender) 22%, transparent),
+			0 0 0 0.9cqw color-mix(in srgb, var(--sand) 45%, transparent),
 			0 0 4cqw var(--glow);
 		animation: ai-halo 3s ease-in-out infinite;
 	}
 	.is-arrived .node-ai .node-icon {
-		color: var(--sand);
+		color: var(--lavender);
 	}
 	@keyframes ai-halo {
 		50% {
 			box-shadow:
-				0 0 0 1.6cqw color-mix(in srgb, var(--lavender) 14%, transparent),
+				0 0 0 1.6cqw color-mix(in srgb, var(--sand) 30%, transparent),
 				0 0 6cqw var(--glow);
 		}
 	}
@@ -698,8 +698,8 @@ const stats = [
 		width: 12px;
 		height: 12px;
 		border-radius: 50%;
-		background: var(--lavender);
-		box-shadow: 0 0 0 3px color-mix(in srgb, var(--lavender) 25%, transparent);
+		background: var(--sand);
+		box-shadow: 0 0 0 3px color-mix(in srgb, var(--sand-300) 60%, transparent);
 	}
 
 	@media (max-width: 899px) {

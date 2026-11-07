@@ -124,8 +124,8 @@ Lucide set or a dedicated SVG set, not the preview's icon font.
 - «With Liwan» grows from the centre: the Liwan AI circle, lines out to the triangle tips, the
   triangles, the arches opening outward (no stroke drawing), the lines out to the apps, then
   each app lights up when its line reaches it, then the names; pulses flow inward.
-- Colours: apps are sand circles with a lavender ring and lavender icon; Liwan AI is the
-  lavender circle with a sand icon; ring lines are light grey and dashed, and each enters its
+- Colours: apps are outlined circles with no fill, ring and icon in lavender; Liwan AI is the
+  sand circle with a lavender icon and a soft sand halo; ring lines are light grey and dashed, and each enters its
   triangle through the middle of the triangle's base.
 - The header carries a light/dark toggle; the page follows the device until the visitor picks.
 
