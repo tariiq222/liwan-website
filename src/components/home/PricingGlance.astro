@@ -18,12 +18,16 @@ const money = (amount: number) => (pricing ? formatMoney('ar', amount, pricing.c
 const catalog = await getCollection('apps');
 const appName = (key: string, fallback: string) => catalog.find((entry) => entry.data.featureKey === `${key}.enabled`)?.data.name.ar ?? fallback;
 
+// The free apps are listed by their own names from src/content/apps, in catalogue order.
+const freeApps = catalog
+	.map((entry) => entry.data)
+	.filter((app) => app.plan === 'free' && app.status === 'available')
+	.sort((a, b) => a.order - b.order)
+	.map((app) => app.name.ar);
+
 const baseFacts = [
 	pricing && `حتى ${usersLabel(pricing.free.users)}`,
-	'المهام والمحادثات',
-	'الاجتماعات والمستندات',
-	'الطلبات والموافقات',
-	'ليوان AI',
+	...freeApps,
 	pricing && `${storageLabel(pricing.free.storage_gb)} للتخزين`,
 ].filter((fact): fact is string => Boolean(fact));
 const calcJson = pricing ? JSON.stringify(pricing).replace(/</g, '\\u003c') : '';

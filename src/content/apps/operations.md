@@ -5,7 +5,7 @@ icon: clipboard-check
 status: available
 plan: free
 name:
-  ar: "العمليات"
+  ar: "تطبيق العمليات"
   en: "Operations"
 headline:
   ar: "طلبات وموافقات بلا ملاحقة ولا أوراق"

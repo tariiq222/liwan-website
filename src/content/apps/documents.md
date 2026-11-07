@@ -5,7 +5,7 @@ icon: file-text
 status: available
 plan: free
 name:
-  ar: "المستندات"
+  ar: "تطبيق المستندات"
   en: "Documents"
 headline:
   ar: "ملفات شركتك مرتبة، وكل موظف يرى ما يخصه"

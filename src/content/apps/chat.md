@@ -5,7 +5,7 @@ icon: messages-square
 status: available
 plan: free
 name:
-  ar: "المحادثات"
+  ar: "تطبيق المحادثات"
   en: "Team chat"
 headline:
   ar: "محادثات فريقك في مكان واحد"

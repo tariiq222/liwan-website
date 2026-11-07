@@ -5,7 +5,7 @@ icon: square-check
 status: available
 plan: free
 name:
-  ar: "المهام"
+  ar: "تطبيق المهام"
   en: "Tasks"
 headline:
   ar: "مهام فريقك واضحة، ولكل مهمة مسؤول"

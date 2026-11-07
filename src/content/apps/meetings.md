@@ -5,7 +5,7 @@ icon: calendar
 status: available
 plan: free
 name:
-  ar: "الاجتماعات"
+  ar: "تطبيق الاجتماعات"
   en: "Meetings"
 headline:
   ar: "اجتماعات تنتهي بقرارات تُنفَّذ"

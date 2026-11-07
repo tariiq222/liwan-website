@@ -29,9 +29,9 @@ interface Scene {
 const apps: { key: AppKey; label: string; icon: IconName }[] = [
 	{ key: 'crm', label: 'تطبيق إدارة العملاء', icon: 'users' },
 	{ key: 'messages', label: 'تطبيق رسائل العملاء', icon: 'message-circle' },
-	{ key: 'meetings', label: 'الاجتماعات', icon: 'calendar' },
-	{ key: 'operations', label: 'العمليات', icon: 'clipboard-check' },
-	{ key: 'documents', label: 'المستندات', icon: 'file-text' },
+	{ key: 'meetings', label: 'تطبيق الاجتماعات', icon: 'calendar' },
+	{ key: 'operations', label: 'تطبيق العمليات', icon: 'clipboard-check' },
+	{ key: 'documents', label: 'تطبيق المستندات', icon: 'file-text' },
 	{ key: 'settings', label: 'الإعدادات', icon: 'settings' },
 	{ key: 'guide', label: 'الدليل', icon: 'book-open' },
 ];
@@ -100,8 +100,8 @@ const scenes: Scene[] = [
 			intro: 'هذا ملخص أسبوعك:',
 			items: [
 				{ text: '٣ فرص تحتاج متابعة اليوم', meta: 'من لوحة المبيعات', app: 'crm', source: 'تطبيق إدارة العملاء · اللوحة' },
-				{ text: 'اجتماعان، أولهما غدًا الساعة ١٠ صباحًا', app: 'meetings', source: 'الاجتماعات' },
-				{ text: '٤ طلبات بانتظار موافقتك', app: 'operations', source: 'العمليات · الطلبات' },
+				{ text: 'اجتماعان، أولهما غدًا الساعة ١٠ صباحًا', app: 'meetings', source: 'تطبيق الاجتماعات' },
+				{ text: '٤ طلبات بانتظار موافقتك', app: 'operations', source: 'تطبيق العمليات · الطلبات' },
 			],
 		},
 	},
@@ -137,9 +137,9 @@ const scenes: Scene[] = [
 		answer: {
 			intro: 'جهّزت مسودة طلب الشراء:',
 			items: [
-				{ text: 'كراسي مكتبية', meta: 'البند', app: 'operations', source: 'العمليات · طلب شراء' },
-				{ text: '١٠', meta: 'الكمية', app: 'operations', source: 'العمليات · طلب شراء' },
-				{ text: 'توسعة الفريق', meta: 'المبرر', app: 'operations', source: 'العمليات · طلب شراء' },
+				{ text: 'كراسي مكتبية', meta: 'البند', app: 'operations', source: 'تطبيق العمليات · طلب شراء' },
+				{ text: '١٠', meta: 'الكمية', app: 'operations', source: 'تطبيق العمليات · طلب شراء' },
+				{ text: 'توسعة الفريق', meta: 'المبرر', app: 'operations', source: 'تطبيق العمليات · طلب شراء' },
 			],
 			foot: 'تبقى مسودة حتى تراجعها وتعتمدها',
 			approve: true,
@@ -179,9 +179,9 @@ const scenes: Scene[] = [
 		answer: {
 			intro: 'قرأت العقد (٦ صفحات)، وهذه مواعيد السداد:',
 			items: [
-				{ text: '٣٠٪ عند توقيع العقد', meta: 'الدفعة الأولى', app: 'documents', source: 'المستندات · ص ٢' },
-				{ text: '٤٠٪ عند التسليم', meta: 'الدفعة الثانية', app: 'documents', source: 'المستندات · ص ٣' },
-				{ text: '٣٠٪ بعد ٣٠ يومًا من الاستلام', meta: 'الدفعة الأخيرة', app: 'documents', source: 'المستندات · ص ٣' },
+				{ text: '٣٠٪ عند توقيع العقد', meta: 'الدفعة الأولى', app: 'documents', source: 'تطبيق المستندات · ص ٢' },
+				{ text: '٤٠٪ عند التسليم', meta: 'الدفعة الثانية', app: 'documents', source: 'تطبيق المستندات · ص ٣' },
+				{ text: '٣٠٪ بعد ٣٠ يومًا من الاستلام', meta: 'الدفعة الأخيرة', app: 'documents', source: 'تطبيق المستندات · ص ٣' },
 			],
 		},
 	},
