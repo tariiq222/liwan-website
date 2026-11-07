@@ -65,20 +65,23 @@ const sampleApps = [
 
 		<!-- Sample: a hero composed only from the tokens below. -->
 		<section class="container">
-			<div class="sample-hero">
-				<span class="sadu hero-motif start" style="--sadu: url('/brand/sadu/sadu-panel.svg')" aria-hidden="true"></span>
-				<span class="sadu hero-motif end" style="--sadu: url('/brand/sadu/sadu-panel.svg')" aria-hidden="true"></span>
+			<div class="sample-hero" data-replay>
+				<div class="aurora" aria-hidden="true"></div>
+				<span class="sadu hero-motif start float" style="--sadu: url('/brand/sadu/sadu-panel.svg')" aria-hidden="true"></span>
+				<span class="sadu hero-motif end float" style="--sadu: url('/brand/sadu/sadu-panel.svg'); animation-delay: -3s" aria-hidden="true"></span>
 				<div class="hero-copy">
-					<span class="badge free">مجاني لأول ٣ مستخدمين</span>
-					<h2 class="display">كل أعمال شركتك في مكان واحد وبذكاء واحد</h2>
-					<p class="lead">العملاء والرسائل والمهام والاجتماعات في نظام عربي واحد، يقرأ من بيانات واحدة.</p>
-					<div class="actions">
+					<Mark size={64} animated />
+					<span class="badge free" data-reveal style="--i: 1">مجاني لأول ٣ مستخدمين</span>
+					<h2 class="display" data-reveal style="--i: 2">كل أعمال شركتك في مكان واحد <span class="text-gradient">وبذكاء واحد</span></h2>
+					<p class="lead" data-reveal style="--i: 3">العملاء والرسائل والمهام والاجتماعات في نظام عربي واحد، يقرأ من بيانات واحدة.</p>
+					<div class="actions" data-reveal style="--i: 4">
 						<a class="button large" href="#">ابدأ مجانًا</a>
 						<a class="button secondary large" href="#">شاهد التطبيقات</a>
 					</div>
 				</div>
-				<span class="sadu-band hero-band" aria-hidden="true"></span>
+				<span class="sadu-band hero-band drift" aria-hidden="true"></span>
 			</div>
+			<button type="button" class="button ghost small replay" data-replay-button>إعادة الحركة</button>
 		</section>
 
 		<section class="container block">
@@ -225,6 +228,74 @@ const sampleApps = [
 
 		<section class="container block">
 			<header class="block-head">
+				<h2>التدرجات</h2>
+				<p>كل التدرجات من ألوان الهوية نفسها. نستخدمها في الزر الرئيسي، وكلمة مهمة في العنوان، وحدود البطاقة المميزة، والضوء الخفيف خلف الأقسام.</p>
+			</header>
+			<div class="gradients">
+				<figure>
+					<div class="g-tile" style="background: var(--gradient-accent)"></div>
+					<figcaption><strong>تدرج ليوان</strong><code dir="ltr">--gradient-accent</code></figcaption>
+				</figure>
+				<figure>
+					<div class="g-tile" style="background: var(--gradient-sand)"></div>
+					<figcaption><strong>تدرج رملي</strong><code dir="ltr">--gradient-sand</code></figcaption>
+				</figure>
+				<figure>
+					<div class="g-tile g-aurora"><div class="aurora" aria-hidden="true"></div></div>
+					<figcaption><strong>ضوء متحرك</strong><code dir="ltr">.aurora</code></figcaption>
+				</figure>
+				<figure>
+					<div class="g-tile gradient-border g-border"><span>بطاقة مميزة</span></div>
+					<figcaption><strong>حد متدرج</strong><code dir="ltr">.gradient-border</code></figcaption>
+				</figure>
+			</div>
+			<p class="g-text">كل تطبيقاتك <span class="text-gradient">تقرأ من مصدر واحد</span></p>
+		</section>
+
+		<section class="container block">
+			<header class="block-head">
+				<h2>الحركة</h2>
+				<p>حركة هادئة تخدم القراءة: العناصر تظهر بالتتابع عند الوصول إليها، والشعار يُرسم، والبطاقات تتجاوب مع المؤشر. تتوقف كلها عند من أوقف الحركة في جهازه.</p>
+			</header>
+			<div class="motion-grid" data-replay>
+				<div class="card motion-card">
+					<Mark size={120} animated />
+					<strong>رسم الشعار</strong>
+					<small>الأقواس تُرسم، ثم المثلثات، ثم المعيّن</small>
+				</div>
+				<div class="card motion-card">
+					<div class="stagger">
+						{['العملاء', 'الرسائل', 'المهام', 'الاجتماعات'].map((n, i) => (
+							<span class="stagger-item" data-reveal="scale" style={`--i: ${i}`}>{n}</span>
+						))}
+					</div>
+					<strong>ظهور متتابع</strong>
+					<small>كل عنصر يتأخر قليلًا عن الذي قبله</small>
+				</div>
+				<div class="card motion-card">
+					<span class="sadu-band drift" style="color: var(--accent); width: 100%"></span>
+					<strong>سدو يتحرك</strong>
+					<small>شريط بطيء جدًا يعطي إحساس النسيج</small>
+				</div>
+			</div>
+			<button type="button" class="button ghost small replay" data-replay-button>إعادة الحركة</button>
+			<h3 class="sub">بطاقات تتجاوب مع المؤشر</h3>
+			<div class="cards">
+				{sampleApps.map((a, i) => (
+					<article class="card app-card gradient-border lift" data-spotlight data-reveal style={`--i: ${i}`}>
+						<div class="app-top">
+							<span class="app-icon"><span class="sadu" style="--sadu: url('/brand/sadu/sadu-diamond.svg')" aria-hidden="true"></span></span>
+							<span class={`badge ${a.badge}`}>{a.badge === 'free' ? 'مجاني' : 'قريبًا'}</span>
+						</div>
+						<h3>{a.name}</h3>
+						<p>{a.line}</p>
+					</article>
+				))}
+			</div>
+		</section>
+
+		<section class="container block">
+			<header class="block-head">
 				<h2>الشكل والعمق</h2>
 				<p>زوايا ناعمة، وظلال خفيفة. الأزرار والوسوم دائرية بالكامل.</p>
 			</header>
@@ -238,6 +309,20 @@ const sampleApps = [
 </Base>
 
 <script>
+	import { observeReveal } from '../scripts/motion';
+
+	// Replay: hide the entrances of the section above the button again, then let them play.
+	document.querySelectorAll<HTMLButtonElement>('[data-replay-button]').forEach((button) =>
+		button.addEventListener('click', () => {
+			const target = button.previousElementSibling?.matches('[data-replay]')
+				? button.previousElementSibling
+				: button.parentElement?.querySelector('[data-replay]');
+			if (!target) return;
+			target.querySelectorAll('.is-in').forEach((el) => el.classList.remove('is-in'));
+			requestAnimationFrame(() => requestAnimationFrame(() => observeReveal(target)));
+		}),
+	);
+
 	const root = document.documentElement;
 	const buttons = document.querySelectorAll<HTMLButtonElement>('[data-set-theme]');
 	buttons.forEach((b) =>
@@ -299,13 +384,14 @@ const sampleApps = [
 		position: relative;
 		overflow: hidden;
 		border-radius: var(--radius-lg);
-		background: linear-gradient(180deg, var(--accent-soft), var(--bg) 85%);
+		background: var(--bg);
 		border: 1px solid var(--border);
 		padding: var(--space-16) var(--gutter) var(--space-24);
 		text-align: center;
 	}
 	.hero-copy {
 		position: relative;
+		z-index: 1;
 		display: grid;
 		justify-items: center;
 		gap: var(--space-6);
@@ -575,6 +661,92 @@ const sampleApps = [
 		flex-wrap: wrap;
 		align-items: end;
 		gap: var(--space-12);
+	}
+
+	.replay {
+		justify-self: start;
+		margin-top: calc(var(--space-4) * -1);
+	}
+
+	/* Gradients. */
+	.gradients {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+		gap: var(--space-4);
+	}
+	.gradients figure {
+		margin: 0;
+		display: grid;
+		gap: var(--space-2);
+	}
+	.gradients figcaption {
+		display: grid;
+		line-height: 1.5;
+		color: var(--text);
+		font-size: var(--text-sm);
+	}
+	.gradients code {
+		justify-self: start;
+	}
+	.g-tile {
+		height: 140px;
+		border-radius: var(--radius-lg);
+		border: 1px solid var(--border);
+	}
+	.g-aurora {
+		position: relative;
+		overflow: hidden;
+		background: var(--bg);
+	}
+	.g-aurora .aurora {
+		filter: blur(30px);
+	}
+	.g-border {
+		display: grid;
+		place-items: center;
+		border-color: transparent;
+		color: var(--text-muted);
+		box-shadow: var(--shadow);
+	}
+	.g-text {
+		font-size: var(--text-3xl);
+		font-weight: 700;
+		line-height: 1.3;
+	}
+
+	/* Motion demos. */
+	.motion-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+		gap: var(--space-4);
+	}
+	.motion-card {
+		display: grid;
+		justify-items: center;
+		align-content: end;
+		gap: var(--space-2);
+		min-height: 260px;
+		text-align: center;
+	}
+	.motion-card :global(svg),
+	.motion-card .stagger,
+	.motion-card .sadu-band {
+		margin-bottom: auto;
+		margin-top: var(--space-4);
+	}
+	.stagger {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: var(--space-2);
+	}
+	.stagger-item {
+		padding: var(--space-2) var(--space-4);
+		border-radius: var(--radius-full);
+		background: var(--accent-soft);
+		color: var(--accent);
+		font-weight: 600;
+		font-size: var(--text-sm);
 	}
 
 	/* Depth. */

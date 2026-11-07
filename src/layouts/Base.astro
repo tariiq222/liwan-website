@@ -31,6 +31,7 @@ const alternates = [
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="generator" content={Astro.generator} />
+		<script is:inline>document.documentElement.classList.add('js');</script>
 		<title>{pageTitle}</title>
 		<meta name="description" content={metaDescription} />
 		{noindex && <meta name="robots" content="noindex" />}
@@ -56,5 +57,8 @@ const alternates = [
 			<slot />
 		</main>
 		<Footer locale={locale} path={path} />
+		<script>
+			import '../scripts/motion';
+		</script>
 	</body>
 </html>

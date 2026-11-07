@@ -72,9 +72,32 @@
 	--shadow: 0 1px 2px light-dark(rgb(20 16 42 / 0.05), rgb(0 0 0 / 0.3)), 0 8px 24px light-dark(rgb(20 16 42 / 0.07), rgb(0 0 0 / 0.35));
 	--shadow-lg: 0 2px 4px light-dark(rgb(20 16 42 / 0.05), rgb(0 0 0 / 0.3)), 0 24px 56px light-dark(rgb(60 30 110 / 0.14), rgb(0 0 0 / 0.5));
 
+	/* Gradients. All built from the brand colors; no new hues. */
+	--gradient-brand: linear-gradient(135deg, #8f5ad8 0%, #7843c6 45%, #5b2fa3 100%);
+	--gradient-brand-dark: linear-gradient(135deg, #d6c3ee 0%, #c2aae5 50%, #a586d6 100%);
+	--gradient-accent: light-dark(var(--gradient-brand), var(--gradient-brand-dark));
+	--gradient-text: light-dark(
+		linear-gradient(120deg, #5b2fa3 0%, #7843c6 40%, #a274e0 70%, #6b4e2e 120%),
+		linear-gradient(120deg, #e9ddf8 0%, #c2aae5 45%, #eadfc8 100%)
+	);
+	--gradient-sand: light-dark(
+		linear-gradient(160deg, #faf6ee 0%, #f1e6d0 100%),
+		linear-gradient(160deg, #2a2340 0%, #1d1939 100%)
+	);
+	--gradient-border: light-dark(
+		linear-gradient(135deg, #c2aae5, #eadfc8 50%, #7843c6),
+		linear-gradient(135deg, #7843c6, #463f72 50%, #c2aae5)
+	);
+	--aurora-1: light-dark(rgb(120 67 198 / 0.22), rgb(120 67 198 / 0.45));
+	--aurora-2: light-dark(rgb(234 223 200 / 0.9), rgb(194 170 229 / 0.18));
+	--aurora-3: light-dark(rgb(194 170 229 / 0.35), rgb(107 78 46 / 0.3));
+	--glow: light-dark(rgb(120 67 198 / 0.28), rgb(194 170 229 / 0.25));
+
 	/* Motion. */
 	--ease: cubic-bezier(0.22, 1, 0.36, 1);
+	--ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 	--duration: 200ms;
+	--duration-slow: 700ms;
 
 	--gutter: clamp(16px, 4vw, 32px);
 	--max-width: 1160px;
@@ -91,5 +114,6 @@
 @media (prefers-reduced-motion: reduce) {
 	:root {
 		--duration: 0ms;
+		--duration-slow: 0ms;
 	}
 }

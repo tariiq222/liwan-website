@@ -1,14 +1,17 @@
 ---
 // The LiwanOS mark, drawn from the copied path strings in src/brand/mark.ts. Below 24px it takes
-// the heavier stroke and the solid diamond, as in the product.
+// the heavier stroke and the solid diamond, as in the product. `animated` draws it in when it
+// scrolls into view (styles in src/styles/effects.css, trigger in src/scripts/motion.ts).
 import { MARK_ARCHES, MARK_DIAMOND_OUTLINE, MARK_DIAMOND_SOLID, MARK_TRIANGLES } from '../brand/mark';
 
 interface Props {
 	size?: number;
 	inverted?: boolean;
+	animated?: boolean;
+	class?: string;
 }
 
-const { size = 28, inverted = false } = Astro.props;
+const { size = 28, inverted = false, animated = false, class: className } = Astro.props;
 const heavy = size < 24;
 const color = inverted ? '#ffffff' : 'var(--accent)';
 ---
@@ -18,16 +21,19 @@ const color = inverted ? '#ffffff' : 'var(--accent)';
 	height={size}
 	viewBox={heavy ? '-2 -2 68 68' : '0 0 64 64'}
 	aria-hidden="true"
+	class:list={[className, { 'mark-anim': animated }]}
 	style={`color: ${color}; flex-shrink: 0;`}
 >
 	<path
+		class="mark-arches"
 		d={MARK_ARCHES}
+		pathLength="1"
 		fill="none"
 		stroke="currentColor"
 		stroke-width={heavy ? 7.5 : 4.6}
 		stroke-linejoin="round"
 		stroke-linecap="round"
 	/>
-	<path d={MARK_TRIANGLES.join('')} fill="currentColor" />
-	<path d={heavy ? MARK_DIAMOND_SOLID : MARK_DIAMOND_OUTLINE} fill="currentColor" />
+	{MARK_TRIANGLES.map((d, i) => <path class="mark-triangle" d={d} fill="currentColor" style={`--t: ${i}`} />)}
+	<path class="mark-diamond" d={heavy ? MARK_DIAMOND_SOLID : MARK_DIAMOND_OUTLINE} fill="currentColor" />
 </svg>

@@ -1,0 +1,216 @@
+/* Gradients, light effects and motion shared by every page.
+   Motion respects prefers-reduced-motion: entrances show at once and loops stop. */
+
+/* Primary button: brand gradient, soft glow and a light sheen that sweeps on hover. */
+.button:not(.secondary):not(.ghost) {
+	position: relative;
+	overflow: hidden;
+	isolation: isolate;
+	background: var(--gradient-accent);
+	box-shadow: 0 6px 18px -6px var(--glow);
+	transition:
+		transform var(--duration) var(--ease),
+		box-shadow var(--duration) var(--ease);
+}
+.button:not(.secondary):not(.ghost)::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	background: linear-gradient(105deg, transparent 30%, rgb(255 255 255 / 0.35) 50%, transparent 70%);
+	transform: translateX(-120%);
+	transition: transform 0s;
+}
+.button:not(.secondary):not(.ghost):hover {
+	transform: translateY(-1px);
+	box-shadow: 0 10px 26px -8px var(--glow);
+}
+.button:not(.secondary):not(.ghost):hover::after {
+	transform: translateX(120%);
+	transition: transform 800ms var(--ease);
+}
+.button:active {
+	transform: translateY(0) scale(0.98);
+}
+
+.badge.free {
+	background: var(--gradient-accent);
+}
+
+/* Text gradient for one highlighted phrase in a heading. */
+.text-gradient {
+	background: var(--gradient-text);
+	-webkit-background-clip: text;
+	background-clip: text;
+	color: transparent;
+	-webkit-box-decoration-break: clone;
+	box-decoration-break: clone;
+}
+
+/* Gradient hairline border for featured cards. */
+.gradient-border {
+	border: 1px solid transparent;
+	background:
+		linear-gradient(var(--surface), var(--surface)) padding-box,
+		var(--gradient-border) border-box;
+}
+
+/* Soft drifting light behind a hero or a featured section. Put it as the first child of a
+   position: relative container with overflow: hidden. */
+.aurora {
+	position: absolute;
+	inset: -20%;
+	z-index: 0;
+	pointer-events: none;
+	filter: blur(60px);
+	background:
+		radial-gradient(38% 42% at 25% 30%, var(--aurora-1), transparent 70%),
+		radial-gradient(34% 38% at 75% 25%, var(--aurora-2), transparent 70%),
+		radial-gradient(40% 40% at 55% 80%, var(--aurora-3), transparent 70%);
+	animation: aurora-drift 22s var(--ease) infinite alternate;
+}
+@keyframes aurora-drift {
+	0% {
+		transform: translate3d(0, 0, 0) scale(1);
+	}
+	50% {
+		transform: translate3d(4%, -3%, 0) scale(1.08);
+	}
+	100% {
+		transform: translate3d(-3%, 4%, 0) scale(1.02);
+	}
+}
+
+/* Pointer spotlight: a soft glow follows the cursor inside the card (see src/scripts/motion.ts). */
+[data-spotlight] {
+	position: relative;
+	overflow: hidden;
+}
+[data-spotlight]::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	opacity: 0;
+	background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), var(--glow), transparent 70%);
+	transition: opacity var(--duration) var(--ease);
+}
+[data-spotlight]:hover::before {
+	opacity: 1;
+}
+[data-spotlight] > * {
+	position: relative;
+}
+
+/* Hover lift for cards. */
+.lift {
+	transition:
+		transform var(--duration) var(--ease),
+		box-shadow var(--duration) var(--ease);
+}
+.lift:hover {
+	transform: translateY(-3px);
+	box-shadow: var(--shadow-lg);
+}
+
+/* Scroll entrance. src/scripts/motion.ts adds .is-in when the element enters the viewport.
+   --i staggers siblings. Without JavaScript the class is never removed from view. */
+.js [data-reveal] {
+	opacity: 0;
+	transform: translateY(18px);
+	transition:
+		opacity var(--duration-slow) var(--ease),
+		transform var(--duration-slow) var(--ease);
+	transition-delay: calc(var(--i, 0) * 90ms);
+}
+.js [data-reveal='scale'] {
+	transform: scale(0.94);
+}
+.js [data-reveal='fade'] {
+	transform: none;
+}
+.js [data-reveal].is-in {
+	opacity: 1;
+	transform: none;
+}
+
+/* Sadu band that drifts slowly sideways. One tile is 238 x 124, drawn 28px tall. */
+.sadu-band.drift {
+	animation: sadu-drift 6s linear infinite;
+}
+@keyframes sadu-drift {
+	to {
+		-webkit-mask-position: calc(28px * 238 / 124) center;
+		mask-position: calc(28px * 238 / 124) center;
+	}
+}
+
+/* Mark entrance: the arches draw, the four triangles pop in, then the diamond lights. */
+.mark-anim .mark-arches {
+	stroke-dasharray: 1;
+	stroke-dashoffset: 1;
+}
+.mark-anim .mark-triangle,
+.mark-anim .mark-diamond {
+	opacity: 0;
+	transform: scale(0.4);
+	transform-box: fill-box;
+	transform-origin: center;
+}
+.mark-anim.is-in .mark-arches {
+	animation: mark-draw 1.2s var(--ease) forwards;
+}
+.mark-anim.is-in .mark-triangle {
+	animation: mark-pop 500ms var(--ease-spring) forwards;
+	animation-delay: calc(700ms + var(--t) * 90ms);
+}
+.mark-anim.is-in .mark-diamond {
+	animation: mark-pop 600ms var(--ease-spring) 1.15s forwards;
+}
+@keyframes mark-draw {
+	to {
+		stroke-dashoffset: 0;
+	}
+}
+@keyframes mark-pop {
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+/* Gentle float for decorative pieces. */
+.float {
+	animation: float 6s ease-in-out infinite;
+}
+@keyframes float {
+	50% {
+		transform: translateY(-8px);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.aurora,
+	.sadu-band.drift,
+	.float {
+		animation: none;
+	}
+	.js [data-reveal] {
+		opacity: 1;
+		transform: none;
+	}
+	.mark-anim .mark-arches {
+		stroke-dashoffset: 0;
+	}
+	.mark-anim .mark-triangle,
+	.mark-anim .mark-diamond {
+		opacity: 1;
+		transform: none;
+	}
+	.mark-anim.is-in * {
+		animation: none !important;
+	}
+	.button:not(.secondary):not(.ghost):hover::after {
+		transition: none;
+	}
+}
