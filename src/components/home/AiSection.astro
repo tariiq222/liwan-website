@@ -603,10 +603,10 @@ const data = JSON.stringify({
 		position: relative;
 		flex: 1;
 		min-height: 0;
-		overflow-y: auto;
-		overscroll-behavior: contain;
+		/* The chat is an illustration: it scrolls itself as answers arrive (ai-chat.ts), and the
+		   visitor's wheel and touch always scroll the page. */
+		overflow-y: hidden;
 		padding: 16px 14px;
-		scrollbar-width: thin;
 	}
 	.lai-empty {
 		position: absolute;
