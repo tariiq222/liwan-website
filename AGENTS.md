@@ -25,7 +25,9 @@ Consult these guides before working on related tasks:
 
 - Arabic is the default locale and the layout is RTL-first. English is complete under `/en`.
 - Never hardcode a price. Prices come from the product's pricing endpoint (`src/lib/pricing.ts`);
-  on failure the page shows "contact us".
+  on failure the page shows "contact us". For local design work only, the dev server reads
+  `fixtures/pricing.sample.json` (the contract's seed shape) when `PRICING_FIXTURE` points at it;
+  a production build never reads it.
 - Never claim anything that is not `available` in `src/config/claims.ts`. A `soon` claim carries the
   word "soon" (قريبًا); a `hidden` claim appears nowhere. States change only when the product's claims register changes.
 - No personal data is stored on this site and no third-party form service is used. The only form

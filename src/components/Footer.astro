@@ -1,7 +1,10 @@
 ---
+// Site footer (spec 2I): slim Sadu band, brand column, three link columns, bottom line.
+// No email address anywhere: the domain cannot receive mail.
 import Mark from './Mark.astro';
 import { localePath, otherLocale, t, type DictKey, type Locale } from '../i18n';
-import { APP_URL, WHATSAPP_URL } from '../config/site';
+import { WHATSAPP_URL } from '../config/site';
+import { loginUrl } from '../lib/links';
 
 interface Props {
 	locale: Locale;
@@ -10,10 +13,10 @@ interface Props {
 
 const { locale, path } = Astro.props;
 const other = otherLocale(locale);
-const page = (route: string, key: DictKey) => ({ href: localePath(locale, route), label: t(locale, key) });
+type FooterLink = { href: string; label: string; app?: boolean };
+const page = (route: string, key: DictKey): FooterLink => ({ href: localePath(locale, route), label: t(locale, key) });
 
-// No email address anywhere: the domain cannot receive mail.
-const columns: { title: DictKey; links: { href: string; label: string }[] }[] = [
+const columns: { title: DictKey; links: FooterLink[] }[] = [
 	{
 		title: 'footer.product',
 		links: [page('/apps', 'page.apps'), page('/apps/ai', 'footer.ai'), page('/pricing', 'page.pricing')],
@@ -23,7 +26,7 @@ const columns: { title: DictKey; links: { href: string; label: string }[] }[] = 
 		links: [
 			page('/security', 'footer.security'),
 			page('/contact', 'page.contact'),
-			{ href: `${APP_URL}/login?lang=${locale}`, label: t(locale, 'cta.login') },
+			{ href: loginUrl(locale), label: t(locale, 'cta.login'), app: true },
 		],
 	},
 	{
@@ -33,12 +36,12 @@ const columns: { title: DictKey; links: { href: string; label: string }[] }[] = 
 ];
 ---
 
-<div class="sadu-band" aria-hidden="true"></div>
+<div class="footer-band" aria-hidden="true"><span class="sadu-band"></span></div>
 <footer class="site-footer">
 	<div class="container grid">
 		<div class="brand-col">
 			<a class="brand" href={localePath(locale, '/')}>
-				<Mark size={28} />
+				<Mark size={32} />
 				<span>{t(locale, 'brand.name')}</span>
 			</a>
 			<p>{t(locale, 'brand.tagline')}</p>
@@ -50,7 +53,9 @@ const columns: { title: DictKey; links: { href: string; label: string }[] }[] = 
 					<ul>
 						{col.links.map((l) => (
 							<li>
-								<a href={l.href}>{l.label}</a>
+								<a href={l.href} data-app-link={l.app ? '' : undefined}>
+									{l.label}
+								</a>
 							</li>
 						))}
 					</ul>
@@ -60,73 +65,86 @@ const columns: { title: DictKey; links: { href: string; label: string }[] }[] = 
 	</div>
 	<div class="container bottom">
 		<span>{t(locale, 'footer.copyright')}</span>
-		{WHATSAPP_URL && <a href={WHATSAPP_URL} rel="noopener">{t(locale, 'footer.whatsapp')}</a>}
-		<a href={localePath(other, path)} hreflang={other} lang={other}>{t(locale, 'nav.language')}</a>
+		<div class="bottom-links">
+			{WHATSAPP_URL && <a href={WHATSAPP_URL} rel="noopener">{t(locale, 'footer.whatsapp')}</a>}
+			<a href={localePath(other, path)} hreflang={other} lang={other}>{t(locale, 'nav.language')}</a>
+		</div>
 	</div>
 </footer>
 
 <style>
-	.sadu-band {
-		height: 28px;
-		background: var(--sand);
-		mask-image: url('/brand/sadu/sadu-band-slim.svg');
-		mask-repeat: repeat-x;
-		mask-position: center;
-		mask-size: auto 100%;
-		-webkit-mask-image: url('/brand/sadu/sadu-band-slim.svg');
-		-webkit-mask-repeat: repeat-x;
-		-webkit-mask-position: center;
-		-webkit-mask-size: auto 100%;
-		margin-top: 3rem;
+	.footer-band {
+		background: var(--surface-sunken);
+		color: var(--sand-300);
+		padding-top: var(--space-2);
+	}
+	.footer-band .sadu-band {
+		height: 22px;
 	}
 	.site-footer {
 		background: var(--surface-sunken);
-		padding-block: 2rem 1rem;
+		padding-block: var(--space-12) var(--space-8);
+		font-size: var(--text-sm);
 	}
 	.grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-		gap: 2rem;
+		grid-template-columns: 1.6fr repeat(3, 1fr);
+		gap: var(--space-8);
 	}
 	.brand {
 		display: inline-flex;
 		align-items: center;
-		gap: 0.5rem;
-		font-weight: 700;
-		font-size: 1.2rem;
+		gap: var(--space-2);
 		color: var(--text);
+		font-size: 1.3rem;
+		font-weight: 700;
 		text-decoration: none;
 	}
 	.brand-col p {
+		margin-top: var(--space-3);
 		color: var(--text-muted);
-		margin-block: 0.5rem 0;
+		max-width: 32ch;
 	}
 	h2 {
-		font-size: 1rem;
-		margin: 0 0 0.5rem;
+		font-size: var(--text-sm);
+		font-weight: 600;
+		color: var(--text);
+		margin-bottom: var(--space-3);
 	}
 	ul {
 		list-style: none;
 		margin: 0;
 		padding: 0;
+		display: grid;
+		gap: var(--space-2);
 	}
-	li a {
+	a {
 		color: var(--text-muted);
 		text-decoration: none;
 	}
-	li a:hover {
+	a:hover {
 		color: var(--accent);
 	}
 	.bottom {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.5rem 1.5rem;
-		margin-top: 2rem;
-		padding-top: 1rem;
+		justify-content: space-between;
+		gap: var(--space-4);
+		margin-top: var(--space-12);
+		padding-top: var(--space-6);
 		border-top: 1px solid var(--border);
 		color: var(--text-muted);
 	}
-	.bottom a {
-		color: var(--text-muted);
+	.bottom-links {
+		display: flex;
+		gap: var(--space-6);
+	}
+	@media (max-width: 760px) {
+		.grid {
+			grid-template-columns: 1fr 1fr;
+		}
+		.brand-col {
+			grid-column: 1 / -1;
+		}
 	}
 </style>

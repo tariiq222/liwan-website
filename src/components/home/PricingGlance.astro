@@ -1,0 +1,561 @@
+---
+// Home section 6: the free base, a subscription calculator and the trial and refund promise.
+// Every figure comes from the public pricing object. Without it the numbers disappear and the
+// section offers the free base and "contact us".
+import { getCollection } from 'astro:content';
+import Icon from '../Icon.astro';
+import Section from '../Section.astro';
+import { registerUrl } from '../../lib/links';
+import { formatMoney, getPricing } from '../../lib/pricing';
+import { daysLabel, numberAr, storageLabel, usersLabel } from '../../scripts/pricing-format';
+import { localePath } from '../../i18n';
+
+const pricing = await getPricing();
+const register = registerUrl('ar');
+const contact = localePath('ar', '/contact');
+const money = (amount: number) => (pricing ? formatMoney('ar', amount, pricing.currency) : '');
+
+const catalog = await getCollection('apps');
+const appName = (key: string, fallback: string) => catalog.find((entry) => entry.data.featureKey === `${key}.enabled`)?.data.name.ar ?? fallback;
+
+const baseFacts = [
+	pricing && `حتى ${usersLabel(pricing.free.users)}`,
+	'المهام والمحادثات',
+	'الاجتماعات والمستندات',
+	'الطلبات والموافقات',
+	'ليوان AI',
+	pricing && `${storageLabel(pricing.free.storage_gb)} للتخزين`,
+].filter((fact): fact is string => Boolean(fact));
+const calcJson = pricing ? JSON.stringify(pricing).replace(/</g, '\\u003c') : '';
+---
+
+<Section
+	id="pricing"
+	eyebrow="الأسعار"
+	title="سعر واضح، يكبر مع فريقك"
+	lead="ابدأ مجانًا، وادفع فقط للتطبيقات التي تحتاجها وللمستخدمين الذين تضيفهم."
+>
+	<div class:list={['glance', { 'no-prices': !pricing }]} data-calc={pricing ? '' : undefined}>
+		{pricing && <script is:inline type="application/json" data-calc-data set:html={calcJson} />}
+
+		{
+			pricing && (
+				<div class="billing" role="radiogroup" aria-label="دورة الدفع" data-reveal>
+					<label>
+						<input type="radio" name="billing" value="monthly" checked />
+						<span class="seg">شهري</span>
+					</label>
+					<label>
+						<input type="radio" name="billing" value="annual" />
+						<span class="seg">
+							سنوي <span class="badge free">شهران مجانًا</span>
+						</span>
+					</label>
+				</div>
+			)
+		}
+
+		<div class="cols">
+			<article class="base" data-reveal style="--i: 1">
+				<h3>الأساس — مجانًا، دائمًا، بلا مدة</h3>
+				<ul class="facts">
+					{
+						baseFacts.map((fact) => (
+							<li>
+								<Icon name="check" size={16} strokeWidth={2.4} />
+								{fact}
+							</li>
+						))
+					}
+				</ul>
+				{
+					!pricing && (
+						<a class="button" href={contact}>
+							تواصل معنا
+						</a>
+					)
+				}
+			</article>
+
+			{
+				pricing && (
+					<div class="calc gradient-border" data-reveal style="--i: 2">
+						<h3>احسب اشتراكك</h3>
+
+						<fieldset class="group">
+							<legend>التطبيقات</legend>
+							{pricing.apps.map((app) => (
+								<label class="option">
+									<input type="checkbox" data-app value={app.key} />
+									<span class="option-name">{appName(app.key, app.name_ar)}</span>
+									<span class="option-price">
+										<span data-price-app={app.key}>{money(app.monthly)}</span> <span data-period-word>شهريًا</span>
+									</span>
+								</label>
+							))}
+						</fieldset>
+
+						<div class="group">
+							<div class="group-head">
+								<label for="calc-users">المستخدمون</label>
+								<output for="calc-users" data-users-out>
+									{usersLabel(1)}
+								</output>
+							</div>
+							<input id="calc-users" type="range" min="1" max={pricing.extra_user.max_users} step="1" value="1" data-users />
+							<p class="hint">
+								أول {usersLabel(pricing.free.users)} مجانًا، وكل مستخدم إضافي{' '}
+								<span data-price-user>{money(pricing.extra_user.monthly)}</span> <span data-period-word>شهريًا</span>
+							</p>
+							<p class="hint" data-users-max hidden>
+								فريق أكبر من هذا؟ <a href={contact}>تواصل معنا</a>
+							</p>
+						</div>
+
+						<div class="group">
+							<div class="group-head">
+								<span id="calc-storage-label">التخزين</span>
+							</div>
+							<div class="stepper" role="group" aria-labelledby="calc-storage-label">
+								<button type="button" class="step-btn" data-storage-down aria-label="تقليل التخزين">
+									<span class="minus" />
+								</button>
+								<output data-storage-out aria-live="polite">{storageLabel(pricing.free.storage_gb)}</output>
+								<button type="button" class="step-btn" data-storage-up aria-label="زيادة التخزين">
+									<Icon name="plus" size={18} strokeWidth={2.4} />
+								</button>
+							</div>
+							<p class="hint">
+								أول {storageLabel(pricing.free.storage_gb)} مجانًا، ثم كل {storageLabel(pricing.extra_storage.block_gb)}{' '}
+								<span data-price-storage>{money(pricing.extra_storage.block_monthly)}</span> <span data-period-word>شهريًا</span>
+							</p>
+						</div>
+
+						<label class="option">
+							<input type="checkbox" data-onboarding />
+							<span class="option-name">
+								إعداد مع فريقنا
+								<small>نجهّز معك كل شيء خلال شهر، بزيارات لمقرّك أو اجتماعات</small>
+							</span>
+							<span class="option-price">{money(pricing.onboarding.one_time)} مرة واحدة</span>
+						</label>
+
+						<div class="total" aria-live="polite">
+							<p class="total-main">
+								<span class="total-label">اشتراكك</span>
+								<strong data-total>مجانًا</strong>
+								<span data-period data-period-word hidden>
+									شهريًا
+								</span>
+							</p>
+							<ul class="breakdown">
+								{pricing.apps.map((app) => (
+									<li data-line-app={app.key} hidden>
+										<span>{appName(app.key, app.name_ar)}</span>
+										<span data-amount />
+									</li>
+								))}
+								<li data-line-users hidden>
+									<span>
+										مستخدمون إضافيون <small data-qty />
+									</span>
+									<span data-amount />
+								</li>
+								<li data-line-storage hidden>
+									<span>
+										تخزين إضافي <small data-qty />
+									</span>
+									<span data-amount />
+								</li>
+							</ul>
+							<p class="saving" data-saving hidden>
+								توفّر <strong data-saving-amount /> في السنة بالدفع السنوي
+							</p>
+							<p class="onboarding-line" data-onboarding-line hidden>
+								<span>إعداد مع فريقنا، مرة واحدة</span>
+								<strong data-onboarding-amount />
+							</p>
+							<a class="button large" href={register} data-app-link>
+								جرّب ١٤ يومًا مجانًا
+							</a>
+						</div>
+					</div>
+				)
+			}
+		</div>
+	</div>
+
+	<div class="band" data-reveal>
+		<span class="band-item">
+			<Icon name="check" size={18} strokeWidth={2.4} />
+			١٤ يومًا تجربة مجانية بلا بطاقة
+		</span>
+		{
+			pricing && (
+				<>
+					<Icon name="arrow-left" size={18} class="band-arrow" />
+					<span class="band-item">
+						<Icon name="shield" size={18} />
+						ثم {daysLabel(pricing.refund_days)} ضمان استرداد كامل من أول دفعة
+					</span>
+				</>
+			)
+		}
+	</div>
+
+	<div class="foot">
+		<p>رسائل واتساب التسويقية تحاسبك عليها ميتا مباشرة من حسابك.</p>
+		<a class="more" href={localePath('ar', '/pricing')}>
+			كل التفاصيل
+			<Icon name="arrow-left" size={16} />
+		</a>
+	</div>
+</Section>
+
+<script>
+	import '../../scripts/pricing-calculator';
+</script>
+
+<style>
+	.glance {
+		display: grid;
+		gap: var(--space-6);
+		justify-items: center;
+	}
+	.cols {
+		display: grid;
+		width: 100%;
+		gap: var(--space-6);
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr);
+		align-items: start;
+	}
+	.no-prices .cols {
+		grid-template-columns: minmax(0, 560px);
+		justify-content: center;
+	}
+
+	.billing {
+		display: inline-flex;
+		padding: 4px;
+		border: 1px solid var(--border);
+		border-radius: var(--radius-full);
+		background: var(--surface);
+	}
+	.billing label {
+		position: relative;
+	}
+	.billing input {
+		position: absolute;
+		opacity: 0;
+		pointer-events: none;
+	}
+	.seg {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-2);
+		min-height: 40px;
+		padding: 0 1.1rem;
+		border-radius: var(--radius-full);
+		font-weight: 600;
+		cursor: pointer;
+		transition:
+			background var(--duration) var(--ease),
+			color var(--duration) var(--ease);
+	}
+	.billing input:checked + .seg {
+		background: var(--accent);
+		color: var(--on-accent);
+	}
+	.billing input:focus-visible + .seg {
+		outline: 2px solid var(--focus);
+		outline-offset: 2px;
+	}
+
+	.base {
+		display: grid;
+		gap: var(--space-4);
+		padding: var(--space-8);
+		border: 1px solid var(--border-strong);
+		border-radius: var(--radius-lg);
+		background: var(--gradient-sand);
+	}
+	.base h3 {
+		font-size: var(--text-xl);
+	}
+	.base .button {
+		justify-self: start;
+	}
+	.facts {
+		display: grid;
+		gap: var(--space-2);
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	.facts li {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+	}
+	.facts :global(svg) {
+		flex-shrink: 0;
+		color: var(--success);
+	}
+
+	.calc {
+		display: grid;
+		gap: var(--space-6);
+		padding: var(--space-8);
+		border-radius: var(--radius-lg);
+		box-shadow: var(--shadow);
+	}
+	.calc h3 {
+		font-size: var(--text-xl);
+	}
+	.group {
+		display: grid;
+		gap: var(--space-2);
+		min-width: 0;
+		margin: 0;
+		padding: 0;
+		border: 0;
+	}
+	legend,
+	.group-head label,
+	.group-head > span {
+		padding: 0;
+		font-weight: 600;
+	}
+	legend {
+		margin-bottom: var(--space-2);
+	}
+	.group-head {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: var(--space-3);
+	}
+	output {
+		color: var(--accent);
+		font-weight: 700;
+	}
+	.hint {
+		color: var(--text-muted);
+		font-size: var(--text-sm);
+	}
+	.calc [hidden] {
+		display: none;
+	}
+	input[type='range'] {
+		width: 100%;
+		accent-color: var(--accent);
+	}
+
+	.option {
+		display: grid;
+		grid-template-columns: auto 1fr auto;
+		align-items: center;
+		gap: var(--space-3);
+		margin-bottom: var(--space-2);
+		padding: var(--space-3) var(--space-4);
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		background: var(--surface);
+		cursor: pointer;
+		transition:
+			border-color var(--duration) var(--ease),
+			background var(--duration) var(--ease);
+	}
+	.option:hover {
+		border-color: var(--border-strong);
+	}
+	.option:has(input:checked) {
+		border-color: var(--accent);
+		background: var(--accent-soft);
+	}
+	.option input {
+		width: 20px;
+		height: 20px;
+		accent-color: var(--accent);
+	}
+	.option-name {
+		display: grid;
+		font-weight: 600;
+	}
+	.option-name small {
+		color: var(--text-muted);
+		font-size: var(--text-xs);
+		font-weight: 400;
+		line-height: 1.6;
+	}
+	.option-price {
+		color: var(--text-muted);
+		font-size: var(--text-sm);
+		text-align: end;
+	}
+
+	.stepper {
+		display: flex;
+		align-items: center;
+		gap: var(--space-4);
+	}
+	.stepper output {
+		min-width: 8rem;
+		text-align: center;
+		font-size: var(--text-lg);
+	}
+	.step-btn {
+		display: grid;
+		place-items: center;
+		width: 44px;
+		height: 44px;
+		padding: 0;
+		border: 1px solid var(--border-strong);
+		border-radius: 50%;
+		background: var(--surface);
+		color: var(--text);
+		cursor: pointer;
+		transition:
+			border-color var(--duration) var(--ease),
+			color var(--duration) var(--ease);
+	}
+	.minus {
+		width: 14px;
+		height: 2.4px;
+		border-radius: 2px;
+		background: currentColor;
+	}
+	.step-btn:hover:not(:disabled) {
+		border-color: var(--accent);
+		color: var(--accent);
+	}
+	.step-btn:disabled {
+		opacity: 0.4;
+		cursor: default;
+	}
+
+	.total {
+		display: grid;
+		gap: var(--space-3);
+		padding: var(--space-6);
+		border-radius: var(--radius);
+		background: var(--surface-sunken);
+	}
+	.total-main {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: var(--space-2);
+	}
+	.total-label {
+		margin-inline-end: auto;
+		color: var(--text-muted);
+	}
+	.total-main strong {
+		font-size: var(--text-3xl);
+		line-height: 1.2;
+	}
+	.breakdown {
+		display: grid;
+		gap: var(--space-1);
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		color: var(--text-muted);
+		font-size: var(--text-sm);
+	}
+	.breakdown li {
+		display: flex;
+		justify-content: space-between;
+		gap: var(--space-3);
+	}
+	.breakdown small {
+		font-size: inherit;
+	}
+	.saving {
+		color: var(--success-text);
+		font-size: var(--text-sm);
+		font-weight: 600;
+	}
+	.onboarding-line {
+		display: flex;
+		justify-content: space-between;
+		gap: var(--space-3);
+		padding-top: var(--space-3);
+		border-top: 1px dashed var(--border-strong);
+		font-size: var(--text-sm);
+	}
+	.total .button {
+		justify-self: stretch;
+		margin-top: var(--space-2);
+	}
+
+	.band {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-3) var(--space-4);
+		margin-top: var(--space-8);
+		padding: var(--space-4) var(--space-6);
+		border-radius: var(--radius-full);
+		background: var(--accent-soft);
+		font-weight: 600;
+	}
+	.band-item {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-2);
+	}
+	.band-item :global(svg) {
+		color: var(--accent);
+	}
+	.band :global(.band-arrow) {
+		color: var(--accent);
+	}
+	.foot {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-3) var(--space-6);
+		margin-top: var(--space-6);
+		color: var(--text-muted);
+		font-size: var(--text-sm);
+	}
+	.more {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-1);
+		font-weight: 600;
+		text-decoration: none;
+	}
+	.more:hover {
+		text-decoration: underline;
+	}
+
+	@media (max-width: 900px) {
+		.cols {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+	@media (max-width: 560px) {
+		.base,
+		.calc {
+			padding: var(--space-6) var(--space-4);
+		}
+		.option {
+			grid-template-columns: auto 1fr;
+		}
+		.option-price {
+			grid-column: 2;
+			text-align: start;
+		}
+		.band {
+			border-radius: var(--radius-lg);
+		}
+		.band :global(.band-arrow) {
+			display: none;
+		}
+	}
+</style>

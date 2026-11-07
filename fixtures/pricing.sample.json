@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "currency": "SAR",
+  "tax": "none",
+  "free": { "users": 3, "storage_gb": 20, "branches": 1, "apps": ["tasks", "chat", "documents", "meetings", "operations", "ai"] },
+  "apps": [
+    { "key": "crm", "name_ar": "إدارة العملاء", "name_en": "CRM", "monthly": 99, "annual": 990 },
+    { "key": "inbox", "name_ar": "رسائل العملاء", "name_en": "Customer messages", "monthly": 250, "annual": 2500 }
+  ],
+  "extra_user": { "monthly": 29, "annual": 290, "max_users": 100 },
+  "extra_storage": { "per_gb_monthly": 1, "block_gb": 10, "block_monthly": 10, "step_gb": 10, "step_gb_after": 100, "step_gb_large": 100 },
+  "onboarding": { "one_time": 499 },
+  "refund_days": 14
+}

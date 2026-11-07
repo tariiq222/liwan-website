@@ -1,7 +1,7 @@
 ---
 slug: tasks
 order: 3
-icon: check-square
+icon: square-check
 status: available
 plan: free
 name:

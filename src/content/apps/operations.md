@@ -1,7 +1,7 @@
 ---
 slug: operations
 order: 7
-icon: workflow
+icon: clipboard-check
 status: available
 plan: free
 name:

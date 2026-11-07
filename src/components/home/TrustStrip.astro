@@ -1,0 +1,74 @@
+---
+// Trust strip under the hero (spec 2B): one row on a sand band, edged by the slim Sadu band,
+// items separated by the Sadu dot. Narrow screens switch each item to its short wording.
+// The hosting item is published only when its claim is available.
+import { claim } from '../../config/claims';
+
+const items = [
+	{ long: 'مستضاف في السعودية', short: 'في السعودية', show: claim('saudiHosting') === 'available' },
+	{ long: 'كل تطبيقاتك تقرأ من مصدر واحد', short: 'مصدر واحد', show: true },
+	{ long: 'لا باقات، ولا ميزات مقفلة', short: 'بلا باقات', show: true },
+	{ long: 'قاعدة بيانات خاصة بشركتك', short: 'قاعدة خاصة', show: true },
+].filter((item) => item.show);
+---
+
+<section class="trust" aria-label="لماذا ليوان">
+	<span class="sadu-band edge" aria-hidden="true"></span>
+	<ul class="container row">
+		{
+			items.map((item, i) => (
+				<>
+					{i > 0 && <li class="sep" aria-hidden="true" />}
+					<li class="item">
+						<span class="long">{item.long}</span>
+						<span class="short">{item.short}</span>
+					</li>
+				</>
+			))
+		}
+	</ul>
+	<span class="sadu-band edge" aria-hidden="true"></span>
+</section>
+
+<style>
+	.trust {
+		background: var(--surface-sand);
+		color: var(--earth);
+	}
+	.edge {
+		height: 14px;
+		opacity: 0.55;
+	}
+	.row {
+		list-style: none;
+		margin: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: clamp(0.75rem, 0.4rem + 1.6vw, 2rem);
+		padding-block: var(--space-4);
+		font-weight: 600;
+		font-size: clamp(0.8rem, 0.7rem + 0.4vw, 1.05rem);
+		white-space: nowrap;
+	}
+	.sep {
+		width: 9px;
+		height: 9px;
+		flex-shrink: 0;
+		background: currentColor;
+		opacity: 0.7;
+		-webkit-mask: url('/brand/sadu/sadu-dot.svg') center / contain no-repeat;
+		mask: url('/brand/sadu/sadu-dot.svg') center / contain no-repeat;
+	}
+	.short {
+		display: none;
+	}
+	@media (max-width: 720px) {
+		.long {
+			display: none;
+		}
+		.short {
+			display: inline;
+		}
+	}
+</style>

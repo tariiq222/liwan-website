@@ -1,0 +1,150 @@
+---
+// Home section 8: common questions in one framed column. `<details name="faq">` keeps one answer
+// open at a time without a script. The refund period comes from the public pricing object.
+import Icon from '../Icon.astro';
+import Section from '../Section.astro';
+import { getPricing } from '../../lib/pricing';
+import { daysLabel } from '../../scripts/pricing-format';
+import { localePath } from '../../i18n';
+
+const pricing = await getPricing();
+const refundPeriod = pricing ? daysLabel(pricing.refund_days) : 'فترة الضمان';
+
+const FAQ = [
+	{ q: 'هل أحتاج بطاقة ائتمان لأبدأ؟', a: 'لا. تجرّب ١٤ يومًا كاملة بكل التطبيقات، بلا بطاقة ولا التزام.' },
+	{
+		q: 'ماذا يحدث بعد انتهاء التجربة؟',
+		a: 'تبقى شركتك على الأساس المجاني دائمًا، ببياناتها كاملة. والتطبيقات المدفوعة تبقى بياناتها للعرض والتصدير حتى تشترك فيها.',
+	},
+	{
+		q: 'هل أسترجع مبلغي إن لم يناسبني؟',
+		a: `نعم. نعيد لك المبلغ كاملًا خلال ${refundPeriod} من أول دفعة، في الاشتراك الشهري والسنوي.`,
+	},
+	{ q: 'هل أستطيع الإلغاء متى شئت؟', a: 'نعم، وتبقى على الأساس المجاني ولا تخسر بياناتك.' },
+	{
+		q: 'كيف أربط رقم واتساب شركتي؟',
+		a: 'من داخل ليوان بخطوات قليلة عبر ميتا. ورسائل واتساب التسويقية تحاسبك عليها ميتا مباشرة من حسابك.',
+	},
+	{ q: 'هل النظام بالعربي؟', a: 'العربية أولًا، والإنجليزية كاملة أيضًا.' },
+	{
+		q: 'من يساعدني إن احتجت؟',
+		a: 'ليوان AI داخل النظام يجيبك فورًا، وفريقنا يرد عليك بنفسه من صفحة تواصل معنا. وإن أردت، نجهّز معك كل شيء بالإعداد مع فريقنا.',
+	},
+];
+---
+
+<Section id="faq" eyebrow="أسئلة شائعة" title="قبل أن تبدأ" align="center">
+	<div class="faq-column">
+		<div class="faq-frame" data-reveal>
+			{
+				FAQ.map((item, i) => (
+					<details name="faq" open={i === 0}>
+						<summary>
+							<span>{item.q}</span>
+							<Icon name="chevron-down" size={20} />
+						</summary>
+						<div class="answer">
+							<p>{item.a}</p>
+						</div>
+					</details>
+				))
+			}
+		</div>
+
+		<div class="faq-help" data-reveal>
+			<p>ما لقيت جوابك؟ اكتب لنا، ونرد عليك بنفسنا</p>
+			<a class="button" href={localePath('ar', '/contact')}>تواصل معنا</a>
+		</div>
+	</div>
+</Section>
+
+<style>
+	.faq-column {
+		display: grid;
+		gap: var(--space-6);
+		max-width: 760px;
+		margin-inline: auto;
+	}
+	.faq-frame {
+		overflow: hidden;
+		border: 1px solid var(--border);
+		border-radius: var(--radius-lg);
+		background: var(--surface);
+		box-shadow: var(--shadow-sm);
+	}
+	details + details {
+		border-top: 1px solid var(--border);
+	}
+	summary {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-4);
+		min-height: 68px;
+		padding: var(--space-3) var(--space-6);
+		font-weight: 600;
+		cursor: pointer;
+		list-style: none;
+		transition: background var(--duration) var(--ease);
+	}
+	summary::-webkit-details-marker {
+		display: none;
+	}
+	summary:hover {
+		background: var(--accent-soft);
+	}
+	summary:focus-visible {
+		outline-offset: -3px;
+	}
+	summary :global(svg) {
+		flex-shrink: 0;
+		color: var(--accent);
+		transition: transform var(--duration) var(--ease);
+	}
+	details[open] summary :global(svg) {
+		transform: rotate(180deg);
+	}
+	.answer {
+		padding: 0 var(--space-6) var(--space-6);
+		color: var(--text-muted);
+	}
+	details[open] .answer {
+		animation: answer-in 350ms var(--ease);
+	}
+	@keyframes answer-in {
+		from {
+			opacity: 0;
+			transform: translateY(-6px);
+		}
+	}
+
+	.faq-help {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-4);
+		padding: var(--space-6);
+		border-radius: var(--radius-lg);
+		background: var(--gradient-sand);
+		border: 1px solid var(--border);
+		font-weight: 600;
+	}
+
+	@media (max-width: 560px) {
+		summary {
+			padding-inline: var(--space-4);
+		}
+		.answer {
+			padding-inline: var(--space-4);
+		}
+		.faq-help .button {
+			flex: 1 1 100%;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		details[open] .answer {
+			animation: none;
+		}
+	}
+</style>

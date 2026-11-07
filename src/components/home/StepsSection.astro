@@ -1,0 +1,441 @@
+---
+// Home section 5: a map of the steps of a company's work, each under the application that
+// serves it. The three steps a company shapes carry a gear that opens what it sets there.
+// Each application is shaped in its own settings; the map does not describe a flow builder.
+import Icon from '../Icon.astro';
+import Section from '../Section.astro';
+import type { IconName } from '../../brand/icons';
+
+type Config = 'auto' | 'stages' | 'approval';
+
+interface Step {
+	word: string;
+	app?: string;
+	icon: IconName;
+	config?: Config;
+	soon?: boolean;
+}
+
+const STEPS: Step[] = [
+	{ word: 'تواصل', app: 'الرسائل', icon: 'message-circle' },
+	{ word: 'رد تلقائي', app: 'الرسائل', icon: 'reply-all', config: 'auto' },
+	{ word: 'فرصة بيع', app: 'العملاء', icon: 'trending-up', config: 'stages' },
+	{ word: 'متابعة', app: 'العملاء', icon: 'calendar' },
+	{ word: 'موافقة', app: 'العمليات', icon: 'clipboard-check', config: 'approval' },
+	{ word: 'دفع', icon: 'credit-card', soon: true },
+];
+const FIRST_CONFIG: Config = 'auto';
+const STAGES = ['جديدة', 'قيد المتابعة', 'عرض سعر', 'تم الاتفاق'];
+const APPROVERS = ['صاحب الطلب', 'مدير القسم', 'المدير العام'];
+---
+
+<Section
+	id="steps"
+	tone="sunken"
+	eyebrow="الخطوات"
+	title="شغلك كله له مكان في ليوان"
+	lead="من أول رسالة إلى آخر ريال، لكل خطوة تطبيقها. وكل تطبيق تضبطه على طريقة شركتك: مراحلك، وموافقاتك، وردودك."
+>
+	<div class="steps-wrap" data-steps>
+		<ol class="steps">
+			{
+				STEPS.map((step, i) => (
+					<li class:list={['step', { 'is-soon': step.soon, 'is-config': step.config, 'is-active': step.config === FIRST_CONFIG, 'to-soon': STEPS[i + 1]?.soon }]} data-reveal style={`--i: ${i}`}>
+						<span class="node">
+							<Icon name={step.icon} size={26} />
+							{step.config && (
+								<button
+									type="button"
+									class="gear"
+									data-gear={step.config}
+									data-pos={i}
+									aria-controls="steps-panel"
+									aria-pressed={String(step.config === FIRST_CONFIG)}
+									aria-label={`ما الذي تضبطه في خطوة ${step.word}؟`}
+								>
+									<Icon name="settings" size={16} />
+								</button>
+							)}
+						</span>
+						<span class="step-text">
+							<strong>{step.word}</strong>
+							{step.app && <span class="app">{step.app}</span>}
+							{step.soon && <span class="badge soon">قريبًا</span>}
+						</span>
+					</li>
+				))
+			}
+		</ol>
+
+		<div class="panel" id="steps-panel" style="--pos: 1" data-panel aria-live="polite">
+			<div class="view is-active" data-view="auto">
+				<p class="view-title"><Icon name="settings" size={16} /> تضبطه أنت: الرد خارج أوقات العمل</p>
+				<div class="switch-row">
+					<span>رد تلقائي خارج أوقات العمل</span>
+					<button type="button" class="switch" role="switch" aria-checked="true" aria-label="تشغيل الرد التلقائي" data-switch><i></i></button>
+				</div>
+				<p class="auto-reply">أهلًا بك! استلمنا رسالتك وسنرد عليك مع بداية دوام الفريق.</p>
+				<p class="view-note">وأوقات الدوام تحددها أنت.</p>
+			</div>
+
+			<div class="view" data-view="stages" inert>
+				<p class="view-title"><Icon name="settings" size={16} /> تضبطه أنت: مراحل المبيعات</p>
+				<ol class="chain">
+					{STAGES.map((name) => <li class="chip">{name}</li>)}
+					<li>
+						<button type="button" class="chip add" data-add data-add-label="مرحلة جديدة" data-add-max="2">
+							<Icon name="plus" size={14} strokeWidth={2.4} /> مرحلة
+						</button>
+					</li>
+				</ol>
+				<p class="view-note">مراحل تناسب طريقة بيعك، تضيف منها وترتب كما تشاء.</p>
+			</div>
+
+			<div class="view" data-view="approval" inert>
+				<p class="view-title"><Icon name="settings" size={16} /> تضبطه أنت: خطوات الموافقة</p>
+				<ol class="chain">
+					{APPROVERS.map((name) => <li class="chip">{name}</li>)}
+					<li>
+						<button type="button" class="chip add" data-add data-add-label="خطوة جديدة" data-add-max="2">
+							<Icon name="plus" size={14} strokeWidth={2.4} /> خطوة موافقة
+						</button>
+					</li>
+				</ol>
+				<p class="view-note">كل طلب يمرّ على من تحدده، بالترتيب الذي تريده.</p>
+			</div>
+		</div>
+	</div>
+</Section>
+
+<script>
+	import '../../scripts/steps-map';
+</script>
+
+<style>
+	.steps-wrap {
+		--node: 64px;
+		display: grid;
+		gap: var(--space-8);
+	}
+	.steps {
+		display: grid;
+		grid-template-columns: repeat(6, minmax(0, 1fr));
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	.step {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: var(--space-3);
+		text-align: center;
+	}
+	.step:not(:last-child)::after {
+		content: '';
+		position: absolute;
+		top: calc(var(--node) / 2 - 1px);
+		inset-inline-start: calc(50% + var(--node) / 2 + 8px);
+		inset-inline-end: calc(-50% + var(--node) / 2 + 8px);
+		height: 2px;
+		border-radius: 2px;
+		background: var(--border-strong);
+	}
+	.step.to-soon::after {
+		background: repeating-linear-gradient(to right, var(--border-strong) 0 6px, transparent 6px 12px);
+	}
+
+	.node {
+		position: relative;
+		display: grid;
+		place-items: center;
+		width: var(--node);
+		height: var(--node);
+		border: 1px solid var(--border-strong);
+		border-radius: 50%;
+		background: var(--surface);
+		color: var(--text-muted);
+		box-shadow: var(--shadow-sm);
+		transition:
+			background var(--duration) var(--ease),
+			color var(--duration) var(--ease),
+			border-color var(--duration) var(--ease),
+			box-shadow var(--duration) var(--ease);
+	}
+	.is-config .node {
+		color: var(--accent);
+		border-color: var(--accent);
+	}
+	.is-config.is-active .node {
+		background: var(--accent);
+		border-color: var(--accent);
+		color: var(--on-accent);
+		box-shadow: 0 8px 22px -6px var(--glow);
+	}
+	.is-soon .node {
+		border-style: dashed;
+		background: transparent;
+		box-shadow: none;
+	}
+	.is-soon {
+		color: var(--text-muted);
+	}
+
+	.gear {
+		position: absolute;
+		inset-block-start: -6px;
+		inset-inline-end: -6px;
+		display: grid;
+		place-items: center;
+		width: 30px;
+		height: 30px;
+		padding: 0;
+		border: 1px solid var(--accent);
+		border-radius: 50%;
+		background: var(--surface);
+		color: var(--accent);
+		cursor: pointer;
+		transition: transform var(--duration) var(--ease);
+	}
+	.gear::before {
+		content: '';
+		position: absolute;
+		inset: -8px;
+	}
+	.gear:hover {
+		transform: rotate(60deg);
+	}
+	.gear[aria-pressed='true'] {
+		background: var(--accent-soft);
+	}
+	.gear[aria-pressed='true'] :global(svg) {
+		animation: gear-turn 6s linear infinite;
+	}
+	@keyframes gear-turn {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	.step-text {
+		display: grid;
+		justify-items: center;
+		gap: 2px;
+	}
+	.step-text strong {
+		font-size: var(--text-base);
+		color: var(--text);
+	}
+	.app {
+		color: var(--text-muted);
+		font-size: var(--text-sm);
+	}
+
+	.panel {
+		position: relative;
+		display: grid;
+		padding: var(--space-6);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-lg);
+		background: var(--surface);
+		box-shadow: var(--shadow);
+	}
+	.panel::before {
+		content: '';
+		position: absolute;
+		inset-block-start: -9px;
+		inset-inline-start: calc((var(--pos) + 0.5) * 100% / 6);
+		margin-inline-start: -8px;
+		width: 16px;
+		height: 16px;
+		border: 1px solid var(--border);
+		border-width: 1px 1px 0 0;
+		background: var(--surface);
+		transform: rotate(-45deg);
+		transition: inset-inline-start var(--duration-slow) var(--ease);
+	}
+	.view {
+		grid-area: 1 / 1;
+		display: grid;
+		align-content: start;
+		gap: var(--space-4);
+		opacity: 0;
+		visibility: hidden;
+		transform: translateY(6px);
+		transition:
+			opacity var(--duration-slow) var(--ease),
+			transform var(--duration-slow) var(--ease),
+			visibility var(--duration-slow);
+	}
+	.view.is-active {
+		opacity: 1;
+		visibility: visible;
+		transform: none;
+	}
+	.view-title {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-2);
+		color: var(--accent);
+		font-weight: 600;
+	}
+	.view-note {
+		color: var(--text-muted);
+		font-size: var(--text-sm);
+	}
+
+	.switch-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-4);
+		padding: var(--space-3) var(--space-4);
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		background: var(--surface-sunken);
+		font-weight: 600;
+	}
+	.switch {
+		position: relative;
+		flex-shrink: 0;
+		width: 48px;
+		height: 28px;
+		padding: 0;
+		border: 0;
+		border-radius: var(--radius-full);
+		background: var(--border-strong);
+		cursor: pointer;
+		transition: background var(--duration) var(--ease);
+	}
+	.switch i {
+		position: absolute;
+		inset-block-start: 3px;
+		inset-inline-start: 3px;
+		width: 22px;
+		height: 22px;
+		border-radius: 50%;
+		background: #fff;
+		box-shadow: var(--shadow-sm);
+		transition: inset-inline-start var(--duration) var(--ease);
+	}
+	.switch[aria-checked='true'] {
+		background: var(--success);
+	}
+	.switch[aria-checked='true'] i {
+		inset-inline-start: 23px;
+	}
+	.auto-reply {
+		max-width: 34rem;
+		padding: var(--space-3) var(--space-4);
+		border-radius: var(--radius);
+		border-start-start-radius: 4px;
+		background: var(--accent-soft);
+		transition: opacity var(--duration) var(--ease);
+	}
+	.view:has(.switch[aria-checked='false']) .auto-reply {
+		opacity: 0.4;
+	}
+
+	.chain {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--space-2) 0;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	.chain > li {
+		display: flex;
+		align-items: center;
+	}
+	.chain > li + li::before {
+		content: '';
+		width: 14px;
+		height: 2px;
+		background: var(--border-strong);
+	}
+	.chip {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-1);
+		padding: 0.3rem 0.95rem;
+		border: 1px solid var(--border-strong);
+		border-radius: var(--radius-full);
+		background: var(--surface-sunken);
+		color: var(--text);
+		font: inherit;
+		font-size: var(--text-sm);
+		font-weight: 600;
+	}
+	.chip.is-new {
+		background: var(--accent-soft);
+		border-color: var(--accent);
+		color: var(--accent);
+		animation: chip-in 400ms var(--ease-spring);
+	}
+	@keyframes chip-in {
+		from {
+			transform: scale(0.7);
+			opacity: 0;
+		}
+	}
+	.chip.add {
+		border-style: dashed;
+		border-color: var(--accent);
+		background: transparent;
+		color: var(--accent);
+		cursor: pointer;
+	}
+	.chip.add:hover:not(:disabled) {
+		background: var(--accent-soft);
+	}
+	.chip.add:disabled {
+		opacity: 0.5;
+		cursor: default;
+	}
+
+	@media (max-width: 760px) {
+		.steps {
+			grid-template-columns: 1fr;
+		}
+		.step {
+			flex-direction: row;
+			align-items: flex-start;
+			gap: var(--space-4);
+			padding-bottom: var(--space-6);
+			text-align: start;
+		}
+		.step:last-child {
+			padding-bottom: 0;
+		}
+		.step:not(:last-child)::after {
+			top: calc(var(--node) + 6px);
+			bottom: 6px;
+			inset-inline-start: calc(var(--node) / 2 - 1px);
+			inset-inline-end: auto;
+			width: 2px;
+			height: auto;
+		}
+		.step.to-soon::after {
+			background: repeating-linear-gradient(to bottom, var(--border-strong) 0 6px, transparent 6px 12px);
+		}
+		.step-text {
+			justify-items: start;
+			align-self: center;
+		}
+		.panel::before {
+			display: none;
+		}
+		.panel {
+			padding: var(--space-4);
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.gear[aria-pressed='true'] :global(svg),
+		.chip.is-new {
+			animation: none;
+		}
+	}
+</style>

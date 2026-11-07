@@ -1,0 +1,978 @@
+---
+// Home section 3: «ليوان AI». Capability tabs on the right and an animated demo chat on the left.
+// All copy lives here and is embedded as JSON; src/scripts/ai-chat.ts only plays it. The figures
+// and names in the examples are illustrative and labelled so under the chat.
+// Truth rules: available scenes use only CRM, meetings, operations requests, settings and the
+// guide. Only the soon scene «يقترح ردًا ويلخّص المحادثة» touches customer messages.
+import Section from '../Section.astro';
+import Icon from '../Icon.astro';
+import Mark from '../Mark.astro';
+import type { IconName } from '../../brand/icons';
+
+type AppKey = 'crm' | 'messages' | 'meetings' | 'operations' | 'documents' | 'settings' | 'guide';
+
+interface Scene {
+	status: 'available' | 'soon';
+	label: string;
+	icon: IconName;
+	word: string;
+	attach?: { name: string; icon: 'file' | 'sheet' };
+	suggestions: { text: string; apps: AppKey[] }[];
+	answer: {
+		intro: string;
+		items: { text: string; meta?: string; app: AppKey; source: string }[];
+		foot?: string;
+		approve?: boolean;
+	};
+}
+
+const apps: { key: AppKey; label: string; icon: IconName }[] = [
+	{ key: 'crm', label: 'العملاء', icon: 'users' },
+	{ key: 'messages', label: 'الرسائل', icon: 'message-circle' },
+	{ key: 'meetings', label: 'الاجتماعات', icon: 'calendar' },
+	{ key: 'operations', label: 'العمليات', icon: 'clipboard-check' },
+	{ key: 'documents', label: 'المستندات', icon: 'file-text' },
+	{ key: 'settings', label: 'الإعدادات', icon: 'settings' },
+	{ key: 'guide', label: 'الدليل', icon: 'book-open' },
+];
+
+const ui = {
+	assistant: 'ليوان AI',
+	soon: 'قريبًا',
+	morning: 'صباح الخير',
+	evening: 'مساء الخير',
+	approve: 'موافق',
+	edit: 'تعديل',
+};
+
+const scenes: Scene[] = [
+	{
+		status: 'available',
+		label: 'يضبط إعداداتك',
+		icon: 'settings',
+		word: 'اضبط',
+		suggestions: [
+			{ text: 'اضبط مراحل المبيعات لتناسب شركتي', apps: ['settings', 'crm'] },
+			{ text: 'اضبط مصادر العملاء المحتملين', apps: ['settings', 'crm'] },
+			{ text: 'اضبط أسباب خسارة الفرص', apps: ['settings', 'crm'] },
+		],
+		answer: {
+			intro: 'هذا التعديل المقترح، ولن أطبّقه قبل موافقتك:',
+			items: [
+				{ text: 'عدد المراحل', meta: 'من ٤ إلى ٥ مراحل', app: 'settings', source: 'الإعدادات' },
+				{ text: 'مرحلة جديدة: عرض سعر', meta: 'بين «تأهيل» و«تفاوض»', app: 'crm', source: 'العملاء' },
+				{ text: 'أثر التعديل', meta: 'الفرص الحالية تبقى في مراحلها', app: 'crm', source: 'العملاء' },
+			],
+			foot: 'لا أغيّر شيئًا إلا بموافقتك',
+			approve: true,
+		},
+	},
+	{
+		status: 'available',
+		label: 'يبحث في بياناتك',
+		icon: 'search',
+		word: 'ابحث',
+		suggestions: [
+			{ text: 'ابحث عن الفرص اللي طلب أصحابها عرض سعر جديد', apps: ['crm'] },
+			{ text: 'ابحث عن الفرص اللي ذكر عميلها موعد التجديد', apps: ['crm'] },
+			{ text: 'ابحث عن الفرص المتوقفة بدون متابعة', apps: ['crm'] },
+		],
+		answer: {
+			intro: 'لقيت ٣ فرص تذكر عرض سعر جديد:',
+			items: [
+				{ text: 'توريد أجهزة مكتبية', meta: 'شركة الندى للتجهيزات، مرحلة التفاوض', app: 'crm', source: 'العملاء · فرصة' },
+				{ text: 'عقد صيانة سنوي', meta: 'مؤسسة بيان للخدمات، مرحلة التأهيل', app: 'crm', source: 'العملاء · فرصة' },
+				{ text: 'تجهيز مستودع جديد', meta: 'مجموعة الخليج للنقل، مرحلة عرض السعر', app: 'crm', source: 'العملاء · فرصة' },
+			],
+		},
+	},
+	{
+		status: 'available',
+		label: 'يجيب ويقارن من كل تطبيقاتك',
+		icon: 'chart-column',
+		word: 'وش',
+		suggestions: [
+			{ text: 'وش أهم اللي ينتظرني هذا الأسبوع؟', apps: ['crm', 'meetings', 'operations'] },
+			{ text: 'وش الاجتماعات اللي عندي بكرة؟', apps: ['meetings'] },
+			{ text: 'وش الطلبات اللي تنتظر موافقتي؟', apps: ['operations'] },
+		],
+		answer: {
+			intro: 'هذا ملخص أسبوعك:',
+			items: [
+				{ text: '٣ فرص تحتاج متابعة اليوم', meta: 'من لوحة المبيعات', app: 'crm', source: 'العملاء · اللوحة' },
+				{ text: 'اجتماعان، أولهما غدًا الساعة ١٠ صباحًا', app: 'meetings', source: 'الاجتماعات' },
+				{ text: '٤ طلبات بانتظار موافقتك', app: 'operations', source: 'العمليات · الطلبات' },
+			],
+		},
+	},
+	{
+		status: 'available',
+		label: 'يعلّمك النظام',
+		icon: 'book-open',
+		word: 'كيف',
+		suggestions: [
+			{ text: 'كيف أضيف مرحلة جديدة لمسار المبيعات؟', apps: ['guide', 'crm'] },
+			{ text: 'كيف أرتّب اجتماعًا وأدعو الحضور؟', apps: ['guide', 'meetings'] },
+			{ text: 'كيف أرفع طلب موافقة جديد؟', apps: ['guide', 'operations'] },
+		],
+		answer: {
+			intro: 'الخطوات من دليل ليوان:',
+			items: [
+				{ text: 'افتح إعدادات العملاء', meta: 'الخطوة ١', app: 'guide', source: 'الدليل · مراحل المبيعات' },
+				{ text: 'اختر مراحل المبيعات ثم أضف مرحلة', meta: 'الخطوة ٢', app: 'guide', source: 'الدليل · مراحل المبيعات' },
+				{ text: 'اكتب اسم المرحلة، حدّد موقعها، ثم احفظ', meta: 'الخطوة ٣', app: 'guide', source: 'الدليل · مراحل المبيعات' },
+			],
+		},
+	},
+	{
+		status: 'soon',
+		label: 'يعبّئ النماذج',
+		icon: 'file-pen',
+		word: 'أنشئ',
+		suggestions: [
+			{ text: 'أنشئ طلب شراء لعشرة كراسي مكتبية', apps: ['operations'] },
+			{ text: 'أنشئ فرصة لشركة الندى بقيمة ٤٥ ألف', apps: ['crm'] },
+			{ text: 'أنشئ اجتماعًا مع فريق المبيعات يوم الأحد', apps: ['meetings'] },
+		],
+		answer: {
+			intro: 'جهّزت مسودة طلب الشراء:',
+			items: [
+				{ text: 'كراسي مكتبية', meta: 'البند', app: 'operations', source: 'العمليات · طلب شراء' },
+				{ text: '١٠', meta: 'الكمية', app: 'operations', source: 'العمليات · طلب شراء' },
+				{ text: 'توسعة الفريق', meta: 'المبرر', app: 'operations', source: 'العمليات · طلب شراء' },
+			],
+			foot: 'تبقى مسودة حتى تراجعها وتعتمدها',
+			approve: true,
+		},
+	},
+	{
+		status: 'soon',
+		label: 'يجهّز التقارير',
+		icon: 'file-chart',
+		word: 'جهّز',
+		suggestions: [
+			{ text: 'جهّز تقرير المبيعات لهذا الشهر', apps: ['crm'] },
+			{ text: 'جهّز ملخص اجتماعات الأسبوع', apps: ['meetings'] },
+			{ text: 'جهّز تقريرًا بالطلبات المتأخرة', apps: ['operations'] },
+		],
+		answer: {
+			intro: 'مسودة تقرير المبيعات لهذا الشهر:',
+			items: [
+				{ text: '٢٨ فرصة جديدة', meta: 'فُتحت هذا الشهر', app: 'crm', source: 'العملاء · اللوحة' },
+				{ text: '١١ فرصة أُغلقت بنجاح', meta: 'أُغلقت هذا الشهر', app: 'crm', source: 'العملاء · اللوحة' },
+				{ text: 'مرحلة التفاوض', meta: 'أكثر مرحلة تتأخر فيها الفرص', app: 'crm', source: 'العملاء · الفرص' },
+			],
+			foot: 'تعدّل المسودة قبل أن تشاركها',
+		},
+	},
+	{
+		status: 'soon',
+		label: 'يقرأ ملفات PDF',
+		icon: 'file',
+		word: 'اقرأ',
+		attach: { name: 'عقد-التوريد.pdf', icon: 'file' },
+		suggestions: [
+			{ text: 'اقرأ العقد وطلّع لي مواعيد السداد', apps: ['documents'] },
+			{ text: 'اقرأ العرض وأنشئ منه فرصة', apps: ['documents', 'crm'] },
+			{ text: 'اقرأ المحضر وسجّل قراراته', apps: ['documents', 'meetings'] },
+		],
+		answer: {
+			intro: 'قرأت العقد (٦ صفحات)، وهذه مواعيد السداد:',
+			items: [
+				{ text: '٣٠٪ عند توقيع العقد', meta: 'الدفعة الأولى', app: 'documents', source: 'المستندات · ص ٢' },
+				{ text: '٤٠٪ عند التسليم', meta: 'الدفعة الثانية', app: 'documents', source: 'المستندات · ص ٣' },
+				{ text: '٣٠٪ بعد ٣٠ يومًا من الاستلام', meta: 'الدفعة الأخيرة', app: 'documents', source: 'المستندات · ص ٣' },
+			],
+		},
+	},
+	{
+		status: 'soon',
+		label: 'يستورد من Excel',
+		icon: 'sheet',
+		word: 'استورد',
+		attach: { name: 'العملاء.xlsx', icon: 'sheet' },
+		suggestions: [
+			{ text: 'استورد العملاء من هذا الملف', apps: ['crm'] },
+			{ text: 'استورد الفرص المفتوحة من هذا الملف', apps: ['crm'] },
+			{ text: 'استورد قائمة الحضور إلى اجتماع الأحد', apps: ['meetings'] },
+		],
+		answer: {
+			intro: 'قرأت الملف (٤٨ صفًا)، وهذا ما سأستورده:',
+			items: [
+				{ text: 'عمود «اسم الشركة»', meta: 'يُضاف إلى اسم العميل', app: 'crm', source: 'العملاء · الاسم' },
+				{ text: 'عمود «الجوال»', meta: 'يُضاف إلى رقم الجوال', app: 'crm', source: 'العملاء · الجوال' },
+				{ text: '٣ صفوف مكررة', meta: 'سأتجاوزها', app: 'crm', source: 'العملاء' },
+			],
+			foot: 'لا أستورد شيئًا قبل موافقتك',
+			approve: true,
+		},
+	},
+	{
+		status: 'soon',
+		label: 'يقترح ردًا ويلخّص المحادثة',
+		icon: 'message-square-text',
+		word: 'لخّص',
+		suggestions: [
+			{ text: 'لخّص لي محادثة العميل مع شركة الندى', apps: ['messages'] },
+			{ text: 'اقترح ردًا على استفسار السعر', apps: ['messages'] },
+			{ text: 'لخّص المحادثات التي تنتظر ردًا', apps: ['messages'] },
+		],
+		answer: {
+			intro: 'ملخص المحادثة، مع رد مقترح:',
+			items: [
+				{ text: 'يطلب عرض سعر لـ ٥٠ جهازًا', meta: 'ملخص المحادثة', app: 'messages', source: 'الرسائل · واتساب' },
+				{ text: 'سأل عن موعد التسليم وينتظر ردًا', meta: 'ملخص المحادثة', app: 'messages', source: 'الرسائل · واتساب' },
+				{
+					text: 'أهلًا بك، يسعدنا تجهيز عرض السعر وإرساله لك اليوم.',
+					meta: 'رد مقترح',
+					app: 'messages',
+					source: 'الرسائل · واتساب',
+				},
+			],
+			foot: 'ترسل الرد أنت بعد أن تراجعه',
+		},
+	},
+];
+
+const available = scenes.map((scene, index) => ({ scene, index })).filter(({ scene }) => scene.status === 'available');
+const soon = scenes.map((scene, index) => ({ scene, index })).filter(({ scene }) => scene.status === 'soon');
+const groups = [
+	{ id: 'lai-group-available', title: 'متاح الآن', badge: 'available', tabs: available },
+	{ id: 'lai-group-soon', title: 'قريبًا', badge: 'soon', tabs: soon },
+];
+
+// Icons the script clones into the chat: one per app (keyed by app key), the attachment icons and the check mark.
+const scriptIcons: { key: string; name: IconName }[] = [
+	{ key: 'check', name: 'check' },
+	{ key: 'file', name: 'file' },
+	{ key: 'sheet', name: 'sheet' },
+	...apps.map((app) => ({ key: app.key, name: app.icon })),
+];
+
+const data = JSON.stringify({
+	ui,
+	apps: apps.map(({ key, label }) => ({ key, label })),
+	scenes: scenes.map(({ icon: _icon, ...scene }) => scene),
+});
+---
+
+<Section
+	id="ai"
+	eyebrow="ليوان AI"
+	title="ذكاء واحد يعرف شركتك كلها"
+	lead="اكتب ما تريد كما تقوله لزميلك، ويعمل عبر تطبيقاتك بصلاحياتك أنت."
+>
+	<div class="lai" data-ai>
+		<div class="lai-col" data-reveal>
+			{
+				groups.map((group) => (
+					<div class="lai-group" role="group" aria-labelledby={group.id}>
+						<p id={group.id} class="lai-group-title">
+							<span class={`badge ${group.badge}`}>{group.title}</span>
+						</p>
+						<div class="lai-tabs">
+							{group.tabs.map(({ scene, index }) => (
+								<button
+									type="button"
+									class:list={['lai-tab', { 'is-soon': scene.status === 'soon' }]}
+									data-ai-tab
+									aria-pressed={index === 0 ? 'true' : 'false'}
+								>
+									<span class="lai-tab-icon">
+										<Icon name={scene.icon} size={18} />
+									</span>
+									<span class="lai-tab-label">{scene.label}</span>
+									{scene.status === 'soon' && <span class="badge soon">{ui.soon}</span>}
+									<span class="lai-tab-bar" aria-hidden="true" />
+								</button>
+							))}
+						</div>
+					</div>
+				))
+			}
+			<ul class="lai-trust">
+				<li>
+					<Icon name="lock" size={16} />
+					<span>يرى ما تراه فقط</span>
+				</li>
+				<li>
+					<Icon name="check" size={16} />
+					<span>لا يغيّر شيئًا إلا بموافقتك</span>
+				</li>
+			</ul>
+		</div>
+
+		<div class="lai-demo" data-reveal style="--i: 1">
+			<div class="lai-stage" data-ai-stage>
+				<div class="aurora" aria-hidden="true"></div>
+				<div class="lai-chat">
+					<div class="lai-win" data-ai-win data-status="available" aria-hidden="true">
+						<div class="lai-strip">
+							{
+								apps.map((app) => (
+									<span class="lai-chip" data-app={app.key}>
+										<Icon name={app.icon} size={14} />
+										{app.label}
+									</span>
+								))
+							}
+						</div>
+						<div class="lai-body" data-ai-body>
+							<div class="lai-empty" data-ai-empty>
+								<Mark size={56} animated />
+								<p class="lai-greeting" data-ai-greeting>{ui.morning}</p>
+								<p class="lai-prompt">وش نقدر نسوي لك اليوم؟</p>
+							</div>
+							<div class="lai-msgs" data-ai-msgs></div>
+						</div>
+						<div class="lai-dock">
+							<div class="lai-sugs" data-ai-sugs></div>
+							<div class="lai-field">
+								<span class="lai-plus" data-ai-plus><Icon name="plus" size={16} /></span>
+								<span class="lai-file" data-ai-file></span>
+								<span class="lai-input" data-ai-input data-placeholder="اكتب رسالتك"></span>
+								<span class="lai-send"><Icon name="send" size={16} /></span>
+							</div>
+						</div>
+						<svg class="lai-lines" data-ai-lines aria-hidden="true"></svg>
+					</div>
+				</div>
+				<p class="lai-note">أمثلة توضيحية</p>
+			</div>
+		</div>
+
+		<p class="lai-sr" aria-live="polite" data-ai-live></p>
+		<script type="application/json" data-ai-data is:inline set:html={data} />
+		<template data-ai-icons>
+			{
+				scriptIcons.map((entry) => (
+					<span data-icon={entry.key}>
+						<Icon name={entry.name} size={16} />
+					</span>
+				))
+			}
+			<span data-icon="mark"><Mark size={22} /></span>
+		</template>
+	</div>
+</Section>
+
+<script>
+	import '../../scripts/ai-chat';
+</script>
+
+<style is:global>
+	.lai {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: var(--space-8);
+		align-items: stretch;
+	}
+	@media (min-width: 960px) {
+		.lai {
+			grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+			gap: var(--space-12);
+		}
+	}
+	.lai-sr {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		margin: -1px;
+		padding: 0;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+	}
+
+	/* Tabs column. */
+	.lai-col {
+		display: grid;
+		align-content: start;
+		gap: var(--space-6);
+	}
+	.lai-group {
+		display: grid;
+		gap: var(--space-2);
+	}
+	.lai-group-title {
+		display: flex;
+	}
+	.lai-tabs {
+		display: grid;
+		gap: 6px;
+	}
+	.lai-tab {
+		position: relative;
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+		width: 100%;
+		min-height: 52px;
+		padding: 8px 14px;
+		border: 1px solid transparent;
+		border-radius: var(--radius);
+		background: transparent;
+		color: var(--text);
+		font: inherit;
+		font-size: var(--text-sm);
+		font-weight: 600;
+		line-height: 1.4;
+		text-align: start;
+		cursor: pointer;
+		overflow: hidden;
+		transition:
+			background var(--duration) var(--ease),
+			border-color var(--duration) var(--ease);
+	}
+	.lai-tab:hover {
+		background: var(--surface);
+		border-color: var(--border);
+	}
+	.lai-tab-icon {
+		display: grid;
+		place-items: center;
+		flex: none;
+		width: 36px;
+		height: 36px;
+		border-radius: 50%;
+		background: var(--success-bg);
+		color: var(--success-text);
+	}
+	.lai-tab.is-soon .lai-tab-icon {
+		background: var(--warning-bg);
+		color: var(--warning-text);
+		border: 1.5px dashed var(--warning);
+	}
+	/* A dashed icon marks a capability that is not available yet. */
+	.lai-tab.is-soon .icon {
+		stroke-dasharray: 2.6 2.2;
+	}
+	.lai-tab-label {
+		min-width: 0;
+	}
+	.lai-tab[aria-pressed='true'] {
+		background: var(--accent-soft);
+		border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+	}
+	.lai-tab.is-soon[aria-pressed='true'] {
+		background: var(--warning-bg);
+		border-color: color-mix(in srgb, var(--warning) 55%, transparent);
+	}
+	.lai-tab-bar {
+		position: absolute;
+		inset-inline: 0;
+		bottom: 0;
+		height: 3px;
+		pointer-events: none;
+	}
+	.lai-tab-bar::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: var(--accent);
+		transform: scaleX(0);
+		transform-origin: left;
+	}
+	[dir='rtl'] .lai-tab-bar::after {
+		transform-origin: right;
+	}
+	.lai-tab.is-soon .lai-tab-bar::after {
+		background: var(--warning);
+	}
+	.lai-tab.is-playing .lai-tab-bar::after {
+		transform: scaleX(1);
+		transition: transform var(--lai-dur, 12s) linear;
+	}
+	.lai-trust {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-2) var(--space-6);
+		margin: 0;
+		padding: 0 var(--space-4);
+		list-style: none;
+		color: var(--text-muted);
+		font-size: var(--text-sm);
+	}
+	.lai-trust li {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-2);
+	}
+	.lai-trust .icon {
+		color: var(--success-text);
+	}
+
+	/* Chat stage: a soft panel that holds the window. */
+	.lai-demo {
+		display: flex;
+		flex-direction: column;
+		min-width: 0;
+	}
+	.lai-stage {
+		position: relative;
+		isolation: isolate;
+		overflow: hidden;
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		gap: var(--space-3);
+		min-height: 640px;
+		padding: clamp(12px, 3vw, 28px);
+		padding-bottom: var(--space-3);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-lg);
+		background: var(--gradient-sand);
+	}
+	.lai-stage > .aurora {
+		z-index: -1;
+		opacity: 0.8;
+	}
+	.lai-chat {
+		position: relative;
+		flex: 1;
+		min-height: 580px;
+	}
+	.lai-note {
+		text-align: center;
+		color: var(--text-muted);
+		font-size: var(--text-xs);
+		line-height: 1.4;
+	}
+
+	/* The app window. It fills .lai-chat, so its size never depends on what is inside. */
+	.lai-win {
+		--lai-hue: var(--accent);
+		--lai-hue-soft: var(--accent-soft);
+		--lai-sug-h: 220px;
+		position: absolute;
+		inset: 0;
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		background: var(--surface);
+		box-shadow: var(--shadow-lg);
+		font-size: var(--text-sm);
+		line-height: 1.6;
+	}
+	.lai-win[data-status='soon'] {
+		--lai-hue: var(--warning);
+		--lai-hue-soft: var(--warning-bg);
+	}
+	.lai-strip {
+		position: relative;
+		z-index: 1;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px;
+		padding: 10px 12px;
+		background: var(--surface-sunken);
+	}
+	.lai-chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 5px;
+		padding: 2px 10px;
+		border: 1px solid var(--border);
+		border-radius: var(--radius-full);
+		background: var(--surface);
+		color: var(--text-muted);
+		font-size: 0.8125rem;
+		line-height: 1.7;
+		transition:
+			background var(--duration) var(--ease),
+			border-color var(--duration) var(--ease),
+			color var(--duration) var(--ease),
+			transform var(--duration) var(--ease);
+	}
+	.lai-chip.is-lit {
+		background: var(--lai-hue-soft);
+		border-color: var(--lai-hue);
+		color: var(--text);
+		transform: translateY(-1px);
+	}
+	.lai-chip .icon,
+	.lai-tag .icon,
+	.lai-file-chip .icon {
+		flex: none;
+		width: 14px;
+		height: 14px;
+	}
+
+	.lai-body {
+		position: relative;
+		flex: 1;
+		min-height: 0;
+		overflow-y: auto;
+		overscroll-behavior: contain;
+		padding: 16px 14px;
+		scrollbar-width: thin;
+	}
+	.lai-empty {
+		position: absolute;
+		inset: 0 0 var(--lai-sug-h);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-2);
+		text-align: center;
+		transition:
+			opacity 400ms var(--ease),
+			transform 400ms var(--ease);
+	}
+	.lai-win.is-sent .lai-empty {
+		opacity: 0;
+		transform: translateY(-8px) scale(0.97);
+	}
+	.lai-greeting {
+		margin-top: var(--space-2);
+		font-size: var(--text-xl);
+		font-weight: 700;
+		line-height: 1.3;
+	}
+	.lai-prompt {
+		color: var(--text-muted);
+	}
+	.lai-msgs {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		gap: 14px;
+	}
+
+	.lai-user {
+		align-self: flex-start;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 6px;
+		max-width: 88%;
+		padding: 8px 14px;
+		border-radius: 16px;
+		background: var(--accent-soft);
+	}
+	.lai-bot {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+	.lai-bot-head {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+	}
+	.lai-bot-name {
+		font-weight: 700;
+	}
+	.lai-intro {
+		color: var(--text);
+	}
+	.lai-item {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 4px 12px;
+		padding: 8px 12px;
+		border-radius: var(--radius-sm);
+		background: var(--surface-sunken);
+	}
+	.lai-item-main {
+		display: flex;
+		flex: 1 1 11rem;
+		flex-direction: column;
+		min-width: 0;
+	}
+	.lai-item-text {
+		font-weight: 600;
+	}
+	.lai-item-meta {
+		color: var(--text-muted);
+		font-size: 0.8125rem;
+		line-height: 1.5;
+	}
+	.lai-foot {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 8px 12px;
+		color: var(--text-muted);
+		font-size: 0.8125rem;
+	}
+	.lai-foot-note {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+	}
+	.lai-foot-note .icon {
+		width: 14px;
+		height: 14px;
+		color: var(--success-text);
+	}
+	.lai-foot-actions {
+		display: inline-flex;
+		gap: 6px;
+	}
+	.lai-mini-button {
+		padding: 1px 12px;
+		border: 1px solid var(--border-strong);
+		border-radius: var(--radius-full);
+		color: var(--text);
+		font-weight: 600;
+	}
+	.lai-mini-button.primary {
+		border-color: transparent;
+		background: var(--accent);
+		color: var(--on-accent);
+	}
+	.lai-dots {
+		display: inline-flex;
+		gap: 5px;
+		padding: 6px 2px;
+	}
+	.lai-dots i {
+		width: 7px;
+		height: 7px;
+		border-radius: 50%;
+		background: var(--text-muted);
+		animation: lai-pulse 1s ease-in-out infinite;
+	}
+	.lai-dots i:nth-child(2) {
+		animation-delay: 150ms;
+	}
+	.lai-dots i:nth-child(3) {
+		animation-delay: 300ms;
+	}
+
+	.lai-tag {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		padding: 0 9px;
+		border-radius: var(--radius-full);
+		background: var(--surface-sunken);
+		color: var(--text-muted);
+		font-size: 0.75rem;
+		font-weight: 500;
+		line-height: 1.8;
+		white-space: nowrap;
+		transition:
+			background var(--duration) var(--ease),
+			color var(--duration) var(--ease);
+	}
+	.lai-item .lai-tag {
+		background: var(--surface);
+	}
+	.lai-file-chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 5px;
+		max-width: 100%;
+		padding: 0 10px;
+		border-radius: var(--radius-full);
+		background: var(--surface-sunken);
+		color: var(--text);
+		font-size: 0.8125rem;
+		line-height: 1.8;
+	}
+	.lai-user .lai-file-chip {
+		background: var(--surface);
+	}
+	.lai-file-chip span {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	/* Composer and suggestions. The suggestions float over the bottom of the body, so showing
+	   them moves nothing. */
+	.lai-dock {
+		position: relative;
+		padding: 8px 12px 12px;
+		background: var(--surface);
+	}
+	.lai-sugs {
+		position: absolute;
+		inset-inline: 12px;
+		bottom: 100%;
+		display: grid;
+		gap: 6px;
+		padding-bottom: 8px;
+	}
+	.lai-sug {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 4px 10px;
+		padding: 8px 12px;
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		background: var(--surface);
+		box-shadow: var(--shadow-sm);
+		line-height: 1.5;
+		transition:
+			background var(--duration) var(--ease),
+			border-color var(--duration) var(--ease);
+	}
+	.lai-sug-text {
+		flex: 1 1 11rem;
+		min-width: 0;
+	}
+	.lai-tags {
+		display: inline-flex;
+		flex-wrap: wrap;
+		gap: 4px;
+	}
+	.lai-sug.is-active {
+		border-color: var(--lai-hue);
+		background: var(--lai-hue-soft);
+	}
+	.lai-sug.is-active .lai-tag {
+		background: var(--surface);
+		color: var(--text);
+	}
+	.lai-field {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		min-height: 48px;
+		padding: 6px 8px;
+		border: 1px solid var(--border-strong);
+		border-radius: var(--radius-full);
+		background: var(--surface);
+	}
+	.lai-plus,
+	.lai-send {
+		display: grid;
+		place-items: center;
+		flex: none;
+		width: 32px;
+		height: 32px;
+		border-radius: 50%;
+		transition:
+			background var(--duration) var(--ease),
+			transform var(--duration) var(--ease);
+	}
+	.lai-plus {
+		border: 1px solid var(--border-strong);
+		color: var(--text-muted);
+	}
+	.lai-plus.is-pressed {
+		background: var(--accent-soft);
+		color: var(--accent);
+		transform: scale(0.88);
+	}
+	.lai-send {
+		background: var(--accent);
+		color: var(--on-accent);
+	}
+	[dir='rtl'] .lai-send .icon {
+		transform: scaleX(-1);
+	}
+	.lai-file {
+		display: flex;
+		flex: 0 1 auto;
+		min-width: 0;
+		max-width: 45%;
+	}
+	.lai-input {
+		flex: 1;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.lai-input:empty::before {
+		content: attr(data-placeholder);
+		color: var(--text-muted);
+	}
+	.lai-win.is-typing .lai-input::after {
+		content: '';
+		display: inline-block;
+		width: 2px;
+		height: 1.1em;
+		margin-inline-start: 2px;
+		vertical-align: text-bottom;
+		background: var(--text);
+		animation: lai-blink 900ms steps(1) infinite;
+	}
+
+	/* Guide lines from a suggestion to the apps it uses. */
+	.lai-lines {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		overflow: visible;
+		pointer-events: none;
+	}
+	.lai-line {
+		fill: none;
+		stroke: var(--text-muted);
+		stroke-width: 1.25;
+		stroke-dasharray: 2 5;
+		stroke-linecap: round;
+		opacity: 0.55;
+		animation: lai-fade 300ms var(--ease) both;
+	}
+
+	.lai-rise {
+		animation: lai-rise 420ms var(--ease) both;
+		animation-delay: calc(var(--i, 0) * 90ms);
+	}
+	@keyframes lai-rise {
+		from {
+			opacity: 0;
+			transform: translateY(8px);
+		}
+		to {
+			opacity: 1;
+			transform: none;
+		}
+	}
+	@keyframes lai-fade {
+		from {
+			opacity: 0;
+		}
+	}
+	@keyframes lai-pulse {
+		50% {
+			opacity: 0.3;
+			transform: translateY(-2px);
+		}
+	}
+	@keyframes lai-blink {
+		50% {
+			opacity: 0;
+		}
+	}
+
+	@media (max-width: 959px) {
+		.lai-stage {
+			min-height: 620px;
+		}
+		.lai-chat {
+			min-height: 560px;
+		}
+		.lai-win {
+			--lai-sug-h: 250px;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.lai-win *,
+		.lai-win *::before,
+		.lai-win *::after,
+		.lai-tab-bar::after {
+			animation: none !important;
+			transition: none !important;
+		}
+	}
+	.lai-win.is-static * {
+		animation: none !important;
+	}
+</style>

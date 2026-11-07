@@ -45,6 +45,14 @@ export function getPricing(): Promise<Pricing | null> {
 }
 
 async function fetchPricing(): Promise<Pricing | null> {
+	// Development only: the dev server can read a local sample shaped like the contract
+	// (fixtures/pricing.sample.json) so price sections can be designed before the endpoint exists.
+	// A production build never reads it.
+	const fixture = import.meta.env.DEV ? import.meta.env.PRICING_FIXTURE : undefined;
+	if (fixture) {
+		const { readFile } = await import('node:fs/promises');
+		return pricingSchema.parse(JSON.parse(await readFile(fixture, 'utf8')));
+	}
 	const url = import.meta.env.PRICING_URL || DEFAULT_PRICING_URL;
 	try {
 		const response = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });

@@ -7,6 +7,9 @@ export const ar = {
 	'nav.pricing': 'الأسعار',
 	'nav.security': 'الأمان',
 	'nav.language': 'English',
+	'nav.menu': 'القائمة',
+	'nav.close': 'إغلاق القائمة',
+	'nav.main': 'القائمة الرئيسية',
 
 	'cta.start': 'ابدأ مجانًا',
 	'cta.login': 'تسجيل الدخول',

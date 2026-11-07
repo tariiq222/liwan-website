@@ -1,5 +1,25 @@
 ---
-import SimplePage from '../views/SimplePage.astro';
+import Base from '../layouts/Base.astro';
+import Hero from '../components/home/Hero.astro';
+import TrustStrip from '../components/home/TrustStrip.astro';
+import AiSection from '../components/home/AiSection.astro';
+import AppsSection from '../components/home/AppsSection.astro';
+import StepsSection from '../components/home/StepsSection.astro';
+import PricingGlance from '../components/home/PricingGlance.astro';
+import StartSection from '../components/home/StartSection.astro';
+import FaqSection from '../components/home/FaqSection.astro';
+import ClosingCta from '../components/home/ClosingCta.astro';
+import { t } from '../i18n';
 ---
 
-<SimplePage locale="ar" pageKey="home" path="/" />
+<Base locale="ar" title={t('ar', 'brand.tagline')} path="/">
+	<Hero />
+	<TrustStrip />
+	<AiSection />
+	<AppsSection />
+	<StepsSection />
+	<PricingGlance />
+	<StartSection />
+	<FaqSection />
+	<ClosingCta />
+</Base>

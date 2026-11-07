@@ -1,0 +1,73 @@
+---
+// A small application card: icon, name, status badge and one benefit line. A link when `href`
+// is given. The entrance wrapper is separate from the card so the hover lift is not overridden.
+import Icon from './Icon.astro';
+import type { IconName } from '../brand/icons';
+
+type Status = 'free' | 'available' | 'soon';
+
+interface Props {
+	icon: IconName;
+	name: string;
+	benefit: string;
+	status: Status;
+	href?: string;
+	index?: number;
+}
+
+const BADGE_LABEL: Record<Status, string> = { free: 'مجاني', available: 'متاح الآن', soon: 'قريبًا' };
+
+const { icon, name, benefit, status, href, index = 0 } = Astro.props;
+const Tag = href ? 'a' : 'div';
+---
+
+<div class="app-card-wrap" data-reveal style={`--i: ${index}`}>
+	<Tag class="app-card gradient-border lift" data-spotlight href={href}>
+		<div class="app-card-top">
+			<span class="app-card-icon"><Icon name={icon} size={22} /></span>
+			<span class:list={['badge', status]}>{BADGE_LABEL[status]}</span>
+		</div>
+		<h3>{name}</h3>
+		<p>{benefit}</p>
+	</Tag>
+</div>
+
+<style>
+	.app-card-wrap {
+		display: flex;
+	}
+	.app-card {
+		flex: 1;
+		display: grid;
+		align-content: start;
+		gap: var(--space-2);
+		padding: var(--space-6);
+		border-radius: var(--radius-lg);
+		box-shadow: var(--shadow-sm);
+		color: inherit;
+		text-decoration: none;
+	}
+	.app-card-top {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: var(--space-2);
+	}
+	.app-card-icon {
+		display: grid;
+		place-items: center;
+		width: 44px;
+		height: 44px;
+		border-radius: 50%;
+		background: var(--accent-soft);
+		color: var(--accent);
+	}
+	h3 {
+		font-size: var(--text-lg);
+	}
+	p {
+		color: var(--text-muted);
+		font-size: var(--text-sm);
+		line-height: 1.7;
+	}
+</style>

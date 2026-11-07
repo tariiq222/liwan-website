@@ -1,0 +1,60 @@
+---
+// A page section with an optional eyebrow, heading and lead line above its content.
+// `tone` sets the background: plain page, warm sand, or sunken. `align` centers the heading.
+interface Props {
+	id?: string;
+	eyebrow?: string;
+	title?: string;
+	lead?: string;
+	tone?: 'plain' | 'sand' | 'sunken';
+	align?: 'start' | 'center';
+	class?: string;
+}
+
+const { id, eyebrow, title, lead, tone = 'plain', align = 'start', class: className } = Astro.props;
+---
+
+<section id={id} class:list={['section', `tone-${tone}`, className]}>
+	<div class="container">
+		{
+			(eyebrow || title || lead) && (
+				<header class:list={['section-head', `align-${align}`]} data-reveal>
+					{eyebrow && <span class="eyebrow">{eyebrow}</span>}
+					{title && <h2>{title}</h2>}
+					{lead && <p class="section-lead">{lead}</p>}
+				</header>
+			)
+		}
+		<slot />
+	</div>
+</section>
+
+<style>
+	.section {
+		padding-block: clamp(4rem, 3rem + 4vw, 7rem);
+	}
+	.tone-sand {
+		background: var(--gradient-sand);
+	}
+	.tone-sunken {
+		background: var(--surface-sunken);
+	}
+	.section-head {
+		display: grid;
+		gap: var(--space-3);
+		max-width: 720px;
+		margin-bottom: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+	}
+	.align-center {
+		margin-inline: auto;
+		justify-items: center;
+		text-align: center;
+	}
+	.section-head h2 {
+		font-size: var(--text-3xl);
+	}
+	.section-lead {
+		color: var(--text-muted);
+		font-size: var(--text-lg);
+	}
+</style>

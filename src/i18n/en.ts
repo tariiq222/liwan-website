@@ -9,6 +9,9 @@ export const en: Record<keyof typeof ar, string> = {
 	'nav.pricing': 'Pricing',
 	'nav.security': 'Security',
 	'nav.language': 'العربية',
+	'nav.menu': 'Menu',
+	'nav.close': 'Close menu',
+	'nav.main': 'Main menu',
 
 	'cta.start': 'Start free',
 	'cta.login': 'Sign in',

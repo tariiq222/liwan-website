@@ -1,0 +1,653 @@
+---
+// Home hero (spec 2A with 1A): eight scattered sign-in windows (seven apps plus an AI
+// assistant) fold into one ring around the LiwanOS mark, with Liwan AI at its heart.
+// The loop is driven by src/scripts/hero.ts; under reduced motion it shows the Liwan state.
+import { getCollection } from 'astro:content';
+import Icon from '../Icon.astro';
+import { MARK_ARCHES, MARK_TRIANGLES } from '../../brand/mark';
+import { registerUrl } from '../../lib/links';
+import { getPricing } from '../../lib/pricing';
+import { localePath } from '../../i18n';
+
+// Ring order, clockwise from the top (spec 1A).
+const RING = ['crm', 'inbox', 'meetings', 'documents', 'operations', 'tasks', 'chat'] as const;
+
+// Generic system names for the «before» windows: never a competitor's name.
+const SYSTEM_NAMES: Record<(typeof RING)[number], string> = {
+	crm: 'نظام العملاء',
+	inbox: 'منصة الرسائل',
+	meetings: 'برنامج الاجتماعات',
+	documents: 'تخزين الملفات',
+	operations: 'نظام الطلبات',
+	tasks: 'أداة المهام',
+	chat: 'تطبيق الدردشة',
+};
+
+// Scattered window positions (percent of the square scene) and tilt in degrees.
+const SCATTER = [
+	[3, 5, -4],
+	[36, 1, 3],
+	[68, 7, -2],
+	[1, 39, 3],
+	[69, 41, 4],
+	[5, 73, -3],
+	[67, 75, -2],
+] as const;
+const AI_SCATTER = [35, 37, -3] as const;
+
+// Geometry of the Liwan state, in scene percent. The mark (64 units) is drawn 44% wide at the centre.
+const CENTER = 50;
+const RING_RADIUS = 38;
+const NODE = 13;
+const AI_NODE = 12;
+const MARK_SCALE = 44 / 64;
+const MARK_OFFSET = CENTER - 22;
+const toScene = (v: number) => +(MARK_OFFSET + v * MARK_SCALE).toFixed(2);
+
+// Each Sadu triangle: the midpoint of its outer base (where app lines land) and its inner tip.
+const TRIANGLES = {
+	tl: { base: [toScene(12.2), toScene(12.2)], tip: [toScene(18.92), toScene(18.92)] },
+	tr: { base: [toScene(51.8), toScene(12.2)], tip: [toScene(45.08), toScene(18.92)] },
+	br: { base: [toScene(51.8), toScene(51.8)], tip: [toScene(45.08), toScene(45.08)] },
+	bl: { base: [toScene(12.2), toScene(51.8)], tip: [toScene(18.92), toScene(45.08)] },
+} as const;
+
+function quadrant(angle: number): keyof typeof TRIANGLES {
+	const a = ((angle % 360) + 360) % 360;
+	if (a >= 180 && a <= 270) return 'tl';
+	if (a > 270) return 'tr';
+	if (a <= 90) return 'br';
+	return 'bl';
+}
+
+const entries = await getCollection('apps');
+const bySlug = new Map(entries.map((e) => [e.data.slug, e.data]));
+
+const nodes = RING.map((slug, i) => {
+	const app = bySlug.get(slug);
+	if (!app) throw new Error(`Hero: app "${slug}" is missing from src/content/apps`);
+	const angle = -90 + (i * 360) / RING.length;
+	const rad = (angle * Math.PI) / 180;
+	const x = +(CENTER + RING_RADIUS * Math.cos(rad)).toFixed(2);
+	const y = +(CENTER + RING_RADIUS * Math.sin(rad)).toFixed(2);
+	const target = TRIANGLES[quadrant(angle)].base;
+	const ctrl = [+(CENTER + 20 * Math.cos(rad)).toFixed(2), +(CENTER + 20 * Math.sin(rad)).toFixed(2)];
+	const [bx, by, rot] = SCATTER[i];
+	return {
+		slug,
+		name: app.name.ar,
+		icon: app.icon,
+		system: SYSTEM_NAMES[slug],
+		x,
+		y,
+		labelAbove: y < CENTER,
+		line: `M${x} ${y} Q${ctrl[0]} ${ctrl[1]} ${target[0]} ${target[1]}`,
+		style: `--bx:${bx}%;--by:${by}%;--rot:${rot}deg;--ax:${x - NODE / 2}%;--ay:${y - NODE / 2}%;--i:${i}`,
+	};
+});
+
+const aiInset = Math.hypot(AI_NODE / 2, 0) / Math.SQRT2;
+const tipLines = Object.values(TRIANGLES).map(({ tip }) => {
+	const dx = Math.sign(CENTER - tip[0]);
+	const dy = Math.sign(CENTER - tip[1]);
+	return `M${tip[0]} ${tip[1]} L${CENTER - dx * aiInset} ${CENTER - dy * aiInset}`;
+});
+const aiStyle = `--bx:${AI_SCATTER[0]}%;--by:${AI_SCATTER[1]}%;--rot:${AI_SCATTER[2]}deg;--ax:${CENTER - AI_NODE / 2}%;--ay:${CENTER - AI_NODE / 2}%;--i:${RING.length}`;
+const before = RING.length + 1;
+
+const pricing = await getPricing();
+const freeLine = pricing ? `مجاني لأول ${pricing.free.users.toLocaleString('ar-SA')} مستخدمين، دائمًا` : 'الأساس مجاني، دائمًا';
+
+const stats = [
+	{ key: 'systems', label: 'أنظمة' },
+	{ key: 'logins', label: 'تسجيلات دخول' },
+	{ key: 'subscriptions', label: 'اشتراكات' },
+];
+---
+
+<section class="hero">
+	<div class="aurora" aria-hidden="true"></div>
+	<div class="container hero-grid">
+		<div class="copy">
+			<span class="badge free" data-reveal style="--i: 0">{freeLine}</span>
+			<h1 data-reveal style="--i: 1">كل أعمال شركتك في مكان واحد <span class="text-gradient">وبذكاء واحد</span></h1>
+			<p class="lead" data-reveal style="--i: 2">تطبيقاتك كلها حول فناء واحد، ومعها ليوان AI.</p>
+			<div class="actions" data-reveal style="--i: 3">
+				<a class="button large" href={registerUrl('ar')} data-app-link>ابدأ تجربة ١٤ يومًا</a>
+				<a class="button secondary large" href={localePath('ar', '/apps')}>شاهد التطبيقات</a>
+			</div>
+			<p class="fine" data-reveal style="--i: 4">
+				<Icon name="credit-card" size={16} />
+				بدون بطاقة ائتمان
+			</p>
+		</div>
+
+		<figure class="stage" data-reveal="fade" style="--i: 1">
+			<div class="scene" data-hero-scene aria-hidden="true">
+				<svg class="scene-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+					<g class="app-lines">
+						{nodes.map((n) => <path id={`hero-line-${n.slug}`} d={n.line} pathLength="1" />)}
+					</g>
+					<g class="tip-lines">
+						{tipLines.map((d) => <path d={d} pathLength="1" />)}
+					</g>
+					<g class="pulses">
+						{
+							nodes.map((n, i) => (
+								<circle r="0.8">
+									<animateMotion dur="2.6s" begin={`${(i * 0.37).toFixed(2)}s`} repeatCount="indefinite">
+										<mpath href={`#hero-line-${n.slug}`} />
+									</animateMotion>
+								</circle>
+							))
+						}
+					</g>
+					<g class="mark" transform={`translate(${MARK_OFFSET} ${MARK_OFFSET}) scale(${MARK_SCALE})`}>
+						<path class="mark-arches-hero" d={MARK_ARCHES} pathLength="1" />
+						{MARK_TRIANGLES.map((d, i) => <path class="mark-tri-hero" d={d} style={`--t:${i}`} />)}
+					</g>
+				</svg>
+
+				{
+					nodes.map((n) => (
+						<div class="node" style={n.style}>
+							<div class="win">
+								<div class="win-bar">
+									<span class="dots"><i /><i /><i /></span>
+									<span class="win-name">{n.system}</span>
+								</div>
+								<div class="win-field">اسم المستخدم</div>
+								<div class="win-field pass">
+									<span class="typing" />
+								</div>
+								<div class="win-foot">
+									<span class="win-btn">دخول</span>
+									<span class="win-tag">اشتراك</span>
+								</div>
+							</div>
+							<span class="node-icon">
+								<Icon name={n.icon} size={22} strokeWidth={2} />
+							</span>
+						</div>
+					))
+				}
+				<div class="node node-ai" style={aiStyle}>
+					<div class="win">
+						<div class="win-bar">
+							<span class="dots"><i /><i /><i /></span>
+							<span class="win-name">مساعد ذكي</span>
+						</div>
+						<div class="win-field">اسم المستخدم</div>
+						<div class="win-field pass">
+							<span class="typing" />
+						</div>
+						<div class="win-foot">
+							<span class="win-btn">دخول</span>
+							<span class="win-tag">اشتراك</span>
+						</div>
+					</div>
+					<span class="node-icon">
+						<Icon name="sparkles" size={22} strokeWidth={2} />
+					</span>
+				</div>
+
+				{
+					nodes.map((n) => (
+						<span
+							class:list={['node-label', { above: n.labelAbove }]}
+							style={`--lx:${n.x}%;--ly:${n.labelAbove ? n.y - NODE / 2 : n.y + NODE / 2}%`}
+						>
+							{n.name}
+						</span>
+					))
+				}
+			</div>
+
+			<figcaption class="stats" data-hero-stats>
+				{
+					stats.map((s) => (
+						<div class="stat">
+							<strong data-count>{before.toLocaleString('ar-SA')}</strong>
+							<span>{s.label}</span>
+						</div>
+					))
+				}
+			</figcaption>
+			<p class="legend">
+				<span class="state-before">قبل ليوان: كل نظام بدخوله واشتراكه</span>
+				<span class="state-after"><i class="dot-ai"></i>في القلب: ليوان AI، وحوله تطبيقاتك</span>
+			</p>
+		</figure>
+	</div>
+</section>
+
+<script>
+	import '../../scripts/hero';
+</script>
+
+<style>
+	.hero {
+		position: relative;
+		overflow: hidden;
+		padding-block: clamp(2.5rem, 2rem + 3vw, 5rem) clamp(3rem, 2rem + 4vw, 6rem);
+	}
+	.hero-grid {
+		position: relative;
+		z-index: 1;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+		align-items: center;
+		gap: clamp(2rem, 1rem + 4vw, 4.5rem);
+	}
+	.copy {
+		display: grid;
+		justify-items: start;
+		gap: var(--space-6);
+	}
+	h1 {
+		font-size: var(--text-display);
+		line-height: 1.18;
+		letter-spacing: -0.01em;
+	}
+	.lead {
+		color: var(--text-muted);
+		font-size: var(--text-xl);
+		max-width: 34ch;
+	}
+	.actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-3);
+	}
+	.fine {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-2);
+		color: var(--text-muted);
+		font-size: var(--text-sm);
+		margin-top: calc(var(--space-3) * -1);
+	}
+
+	/* Stage. */
+	.stage {
+		margin: 0;
+		display: grid;
+		gap: var(--space-4);
+		width: 100%;
+		max-width: 560px;
+		justify-self: center;
+	}
+	.scene {
+		position: relative;
+		aspect-ratio: 1;
+		container-type: inline-size;
+		--node-bg: light-dark(var(--lavender), var(--lavender-dark));
+		--node-icon: light-dark(var(--sand), var(--ink));
+	}
+	.scene-svg {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		overflow: visible;
+		opacity: 0;
+		transition: opacity 400ms var(--ease);
+	}
+	.is-arrived .scene-svg {
+		opacity: 1;
+	}
+	.app-lines path,
+	.tip-lines path {
+		fill: none;
+		stroke: var(--accent);
+		stroke-width: 0.45;
+		stroke-linecap: round;
+		vector-effect: non-scaling-stroke;
+		stroke-dasharray: 1;
+		stroke-dashoffset: 1;
+		opacity: 0.55;
+	}
+	.app-lines path {
+		stroke-width: 2;
+		opacity: 0.7;
+	}
+	.tip-lines path {
+		stroke-width: 1.5;
+		opacity: 0.8;
+	}
+	.is-arrived .app-lines path,
+	.is-arrived .tip-lines path {
+		stroke-dashoffset: 0;
+		transition: stroke-dashoffset 900ms var(--ease) 200ms;
+	}
+	.pulses circle {
+		fill: var(--accent);
+		opacity: 0;
+		transition: opacity 300ms;
+	}
+	.is-arrived .pulses circle {
+		opacity: 0.9;
+		transition-delay: 900ms;
+	}
+	.mark-arches-hero {
+		fill: none;
+		stroke: var(--accent);
+		stroke-width: 3.2;
+		stroke-linejoin: round;
+		stroke-dasharray: 1;
+		stroke-dashoffset: 1;
+	}
+	.is-arrived .mark-arches-hero {
+		stroke-dashoffset: 0;
+		transition: stroke-dashoffset 1100ms var(--ease);
+	}
+	.mark-tri-hero {
+		fill: var(--accent);
+		opacity: 0;
+		transform-box: fill-box;
+		transform-origin: center;
+		transform: scale(0.3);
+	}
+	.is-arrived .mark-tri-hero {
+		opacity: 1;
+		transform: scale(1);
+		transition:
+			opacity 400ms var(--ease) calc(700ms + var(--t) * 90ms),
+			transform 500ms var(--ease-spring) calc(700ms + var(--t) * 90ms);
+		animation: tri-pulse 2.8s ease-in-out calc(1.6s + var(--t) * 0.35s) infinite;
+	}
+	@keyframes tri-pulse {
+		50% {
+			transform: scale(1.18);
+		}
+	}
+
+	/* Nodes: a sign-in window before, a circle seat after. */
+	.node {
+		position: absolute;
+		left: var(--bx);
+		top: var(--by);
+		width: 30%;
+		height: 21%;
+		rotate: var(--rot);
+		border-radius: 1.6cqw;
+		background: var(--surface);
+		border: 1px solid var(--border);
+		box-shadow: var(--shadow);
+		font-size: 2.15cqw;
+		line-height: 1.3;
+		transition:
+			left 750ms cubic-bezier(0.65, 0, 0.35, 1),
+			top 750ms cubic-bezier(0.65, 0, 0.35, 1),
+			width 750ms cubic-bezier(0.65, 0, 0.35, 1),
+			height 750ms cubic-bezier(0.65, 0, 0.35, 1),
+			border-radius 750ms cubic-bezier(0.65, 0, 0.35, 1),
+			rotate 750ms cubic-bezier(0.65, 0, 0.35, 1),
+			background-color 250ms,
+			border-color 250ms,
+			box-shadow 250ms;
+		transition-delay: calc(var(--i) * 20ms);
+		animation: win-float 3.2s ease-in-out infinite;
+		animation-delay: calc(var(--i) * -0.4s);
+	}
+	@keyframes win-float {
+		50% {
+			translate: 0 -1.5px;
+		}
+	}
+	.win {
+		position: absolute;
+		inset: 0;
+		display: grid;
+		grid-template-rows: auto 1fr 1fr auto;
+		gap: 0.35em;
+		padding: 0.5em 0.6em;
+		overflow: hidden;
+		transition: opacity 150ms linear;
+	}
+	.win-bar {
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
+		font-weight: 600;
+		white-space: nowrap;
+		overflow: hidden;
+	}
+	.dots {
+		display: inline-flex;
+		gap: 0.25em;
+	}
+	.dots i {
+		width: 0.5em;
+		height: 0.5em;
+		border-radius: 50%;
+		background: var(--border-strong);
+	}
+	.win-field {
+		display: flex;
+		align-items: center;
+		padding-inline: 0.5em;
+		border: 1px solid var(--border);
+		border-radius: 0.4em;
+		color: var(--text-muted);
+		background: var(--surface-sunken);
+		white-space: nowrap;
+		overflow: hidden;
+	}
+	.typing {
+		display: block;
+		height: 0.55em;
+		width: 4.2em;
+		background: radial-gradient(circle, var(--text-muted) 0.18em, transparent 0.2em) 0 50% / 0.7em 0.55em repeat-x;
+		clip-path: inset(0 100% 0 0);
+		animation: typing 2.2s steps(6, end) infinite;
+	}
+	:global([dir='rtl']) .typing {
+		clip-path: inset(0 0 0 100%);
+		animation-name: typing-rtl;
+	}
+	@keyframes typing {
+		to {
+			clip-path: inset(0 0 0 0);
+		}
+	}
+	@keyframes typing-rtl {
+		to {
+			clip-path: inset(0 0 0 0);
+		}
+	}
+	.win-foot {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+	.win-btn {
+		padding: 0.15em 0.9em;
+		border-radius: 0.4em;
+		background: var(--text);
+		color: var(--bg);
+		font-weight: 600;
+	}
+	.win-tag {
+		padding: 0.1em 0.6em;
+		border-radius: 999px;
+		background: var(--warning-bg);
+		color: var(--warning-text);
+		font-weight: 600;
+	}
+	.node-icon {
+		position: absolute;
+		inset: 0;
+		display: grid;
+		place-items: center;
+		color: var(--node-icon);
+		opacity: 0;
+		transform: scale(0.6);
+		transition:
+			opacity 200ms,
+			transform 300ms var(--ease-spring);
+	}
+	.node-icon :global(svg) {
+		width: 46%;
+		height: 46%;
+	}
+
+	/* Liwan state, in three steps set by hero.ts. */
+	.is-fading .win {
+		opacity: 0;
+	}
+	.is-liwan .node {
+		left: var(--ax);
+		top: var(--ay);
+		width: 13%;
+		height: 13%;
+		border-radius: 50%;
+		rotate: 0deg;
+		animation: none;
+	}
+	.is-liwan .node-ai {
+		width: 12%;
+		height: 12%;
+	}
+	.is-arrived .node {
+		background: var(--node-bg);
+		border-color: transparent;
+		box-shadow: 0 8px 20px -8px var(--glow);
+		transition-delay: 0ms;
+	}
+	.is-arrived .node-ai {
+		background: var(--sand);
+		border-color: var(--sand-300);
+		box-shadow:
+			0 0 0 0.9cqw color-mix(in srgb, var(--sand) 40%, transparent),
+			0 0 4cqw var(--glow);
+		animation: ai-halo 3s ease-in-out infinite;
+	}
+	.is-arrived .node-ai .node-icon {
+		color: var(--lavender);
+	}
+	@keyframes ai-halo {
+		50% {
+			box-shadow:
+				0 0 0 1.6cqw color-mix(in srgb, var(--sand) 25%, transparent),
+				0 0 6cqw var(--glow);
+		}
+	}
+	.is-arrived .node-icon {
+		opacity: 1;
+		transform: scale(1);
+		transition-delay: calc(var(--i) * 30ms);
+	}
+
+	.node-label {
+		position: absolute;
+		left: var(--lx);
+		top: var(--ly);
+		translate: -50% 0.5cqw;
+		font-size: max(11px, 2.7cqw);
+		font-weight: 600;
+		white-space: nowrap;
+		color: var(--text);
+		opacity: 0;
+		transition: opacity 300ms;
+	}
+	.node-label.above {
+		translate: -50% calc(-100% - 0.5cqw);
+	}
+	.is-arrived .node-label {
+		opacity: 1;
+		transition-delay: 500ms;
+	}
+
+	/* Stats and legend. */
+	.stats {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: var(--space-3);
+	}
+	.stat {
+		display: grid;
+		justify-items: center;
+		padding: var(--space-3);
+		border-radius: var(--radius);
+		background: var(--warning-bg);
+		color: var(--warning-text);
+		transition:
+			background 400ms var(--ease),
+			color 400ms var(--ease);
+	}
+	.stat strong {
+		font-size: var(--text-2xl);
+		line-height: 1.2;
+		font-variant-numeric: tabular-nums;
+	}
+	.stat span {
+		font-size: var(--text-sm);
+		white-space: nowrap;
+	}
+	@media (max-width: 520px) {
+		.stats {
+			gap: var(--space-2);
+		}
+		.stat {
+			padding: var(--space-2);
+		}
+		.stat strong {
+			font-size: var(--text-xl);
+		}
+		.stat span {
+			font-size: var(--text-xs);
+		}
+	}
+	.stage:has(.is-arrived) .stat {
+		background: var(--accent-soft);
+		color: var(--accent);
+	}
+	.legend {
+		text-align: center;
+		color: var(--text-muted);
+		font-size: var(--text-sm);
+	}
+	.state-after {
+		display: none;
+		align-items: center;
+		gap: var(--space-2);
+	}
+	.stage:has(.is-arrived) .state-before {
+		display: none;
+	}
+	.stage:has(.is-arrived) .state-after {
+		display: inline-flex;
+	}
+	.dot-ai {
+		width: 12px;
+		height: 12px;
+		border-radius: 50%;
+		background: var(--sand);
+		box-shadow: 0 0 0 3px color-mix(in srgb, var(--sand) 45%, transparent);
+	}
+
+	@media (max-width: 899px) {
+		.hero-grid {
+			grid-template-columns: 1fr;
+		}
+		.copy {
+			justify-items: center;
+			text-align: center;
+		}
+		.actions {
+			justify-content: center;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.node,
+		.is-arrived .mark-tri-hero,
+		.is-arrived .node-ai,
+		.typing {
+			animation: none;
+		}
+		.pulses {
+			display: none;
+		}
+	}
+</style>
