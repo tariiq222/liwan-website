@@ -15,7 +15,9 @@ interface Props {
 }
 
 const { locale, title, path, description, noindex = false } = Astro.props;
-const pageTitle = path === '/' ? `${t(locale, 'brand.name')} | ${title}` : `${title} | ${t(locale, 'brand.name')}`;
+// Titles and sharing cards name the product in full («منصة ليوان»); the header keeps the bare brand.
+const platform = t(locale, 'brand.platform');
+const pageTitle = path === '/' ? `${platform} | ${title}` : `${title} | ${platform}`;
 const metaDescription = description ?? t(locale, 'site.description');
 const canonical = SITE_URL + localePath(locale, path);
 const alternates = [
@@ -45,7 +47,7 @@ const alternates = [
 		<link rel="canonical" href={canonical} />
 		{alternates.map((a) => <link rel="alternate" hreflang={a.hreflang} href={a.href} />)}
 		<meta property="og:type" content="website" />
-		<meta property="og:site_name" content={t(locale, 'brand.name')} />
+		<meta property="og:site_name" content={platform} />
 		<meta property="og:title" content={pageTitle} />
 		<meta property="og:description" content={metaDescription} />
 		<meta property="og:url" content={canonical} />

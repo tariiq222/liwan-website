@@ -1,5 +1,6 @@
 export const ar = {
 	'brand.name': 'ليوان',
+	'brand.platform': 'منصة ليوان',
 	'brand.tagline': 'كل أعمالك بنظام ذكي واحد.',
 	'site.description': 'كل أعمالك بنظام ذكي واحد.',
 

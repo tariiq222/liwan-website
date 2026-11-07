@@ -28,6 +28,10 @@ Consult these guides before working on related tasks:
   on failure the page shows "contact us". For local design work only, the dev server reads
   `fixtures/pricing.sample.json` (the contract's seed shape) when `PRICING_FIXTURE` points at it;
   a production build never reads it.
+- Naming (owner, 2026-11-07): the product is «منصة ليوان» wherever the text names it (titles,
+  sentences, sharing cards); the logo, the header and the copyright keep the bare «ليوان»; the
+  assistant is «ليوان AI». Every application is «تطبيق …» (for example «تطبيق إدارة العملاء»),
+  taken from its `name` in `src/content/apps`.
 - Never claim anything that is not `available` in `src/config/claims.ts`. A `soon` claim carries the
   word "soon" (قريبًا); a `hidden` claim appears nowhere. States change only when the product's claims register changes.
 - No personal data is stored on this site and no third-party form service is used. The only form

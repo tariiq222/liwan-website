@@ -10,7 +10,7 @@ export const plannedSections: Record<PageKey, Record<Locale, string[]>> = {
 		en: ['Hero', 'Trust strip', 'Liwan AI', 'Applications', 'Every step has a place', 'Pricing glance', 'Start', 'FAQ', 'Closing call to action'],
 	},
 	apps: {
-		ar: ['العنوان وأربعة أعمدة للمنصة', 'شبكة التطبيقات', 'ليوان، أو أدوات منفصلة؟', 'دعوة ختامية'],
+		ar: ['العنوان وأربعة أعمدة للمنصة', 'شبكة التطبيقات', 'منصة ليوان، أو أدوات منفصلة؟', 'دعوة ختامية'],
 		en: ['Headline and four platform pillars', 'Application grid', 'Liwan, or separate tools?', 'Closing call to action'],
 	},
 	app: {
@@ -22,7 +22,7 @@ export const plannedSections: Record<PageKey, Record<Locale, string[]>> = {
 		en: ['Free base', 'CRM and customer messages', 'Extra user, storage and onboarding', 'Subscription calculator', 'In every subscription', 'Trial, then refund', 'FAQ'],
 	},
 	security: {
-		ar: ['بيانات شركتك لشركتك وحدها', 'أربعة أعمدة', 'أين تُحفظ بياناتك', 'العزل', 'من يرى ماذا', 'الدخول الآمن', 'أمان الذكاء الاصطناعي', 'المال لا يمر عبر ليوان', 'خصوصية العملاء', 'أسئلة شائعة'],
+		ar: ['بيانات شركتك لشركتك وحدها', 'أربعة أعمدة', 'أين تُحفظ بياناتك', 'العزل', 'من يرى ماذا', 'الدخول الآمن', 'أمان الذكاء الاصطناعي', 'المال لا يمر عبر منصة ليوان', 'خصوصية العملاء', 'أسئلة شائعة'],
 		en: ['Your data stays your company\'s', 'Four pillars', 'Where data is kept', 'Isolation', 'Who sees what', 'Secure sign-in', 'AI safety', 'Money never passes through Liwan', 'Customer privacy', 'FAQ'],
 	},
 	contact: {
