@@ -1,0 +1,306 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import { localePath, type Locale } from '../i18n';
+
+type Slug = 'terms' | 'privacy' | 'refund' | 'dpa';
+
+interface Props {
+	locale: Locale;
+	slug: Slug;
+}
+
+const { locale, slug } = Astro.props;
+
+const all = await getCollection('legal');
+const entry = all.find((e) => e.data.page === slug && e.data.locale === locale);
+if (!entry) throw new Error(`Missing legal entry: ${locale}/${slug}`);
+const { Content, headings } = await render(entry);
+const { title, version, updated, status, summary } = entry.data;
+
+// Every legal page stays out of search engines while any one of them is still a draft.
+const noindex = all.some((e) => e.data.status === 'draft');
+
+const toc = headings.filter((h) => h.depth === 2);
+const words = (entry.body ?? '').split(/\s+/).filter(Boolean).length;
+const minutes = Math.max(1, Math.round(words / (locale === 'ar' ? 180 : 220)));
+
+const ui = {
+	ar: {
+		summary: 'بالمختصر',
+		toc: 'محتويات الوثيقة',
+		updated: 'آخر تحديث',
+		version: 'الإصدار',
+		reading: `${minutes} دقائق للقراءة`,
+		draft: 'مسودة قيد المراجعة القانونية. قد يتغير النص قبل الإطلاق.',
+		question: 'سؤال عن هذه الوثيقة؟',
+		contact: 'تواصل معنا',
+		other: 'وثائق أخرى',
+	},
+	en: {
+		summary: 'In short',
+		toc: 'On this page',
+		updated: 'Last updated',
+		version: 'Version',
+		reading: `${minutes} min read`,
+		draft: 'Draft under legal review. The text may change before launch.',
+		question: 'A question about this document?',
+		contact: 'Contact us',
+		other: 'Other documents',
+	},
+}[locale];
+
+const titles = Object.fromEntries(all.filter((e) => e.data.locale === locale).map((e) => [e.data.page, e.data.title]));
+const order: Slug[] = ['terms', 'privacy', 'refund', 'dpa'];
+const date = new Intl.DateTimeFormat(locale === 'ar' ? 'ar-SA-u-nu-latn-ca-gregory' : 'en-GB', {
+	dateStyle: 'long',
+	timeZone: 'UTC',
+}).format(updated);
+const iso = updated.toISOString().slice(0, 10);
+---
+
+<Base locale={locale} title={title} path={`/${slug}/`} noindex={noindex}>
+	<div class="container legal">
+		<header class="head">
+			<h1>{title}</h1>
+			<p class="meta">
+				<span>{ui.version}: <bdi>{version}</bdi></span>
+				<span>{ui.updated}: <time datetime={iso}>{date}</time></span>
+				<span>{ui.reading}</span>
+			</p>
+			{status === 'draft' && <p class="draft" role="note">{ui.draft}</p>}
+			<aside class="brief" aria-labelledby="brief-title">
+				<h2 id="brief-title">{ui.summary}</h2>
+				<ul>{summary.map((s) => <li>{s}</li>)}</ul>
+			</aside>
+		</header>
+
+		<div class="layout">
+			<nav class="toc" aria-label={ui.toc}>
+				<details class="toc-mobile">
+					<summary>{ui.toc}</summary>
+					<ol>{toc.map((h) => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}</ol>
+				</details>
+				<div class="toc-desktop">
+					<p class="toc-title">{ui.toc}</p>
+					<ol>{toc.map((h) => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}</ol>
+				</div>
+			</nav>
+
+			<article class="body">
+				<Content />
+				<footer class="foot">
+					<p>{ui.question} <a href={localePath(locale, '/contact/')}>{ui.contact}</a></p>
+					<p class="others">
+						{ui.other}:
+						{order.filter((s) => s !== slug && titles[s]).map((s) => <a href={localePath(locale, `/${s}/`)}>{titles[s]}</a>)}
+					</p>
+				</footer>
+			</article>
+		</div>
+	</div>
+</Base>
+
+<style>
+	.legal {
+		padding-block: var(--space-12) var(--space-16);
+	}
+	.head {
+		max-width: 70ch;
+		margin-inline: auto;
+		margin-block-end: var(--space-8);
+	}
+	h1 {
+		font-size: var(--text-3xl);
+		line-height: 1.25;
+		margin-block-end: var(--space-3);
+	}
+	.meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-1) var(--space-6);
+		color: var(--text-muted);
+		font-size: var(--text-sm);
+	}
+	.draft {
+		margin-block-start: var(--space-4);
+		padding: var(--space-3) var(--space-4);
+		border-radius: var(--radius-sm);
+		background: var(--warning-bg);
+		color: var(--warning-text);
+		font-size: var(--text-sm);
+	}
+	.brief {
+		margin-block-start: var(--space-6);
+		padding: var(--space-4) var(--space-6);
+		border-radius: var(--radius);
+		background: var(--surface-sand);
+		color: var(--text);
+	}
+	.brief h2 {
+		font-size: var(--text-lg);
+		margin-block-end: var(--space-2);
+	}
+	.brief ul {
+		margin: 0;
+		padding-inline-start: 1.25rem;
+		display: grid;
+		gap: var(--space-2);
+	}
+
+	.layout {
+		display: block;
+	}
+	.toc-desktop {
+		display: none;
+	}
+	.toc-mobile {
+		max-width: 70ch;
+		margin-inline: auto;
+		margin-block-end: var(--space-6);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-sm);
+		background: var(--surface);
+	}
+	.toc-mobile summary {
+		padding: var(--space-3) var(--space-4);
+		min-height: 44px;
+		font-weight: 600;
+		cursor: pointer;
+	}
+	.toc ol {
+		margin: 0;
+		padding-block: 0 var(--space-3);
+		padding-inline: 2.25rem var(--space-4);
+		display: grid;
+		gap: var(--space-2);
+		font-size: var(--text-sm);
+	}
+	.toc a {
+		color: var(--text);
+		text-decoration: none;
+	}
+	.toc a:hover {
+		color: var(--accent);
+		text-decoration: underline;
+	}
+
+	@media (min-width: 62rem) {
+		.layout {
+			display: grid;
+			grid-template-columns: 17rem minmax(0, 70ch);
+			gap: var(--space-12);
+			justify-content: center;
+			align-items: start;
+		}
+		.toc-mobile {
+			display: none;
+		}
+		.toc-desktop {
+			display: block;
+			position: sticky;
+			top: 6rem;
+			max-height: calc(100vh - 8rem);
+			overflow-y: auto;
+		}
+		.toc-title {
+			font-weight: 600;
+			margin-block-end: var(--space-3);
+		}
+		.toc ol {
+			padding-block: 0;
+			padding-inline-end: 0;
+		}
+	}
+
+	.toc ol {
+		list-style: none;
+		counter-reset: toc;
+	}
+	.toc li {
+		counter-increment: toc;
+		display: flex;
+		gap: var(--space-2);
+	}
+	.toc li::before {
+		content: counter(toc) '.';
+		color: var(--text-muted);
+		min-width: 1.5rem;
+	}
+
+	.body {
+		counter-reset: sec;
+		max-width: 70ch;
+		line-height: 1.85;
+		font-size: var(--text-base);
+	}
+	.body :global(h2) {
+		counter-increment: sec;
+		font-size: var(--text-2xl);
+		line-height: 1.35;
+		margin-block: var(--space-12) var(--space-3);
+		scroll-margin-top: 6rem;
+	}
+	.body :global(h2::before) {
+		content: counter(sec) '. ';
+		color: var(--accent);
+	}
+	.body :global(p),
+	.body :global(ul),
+	.body :global(ol) {
+		margin-block: 0 var(--space-4);
+	}
+	.body :global(ul),
+	.body :global(ol) {
+		padding-inline-start: 1.5rem;
+	}
+	.body :global(li + li) {
+		margin-block-start: var(--space-2);
+	}
+	.body :global(a) {
+		color: var(--accent);
+		text-underline-offset: 3px;
+	}
+	.body :global(table) {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: var(--text-sm);
+		margin-block-end: var(--space-4);
+	}
+	.body :global(th),
+	.body :global(td) {
+		border: 1px solid var(--border);
+		padding: var(--space-2) var(--space-3);
+		text-align: start;
+		vertical-align: top;
+	}
+	.body :global(th) {
+		background: var(--surface-sunken);
+	}
+	.foot {
+		margin-block-start: var(--space-16);
+		padding-block-start: var(--space-6);
+		border-top: 1px solid var(--border);
+		color: var(--text-muted);
+		font-size: var(--text-sm);
+	}
+	.foot a {
+		color: var(--accent);
+	}
+	.others {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-1) var(--space-4);
+		margin-block-start: var(--space-3);
+	}
+
+	@media print {
+		.toc,
+		.draft {
+			display: none;
+		}
+		.layout {
+			display: block;
+		}
+	}
+</style>
