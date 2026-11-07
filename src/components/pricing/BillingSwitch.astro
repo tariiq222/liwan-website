@@ -1,5 +1,13 @@
 ---
 // Monthly / annual switch. The calculator script (pricing-calculator.ts) reads the checked radio.
+// The free-months badge is derived from the pricing object.
+import type { Pricing } from '../../lib/pricing';
+import { annualFreeMonths, freeMonthsLabel } from '../../scripts/pricing-page-months';
+
+interface Props {
+	pricing: Pricing;
+}
+const badge = freeMonthsLabel(annualFreeMonths(Astro.props.pricing));
 ---
 
 <div class="billing" role="radiogroup" aria-label="دورة الدفع">
@@ -9,7 +17,7 @@
 	</label>
 	<label>
 		<input type="radio" name="billing" value="annual" />
-		<span class="seg">سنوي <span class="badge free">شهران مجانًا</span></span>
+		<span class="seg">سنوي {badge && <span class="badge free">{badge}</span>}</span>
 	</label>
 </div>
 

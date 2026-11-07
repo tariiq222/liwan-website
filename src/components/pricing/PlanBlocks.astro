@@ -43,7 +43,7 @@ const baseFacts = [pricing && `حتى ${usersLabel(pricing.free.users)}`, ...fre
 		pricing ? (
 			pricing.apps.map((app, i) => (
 				<article class="app gradient-border" data-reveal style={`--i: ${i + 1}`}>
-					<h2>{appNames[app.key] ?? app.name_ar}</h2>
+					<h2>{appNames[app.key]}</h2>
 					<p class="price">
 						<strong data-price-app={app.key}>{money(app.monthly)}</strong> <span data-period-word>شهريًا</span>
 					</p>

@@ -9,12 +9,14 @@ export function toLatinDigits(value: string): string {
 // Providers that sell personal mailboxes. A match is "provider.tld" (or provider.co.xx), so a
 // company domain such as mail.example.com or live.example.sa is not caught.
 const PERSONAL_PROVIDER =
-	/^(?:gmail|googlemail|hotmail|outlook|live|msn|yahoo|ymail|icloud|aol|yandex|gmx|zoho)\.(?:[a-z]{2,}|(?:com?|net|org|ac|gov|edu)\.[a-z]{2})$/;
-const PERSONAL_EXACT = new Set(['me.com', 'mac.com', 'mail.com', 'proton.me', 'protonmail.com', 'pm.me', 'proton.com']);
+	/^(?:gmail|googlemail|hotmail|outlook|live|msn|yahoo|ymail|icloud|aol|yandex|gmx|zoho)\.(?:com|net|[a-z]{2}|(?:com?|net|org)\.[a-z]{2})$/;
+// Proton's brands are refused in any top-level domain.
+const PROTON = /^(?:proton|protonmail|pm)\.[a-z.]+$/;
+const PERSONAL_EXACT = new Set(['me.com', 'mac.com', 'mail.com']);
 
 export function isPersonalMailDomain(domain: string): boolean {
 	const d = domain.trim().toLowerCase();
-	return PERSONAL_EXACT.has(d) || PERSONAL_PROVIDER.test(d);
+	return PERSONAL_EXACT.has(d) || PERSONAL_PROVIDER.test(d) || PROTON.test(d);
 }
 
 export type EmailCheck = 'ok' | 'empty' | 'malformed' | 'personal';
@@ -43,7 +45,7 @@ export const MESSAGES = {
 	emailEmpty: 'اكتب بريد شركتك',
 	emailMalformed: 'البريد غير صحيح',
 	emailPersonal: 'اكتب بريد شركتك، لا بريدًا شخصيًا',
-	users: 'اكتب رقمًا صحيحًا',
+	users: 'اكتب رقمًا صحيحًا من 1 فأكثر',
 	message: 'اكتب رسالتك',
 	consent: 'وافق على سياسة الخصوصية للمتابعة',
 	turnstile: 'أكّد أنك لست برنامجًا آليًا',

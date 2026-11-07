@@ -9,8 +9,10 @@ const ready = Boolean(siteKey);
 ---
 
 <div class="card form-card">
-	<form data-contact novalidate data-sitekey={siteKey}>
-		<fieldset disabled={!ready}>
+	<form data-contact method="post" novalidate data-sitekey={siteKey}>
+		<!-- Disabled in the HTML; contact-form.ts enables it as its last step, so a failed script can never submit personal data natively. -->
+		<fieldset disabled>
+			<noscript><p class="off">يلزم تفعيل جافاسكربت لإرسال النموذج.</p></noscript>
 			{
 				!ready && (
 					<p class="off">
@@ -63,7 +65,7 @@ const ready = Boolean(siteKey);
 			<div class="field">
 				<label class="consent">
 					<input type="checkbox" name="consent" aria-describedby="e-consent" />
-					<span>أوافق على <a href={localePath('ar', '/privacy')}>سياسة الخصوصية</a></span>
+					<span>أوافق على <a href={localePath('ar', '/privacy')} target="_blank" rel="noopener">سياسة الخصوصية</a></span>
 				</label>
 				<p class="error" id="e-consent" data-error="consent" role="alert"></p>
 			</div>

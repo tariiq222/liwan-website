@@ -8,7 +8,7 @@ const TURNSTILE_SRC = 'https://challenges.cloudflare.com/turnstile/v0/api.js?ren
 
 // Product error codes -> Arabic. Anything unknown falls back to the generic message.
 const ERROR_TEXT: Record<string, string> = {
-	validation_failed: 'راجع الحقول المعلّمة ثم أعد المحاولة.',
+	validation_failed: 'راجع بياناتك ثم أعد المحاولة.',
 	invalid_email: MESSAGES.emailMalformed,
 	business_email_required: MESSAGES.emailPersonal,
 	invalid_mobile: MESSAGES.mobile,
@@ -18,6 +18,8 @@ const ERROR_TEXT: Record<string, string> = {
 	rate_limited: 'أرسلت عدة رسائل خلال وقت قصير. حاول بعد قليل.',
 	too_many_requests: 'أرسلت عدة رسائل خلال وقت قصير. حاول بعد قليل.',
 };
+const TURNSTILE_LOAD_ERROR = 'تعذّر تحميل التحقق الأمني. أعد تحميل الصفحة.';
+const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
 const GENERIC_ERROR = 'تعذّر إرسال رسالتك الآن. حاول مرة أخرى بعد قليل.';
 const NETWORK_ERROR = 'تعذّر الوصول إلى الخدمة. تأكد من اتصالك وأعد المحاولة.';
 
@@ -68,14 +70,23 @@ function init(form: HTMLFormElement): void {
 					setError('turnstile', '');
 				},
 				'expired-callback': () => (token = ''),
-				'error-callback': () => (token = ''),
+				'error-callback': () => {
+					token = '';
+					showLoadError();
+				},
 			});
 		};
 		const script = document.createElement('script');
 		script.src = TURNSTILE_SRC;
+		script.onerror = showLoadError;
 		script.async = true;
 		script.defer = true;
 		document.head.append(script);
+	}
+
+	function showLoadError(): void {
+		status.textContent = TURNSTILE_LOAD_ERROR;
+		status.dataset.kind = 'error';
 	}
 
 	// Check one field when the visitor leaves it, so errors appear where they are.
@@ -109,7 +120,7 @@ function init(form: HTMLFormElement): void {
 				break;
 			}
 			case 'users':
-				if (value && !/^\d{1,6}$/.test(toLatinDigits(value))) message = MESSAGES.users;
+				if (value && (!/^\d{1,6}$/.test(toLatinDigits(value)) || Number(toLatinDigits(value)) < 1)) message = MESSAGES.users;
 				break;
 			case 'message':
 				if (!value) message = MESSAGES.message;
@@ -149,7 +160,10 @@ function init(form: HTMLFormElement): void {
 		};
 		const users = toLatinDigits(field('users').value.trim());
 		if (users) payload.users = Number(users);
-		for (const [key, value] of params) if (key.startsWith('utm_')) payload[key] = value;
+		for (const key of UTM_KEYS) {
+			const value = params.get(key);
+			if (value) payload[key] = value.slice(0, 200);
+		}
 
 		submit.disabled = true;
 		status.textContent = 'نرسل رسالتك...';
@@ -158,6 +172,7 @@ function init(form: HTMLFormElement): void {
 			const response = await fetch(ENDPOINT, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
+				signal: AbortSignal.timeout(15000),
 				body: JSON.stringify(payload),
 			});
 			if (response.ok) {
@@ -194,4 +209,7 @@ function init(form: HTMLFormElement): void {
 		status.textContent = text;
 		status.dataset.kind = 'error';
 	}
+
+	// Last step: only now may the visitor type. Without a site key the form stays disabled.
+	if (siteKey) form.querySelector('fieldset')!.disabled = false;
 }

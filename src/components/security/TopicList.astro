@@ -1,6 +1,8 @@
 ---
 import Icon from '../Icon.astro';
-import { sections } from './topics';
+import { getSections } from './topics';
+
+const sections = await getSections();
 ---
 
 <ul class="topics">

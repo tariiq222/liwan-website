@@ -2,6 +2,7 @@
 // gated by src/config/claims.ts; the rest are the platform statements already approved for the
 // home page and the application pages. Backups, recovery targets, two-step sign-in and privacy
 // tools are hidden in the register and appear nowhere here.
+import { getCollection } from 'astro:content';
 import { claim } from '../../config/claims';
 import type { IconName } from '../../brand/icons';
 
@@ -18,13 +19,22 @@ export const pillars: Topic[] = [
 	{ icon: 'lock', title: 'صلاحيات دقيقة', line: 'كل موظف يرى ما يخصه فقط.', show: true },
 ].filter((p) => p.show);
 
-export const sections: Topic[] = [
-	{ icon: 'map-pin', title: 'أين تُحفظ بياناتك', line: 'على خوادم مستضافة داخل السعودية.', show: claim('saudiHosting') === 'available' },
-	{ icon: 'layers', title: 'عزل كامل بين الشركات', line: 'لكل شركة قاعدة بياناتها الخاصة، ولا تختلط ببيانات غيرها.', show: true },
-	{ icon: 'users', title: 'من يرى ماذا', line: 'تحدد لكل موظف ما يراه في كل تطبيق، ولا يرى غيره.', show: true },
-	{ icon: 'sparkles', title: 'ليوان AI يلتزم بصلاحياتك', line: 'يرى ما تراه أنت فقط، ولا يغيّر شيئًا إلا بموافقتك.', show: true },
-	{ icon: 'clipboard-check', title: 'موافقات بسجل كامل', line: 'كل طلب وكل موافقة تبقى مسجلة في تطبيق العمليات.', show: true },
-].filter((s) => s.show);
+// The approvals line names the application from src/content/apps instead of retyping it.
+export async function getSections(): Promise<Topic[]> {
+	const operations = (await getCollection('apps')).find((entry) => entry.data.slug === 'operations')?.data.name.ar;
+	return [
+		{ icon: 'map-pin', title: 'أين تُحفظ بياناتك', line: 'على خوادم مستضافة داخل السعودية.', show: claim('saudiHosting') === 'available' },
+		{ icon: 'layers', title: 'عزل كامل بين الشركات', line: 'لكل شركة قاعدة بياناتها الخاصة، ولا تختلط ببيانات غيرها.', show: true },
+		{ icon: 'users', title: 'من يرى ماذا', line: 'تحدد لكل موظف ما يراه في كل تطبيق، ولا يرى غيره.', show: true },
+		{ icon: 'sparkles', title: 'ليوان AI يلتزم بصلاحياتك', line: 'يرى ما تراه أنت فقط، ولا يغيّر شيئًا إلا بموافقتك.', show: true },
+		{
+			icon: 'clipboard-check',
+			title: 'موافقات بسجل كامل',
+			line: `كل طلب وكل موافقة تبقى مسجلة في ${operations}.`,
+			show: Boolean(operations),
+		},
+	].filter((s) => s.show);
+}
 
 export const faq = [
 	{ q: 'هل تتشارك الشركات قاعدة بيانات واحدة؟', a: 'لا. لكل شركة قاعدة بيانات خاصة بها.' },

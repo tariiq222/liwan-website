@@ -16,7 +16,7 @@ interface Props {
 const { pricing, appNames } = Astro.props;
 const money = (amount: number) => formatMoney('ar', amount, pricing.currency);
 const contact = localePath('ar', '/contact');
-const nameOf = (key: string, fallback: string) => appNames[key] ?? fallback;
+const nameOf = (key: string) => appNames[key];
 ---
 
 <div class="calc gradient-border" data-reveal>
@@ -29,7 +29,7 @@ const nameOf = (key: string, fallback: string) => appNames[key] ?? fallback;
 				pricing.apps.map((app) => (
 					<label class="option">
 						<input type="checkbox" data-app value={app.key} />
-						<span class="option-name">{nameOf(app.key, app.name_ar)}</span>
+						<span class="option-name">{nameOf(app.key)}</span>
 						<span class="option-price">
 							<span data-price-app={app.key}>{money(app.monthly)}</span> <span data-period-word>شهريًا</span>
 						</span>
@@ -81,7 +81,7 @@ const nameOf = (key: string, fallback: string) => appNames[key] ?? fallback;
 			{
 				pricing.apps.map((app) => (
 					<li data-line-app={app.key} hidden>
-						<span>{nameOf(app.key, app.name_ar)}</span>
+						<span>{nameOf(app.key)}</span>
 						<span data-amount></span>
 					</li>
 				))

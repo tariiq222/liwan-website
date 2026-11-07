@@ -1,4 +1,10 @@
 // Five benefit lines per paid application, keyed by the pricing object's application key.
+import { claim } from '../../config/claims';
+
+// Channels named only while their claims are available.
+const channels = [claim('whatsapp') === 'available' && 'واتساب', claim('tiktok') === 'available' && 'تيك توك'].filter(Boolean).join(' و');
+const inboxLead = channels ? `${channels} في صندوق واحد` : 'قنوات عملائك في صندوق واحد';
+
 // Wording stays inside what the applications' own pages already claim (src/content/apps).
 export const BENEFITS: Record<string, string[]> = {
 	crm: [
@@ -9,7 +15,7 @@ export const BENEFITS: Record<string, string[]> = {
 		'يشتغل مع بقية تطبيقاتك',
 	],
 	inbox: [
-		'واتساب وتيك توك في صندوق واحد',
+		inboxLead,
 		'فريقك يرد من صندوق مشترك',
 		'رسائل عملائك لا تضيع بين الجوالات',
 		'محادثات كل عميل في مكان واحد',
