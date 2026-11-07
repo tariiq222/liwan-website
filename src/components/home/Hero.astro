@@ -334,8 +334,12 @@ const stats = [
 		position: relative;
 		aspect-ratio: 1;
 		container-type: inline-size;
-		--node-bg: light-dark(var(--lavender), var(--lavender-dark));
-		--node-icon: light-dark(var(--sand), var(--ink));
+		/* Apps: sand circles with a lavender ring and icon; Liwan AI is the lavender heart.
+		   Connecting lines are a quiet grey so the apps and the mark lead. */
+		--node-bg: var(--sand);
+		--node-ring: var(--lavender);
+		--node-icon: var(--lavender);
+		--line: light-dark(#b9b5c4, #4d4866);
 	}
 	.scene-svg {
 		position: absolute;
@@ -354,12 +358,11 @@ const stats = [
 	.app-lines path,
 	.tip-lines path {
 		fill: none;
-		stroke: var(--accent);
+		stroke: var(--line);
 		stroke-width: 0.5;
 		stroke-linecap: round;
 		stroke-dasharray: 1;
 		stroke-dashoffset: 1;
-		opacity: 0.75;
 	}
 
 	/* «Before»: dashed links between the systems, cut in the middle. */
@@ -553,26 +556,27 @@ const stats = [
 	/* Each app lights up when its line reaches it; the AI circle lights first. */
 	.is-arrived .node {
 		background: var(--node-bg);
-		border-color: transparent;
+		border-color: var(--node-ring);
+		border-width: 0.45cqw;
 		box-shadow: 0 8px 20px -8px var(--glow);
 		transition-delay: calc(var(--t-apps) + var(--i) * 30ms);
 	}
 	.is-arrived .node-ai {
 		transition-delay: 0ms;
-		background: var(--sand);
-		border-color: var(--sand-300);
+		background: var(--lavender);
+		border-color: var(--lavender);
 		box-shadow:
-			0 0 0 0.9cqw color-mix(in srgb, var(--sand) 40%, transparent),
+			0 0 0 0.9cqw color-mix(in srgb, var(--lavender) 22%, transparent),
 			0 0 4cqw var(--glow);
 		animation: ai-halo 3s ease-in-out infinite;
 	}
 	.is-arrived .node-ai .node-icon {
-		color: var(--lavender);
+		color: var(--sand);
 	}
 	@keyframes ai-halo {
 		50% {
 			box-shadow:
-				0 0 0 1.6cqw color-mix(in srgb, var(--sand) 25%, transparent),
+				0 0 0 1.6cqw color-mix(in srgb, var(--lavender) 14%, transparent),
 				0 0 6cqw var(--glow);
 		}
 	}
@@ -669,8 +673,8 @@ const stats = [
 		width: 12px;
 		height: 12px;
 		border-radius: 50%;
-		background: var(--sand);
-		box-shadow: 0 0 0 3px color-mix(in srgb, var(--sand) 45%, transparent);
+		background: var(--lavender);
+		box-shadow: 0 0 0 3px color-mix(in srgb, var(--lavender) 25%, transparent);
 	}
 
 	@media (max-width: 899px) {
