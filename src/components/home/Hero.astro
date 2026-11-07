@@ -166,7 +166,7 @@ const stats = [
 	<div class="container hero-grid">
 		<div class="copy">
 			<span class="badge free" data-reveal style="--i: 0">{freeLine}</span>
-			<h1 data-reveal style="--i: 1">كل أعمال شركتك في مكان واحد <span class="text-gradient">وبذكاء واحد</span></h1>
+			<h1 data-reveal style="--i: 1">كل أعمالك <span class="text-gradient">بنظام ذكي واحد</span></h1>
 			<p class="lead" data-reveal style="--i: 2">تطبيقاتك كلها حول فناء واحد، ومعها ليوان AI.</p>
 			<div class="actions" data-reveal style="--i: 3">
 				<a class="button large" href={registerUrl('ar')} data-app-link>ابدأ تجربة ١٤ يومًا</a>
@@ -191,11 +191,27 @@ const stats = [
 					}
 				</svg>
 				<svg class="scene-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+					<defs>
+						{
+							nodes.map((n) => (
+								<mask id={`hero-reveal-${n.slug}`} maskUnits="userSpaceOnUse" x="-10" y="-10" width="120" height="120">
+									<path class="reveal reveal-app" d={n.line} pathLength="1" />
+								</mask>
+							))
+						}
+						{
+							tipLines.map((d, i) => (
+								<mask id={`hero-reveal-tip-${i}`} maskUnits="userSpaceOnUse" x="-10" y="-10" width="120" height="120">
+									<path class="reveal reveal-tip" d={d} pathLength="1" />
+								</mask>
+							))
+						}
+					</defs>
 					<g class="app-lines">
-						{nodes.map((n) => <path id={`hero-line-${n.slug}`} d={n.line} pathLength="1" />)}
+						{nodes.map((n) => <path id={`hero-line-${n.slug}`} d={n.line} mask={`url(#hero-reveal-${n.slug})`} />)}
 					</g>
 					<g class="tip-lines">
-						{tipLines.map((d) => <path d={d} pathLength="1" />)}
+						{tipLines.map((d, i) => <path d={d} mask={`url(#hero-reveal-tip-${i})`} />)}
 					</g>
 					<g class="pulses">
 						{
@@ -339,7 +355,7 @@ const stats = [
 		--node-bg: var(--sand);
 		--node-ring: var(--lavender);
 		--node-icon: var(--lavender);
-		--line: light-dark(#b9b5c4, #4d4866);
+		--line: light-dark(#d2cfdb, #3f3a58);
 	}
 	.scene-svg {
 		position: absolute;
@@ -353,13 +369,20 @@ const stats = [
 	.is-arrived .scene-svg {
 		opacity: 1;
 	}
-	/* Lines are drawn in scene units (no non-scaling stroke), so the pathLength dash reveal
-	   stays one continuous stroke. */
+	/* Ring lines are dashed. Each one is revealed by a white mask stroke that draws itself
+	   (pathLength 1), so the dashes appear from the centre outward. */
 	.app-lines path,
 	.tip-lines path {
 		fill: none;
 		stroke: var(--line);
-		stroke-width: 0.5;
+		stroke-width: 0.45;
+		stroke-linecap: round;
+		stroke-dasharray: 0.9 1;
+	}
+	.reveal {
+		fill: none;
+		stroke: #fff;
+		stroke-width: 2;
 		stroke-linecap: round;
 		stroke-dasharray: 1;
 		stroke-dashoffset: 1;
@@ -408,11 +431,11 @@ const stats = [
 		--t-labels: 1900ms;
 		--t-pulses: 2100ms;
 	}
-	.is-arrived .tip-lines path {
+	.is-arrived .reveal-tip {
 		stroke-dashoffset: 0;
 		transition: stroke-dashoffset 350ms var(--ease) var(--t-tips);
 	}
-	.is-arrived .app-lines path {
+	.is-arrived .reveal-app {
 		stroke-dashoffset: 0;
 		transition: stroke-dashoffset 750ms var(--ease) var(--t-app-lines);
 	}

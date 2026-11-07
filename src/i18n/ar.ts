@@ -1,7 +1,7 @@
 export const ar = {
 	'brand.name': 'ليوان',
-	'brand.tagline': 'كل أعمال شركتك في مكان واحد وبذكاء واحد.',
-	'site.description': 'كل أعمال شركتك في مكان واحد وبذكاء واحد.',
+	'brand.tagline': 'كل أعمالك بنظام ذكي واحد.',
+	'site.description': 'كل أعمالك بنظام ذكي واحد.',
 
 	'nav.apps': 'التطبيقات',
 	'nav.pricing': 'الأسعار',
