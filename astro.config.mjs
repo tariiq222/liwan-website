@@ -4,9 +4,12 @@ import sitemap from '@astrojs/sitemap';
 import { readdirSync, readFileSync } from 'node:fs';
 
 // While any legal text is still a draft, the legal pages carry noindex and stay out of the sitemap.
-const legalDraft = ['ar', 'en'].some((l) =>
-	readdirSync(`./src/content/legal/${l}`).some((f) => /^status:\s*draft\s*$/m.test(readFileSync(`./src/content/legal/${l}/${f}`, 'utf8'))),
-);
+// Paths resolve from this file, so the config loads from any working directory.
+const legalDir = new URL('./src/content/legal/', import.meta.url);
+const legalDraft = ['ar', 'en'].some((l) => {
+	const dir = new URL(`${l}/`, legalDir);
+	return readdirSync(dir).some((f) => /^status:\s*draft\s*$/m.test(readFileSync(new URL(f, dir), 'utf8')));
+});
 const legalPaths = /\/(terms|privacy|refund|dpa)\/$/;
 
 export default defineConfig({
