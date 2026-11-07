@@ -24,4 +24,20 @@ const apps = defineCollection({
 	}),
 });
 
-export const collections = { apps };
+// Legal pages: one Markdown file per page per locale (src/content/legal/<locale>/<slug>.md).
+// The text is the lawyer's; `status: draft` keeps every legal page out of search engines.
+const legal = defineCollection({
+	loader: glob({ pattern: '*/*.md', base: './src/content/legal' }),
+	schema: z.object({
+		page: z.enum(['terms', 'privacy', 'refund', 'dpa']),
+		locale: z.enum(['ar', 'en']),
+		title: z.string(),
+		version: z.string(),
+		updated: z.coerce.date(),
+		status: z.enum(['draft', 'final']),
+		// The short «بالمختصر» box: three plain-language points.
+		summary: z.array(z.string()).length(3),
+	}),
+});
+
+export const collections = { apps, legal };
