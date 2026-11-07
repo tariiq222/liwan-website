@@ -4,7 +4,8 @@
 export type ClaimState = 'available' | 'soon' | 'hidden';
 
 const claims = {
-	saudiHosting: 'hidden',
+	// Owner 2026-11-07: shown now; the site must not go live before the product runs on Oracle Jeddah.
+	saudiHosting: 'available',
 	backupsRiyadh: 'hidden',
 	twoStepSignIn: 'hidden',
 	privacyTools: 'hidden',
