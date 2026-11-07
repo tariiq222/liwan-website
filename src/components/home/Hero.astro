@@ -29,15 +29,15 @@ const SYSTEM_NAMES: Record<(typeof RING)[number], string> = {
 const CARD_W = 30;
 const CARD_H = 11;
 const SCATTER = [
-	[3, 8, -4],
-	[36, 2, 3],
-	[69, 12, -3],
-	[1, 44, 3],
-	[69, 48, 4],
-	[7, 80, -3],
-	[62, 84, -2],
+	[2, 10, -7],
+	[40, 2, 6],
+	[68, 18, -4],
+	[10, 40, 5],
+	[62, 46, -8],
+	[0, 74, 4],
+	[56, 84, 7],
 ] as const;
-const AI_SCATTER = [35, 42, -2] as const;
+const AI_SCATTER = [32, 58, -5] as const;
 
 // Cut links between neighbouring cards: the systems do not talk to each other. Indexes into
 // SCATTER; 'ai' is the assistant card.
@@ -49,8 +49,8 @@ const CUT_LINKS = [
 	[3, 'ai'],
 	['ai', 4],
 	[3, 5],
-	[4, 6],
-	[5, 6],
+	[5, 'ai'],
+	['ai', 6],
 ] as const;
 
 // Geometry of the Liwan state, in scene percent. The mark (64 units) is drawn 44% wide at the centre.
@@ -284,10 +284,6 @@ const stats = [
 					))
 				}
 			</figcaption>
-			<p class="legend">
-				<span class="state-before">قبل ليوان: كل نظام بدخوله واشتراكه</span>
-				<span class="state-after"><i class="dot-ai"></i>في القلب: ليوان AI، وحوله تطبيقاتك</span>
-			</p>
 		</figure>
 	</div>
 </section>
@@ -634,7 +630,7 @@ const stats = [
 		transition-delay: var(--t-labels);
 	}
 
-	/* Stats and legend. */
+	/* Stats. */
 	.stats {
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
@@ -677,29 +673,6 @@ const stats = [
 	.stage:has(.is-arrived) .stat {
 		background: var(--accent-soft);
 		color: var(--accent);
-	}
-	.legend {
-		text-align: center;
-		color: var(--text-muted);
-		font-size: var(--text-sm);
-	}
-	.state-after {
-		display: none;
-		align-items: center;
-		gap: var(--space-2);
-	}
-	.stage:has(.is-arrived) .state-before {
-		display: none;
-	}
-	.stage:has(.is-arrived) .state-after {
-		display: inline-flex;
-	}
-	.dot-ai {
-		width: 12px;
-		height: 12px;
-		border-radius: 50%;
-		background: var(--sand);
-		box-shadow: 0 0 0 3px color-mix(in srgb, var(--sand-300) 60%, transparent);
 	}
 
 	@media (max-width: 899px) {
