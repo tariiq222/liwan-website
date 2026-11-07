@@ -37,6 +37,17 @@ const current = localePath(locale, path);
 				<Icon name="globe" size={16} />
 				{t(locale, 'nav.language')}
 			</a>
+			<button
+				class="icon-button theme-button"
+				type="button"
+				data-theme-toggle
+				data-label-light={t(locale, 'theme.light')}
+				data-label-dark={t(locale, 'theme.dark')}
+				aria-label={t(locale, 'theme.dark')}
+			>
+				<Icon name="moon" size={18} class="to-dark" />
+				<Icon name="sun" size={18} class="to-light" />
+			</button>
 			<a class="button ghost login" href={loginUrl(locale)} data-app-link>{t(locale, 'cta.login')}</a>
 			<a class="button cta" href={registerUrl(locale)} data-app-link>{t(locale, 'cta.start')}</a>
 			<button
@@ -87,6 +98,28 @@ const current = localePath(locale, path);
 	});
 	window.matchMedia('(min-width: 900px)').addEventListener('change', (event) => {
 		if (event.matches) setOpen(false);
+	});
+
+	// Light/dark toggle. The page follows the device until the visitor picks a side; the choice
+	// is kept in this browser only (applied before paint by the inline script in Base.astro).
+	const root = document.documentElement;
+	const themeButton = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+	const isDark = () =>
+		root.dataset.theme ? root.dataset.theme === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+	const labelTheme = () => {
+		if (!themeButton) return;
+		themeButton.setAttribute('aria-label', (isDark() ? themeButton.dataset.labelLight : themeButton.dataset.labelDark) ?? '');
+	};
+	labelTheme();
+	themeButton?.addEventListener('click', () => {
+		const next = isDark() ? 'light' : 'dark';
+		root.dataset.theme = next;
+		try {
+			localStorage.setItem('liwan-theme', next);
+		} catch {
+			// Storage can be blocked (private mode); the choice then lasts for this page only.
+		}
+		labelTheme();
 	});
 
 	// A hairline appears once the page scrolls under the header.
@@ -158,6 +191,42 @@ const current = localePath(locale, path);
 	}
 	.lang:hover {
 		color: var(--accent);
+	}
+	.icon-button {
+		display: grid;
+		place-items: center;
+		width: 40px;
+		height: 40px;
+		border: 1px solid var(--border);
+		border-radius: var(--radius-full);
+		background: transparent;
+		color: var(--text-muted);
+		cursor: pointer;
+		transition:
+			color var(--duration) var(--ease),
+			border-color var(--duration) var(--ease);
+	}
+	.icon-button:hover {
+		color: var(--accent);
+		border-color: var(--accent);
+	}
+	/* Show the moon on a light page and the sun on a dark one. */
+	.theme-button :global(.to-light) {
+		display: none;
+	}
+	:global(:root[data-theme='dark']) .theme-button :global(.to-light) {
+		display: block;
+	}
+	:global(:root[data-theme='dark']) .theme-button :global(.to-dark) {
+		display: none;
+	}
+	@media (prefers-color-scheme: dark) {
+		:global(:root:not([data-theme='light'])) .theme-button :global(.to-light) {
+			display: block;
+		}
+		:global(:root:not([data-theme='light'])) .theme-button :global(.to-dark) {
+			display: none;
+		}
 	}
 	.menu-button {
 		display: none;

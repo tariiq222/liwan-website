@@ -31,7 +31,14 @@ const alternates = [
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="generator" content={Astro.generator} />
-		<script is:inline>document.documentElement.classList.add('js');</script>
+		<script is:inline>
+			document.documentElement.classList.add('js');
+			// Apply the visitor's saved light/dark choice before the first paint (header toggle).
+			try {
+				const theme = localStorage.getItem('liwan-theme');
+				if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+			} catch {}
+		</script>
 		<title>{pageTitle}</title>
 		<meta name="description" content={metaDescription} />
 		{noindex && <meta name="robots" content="noindex" />}

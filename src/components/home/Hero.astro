@@ -83,9 +83,10 @@ const bySlug = new Map(entries.map((e) => [e.data.slug, e.data]));
 
 const round = (v: number) => +v.toFixed(2);
 
-// A smooth line that leaves the app circle toward the centre and arrives at the middle of the
-// triangle's base along the triangle's own axis, so it enters the triangle head-on.
-function lineInto(x: number, y: number, corner: keyof typeof TRIANGLES): string {
+// A smooth line between the middle of the triangle's base and the app circle. It leaves the
+// triangle along the triangle's own axis and reaches the app heading away from the centre.
+// It is drawn from the triangle outward, so the Liwan state grows from the middle.
+function lineOut(x: number, y: number, corner: keyof typeof TRIANGLES): string {
 	const { base, tip } = TRIANGLES[corner];
 	const toCenter = Math.hypot(CENTER - x, CENTER - y);
 	const ux = (CENTER - x) / toCenter;
@@ -96,7 +97,7 @@ function lineInto(x: number, y: number, corner: keyof typeof TRIANGLES): string 
 	const start = [x + ux * (NODE / 2 + 0.6), y + uy * (NODE / 2 + 0.6)];
 	const c1 = [start[0] + ux * 9, start[1] + uy * 9];
 	const c2 = [base[0] + ax * 9, base[1] + ay * 9];
-	return `M${round(start[0])} ${round(start[1])} C${round(c1[0])} ${round(c1[1])} ${round(c2[0])} ${round(c2[1])} ${base[0]} ${base[1]}`;
+	return `M${base[0]} ${base[1]} C${round(c2[0])} ${round(c2[1])} ${round(c1[0])} ${round(c1[1])} ${round(start[0])} ${round(start[1])}`;
 }
 
 function cardCenter(index: number | 'ai'): [number, number] {
@@ -135,17 +136,17 @@ const nodes = RING.map((slug, i) => {
 		x,
 		y,
 		labelAbove: y < CENTER,
-		line: lineInto(x, y, quadrant(angle)),
+		line: lineOut(x, y, quadrant(angle)),
 		style: `--bx:${bx}%;--by:${by}%;--rot:${rot}deg;--ax:${x - NODE / 2}%;--ay:${y - NODE / 2}%;--i:${i}`,
 	};
 });
 
-// A short straight line from each triangle's tip to the edge of the AI circle.
+// A short straight line from the edge of the AI circle out to each triangle's tip.
 const aiInset = (AI_NODE / 2 + 0.8) / Math.SQRT2;
 const tipLines = Object.values(TRIANGLES).map(({ tip }) => {
 	const dx = Math.sign(CENTER - tip[0]);
 	const dy = Math.sign(CENTER - tip[1]);
-	return `M${tip[0]} ${tip[1]} L${round(CENTER - dx * aiInset)} ${round(CENTER - dy * aiInset)}`;
+	return `M${round(CENTER - dx * aiInset)} ${round(CENTER - dy * aiInset)} L${tip[0]} ${tip[1]}`;
 });
 const aiStyle = `--bx:${AI_SCATTER[0]}%;--by:${AI_SCATTER[1]}%;--rot:${AI_SCATTER[2]}deg;--ax:${CENTER - AI_NODE / 2}%;--ay:${CENTER - AI_NODE / 2}%;--i:${RING.length}`;
 const before = RING.length + 1;
@@ -200,7 +201,14 @@ const stats = [
 						{
 							nodes.map((n, i) => (
 								<circle r="0.8">
-									<animateMotion dur="2.6s" begin={`${(i * 0.37).toFixed(2)}s`} repeatCount="indefinite">
+									<animateMotion
+									dur="2.6s"
+									begin={`${(i * 0.37).toFixed(2)}s`}
+									repeatCount="indefinite"
+									keyPoints="1;0"
+									keyTimes="0;1"
+									calcMode="linear"
+								>
 										<mpath href={`#hero-line-${n.slug}`} />
 									</animateMotion>
 								</circle>
@@ -208,7 +216,7 @@ const stats = [
 						}
 					</g>
 					<g class="mark" transform={`translate(${MARK_OFFSET} ${MARK_OFFSET}) scale(${MARK_SCALE})`}>
-						<path class="mark-arches-hero" d={MARK_ARCHES} pathLength="1" />
+						<path class="mark-arches-hero" d={MARK_ARCHES} />
 						{MARK_TRIANGLES.map((d, i) => <path class="mark-tri-hero" d={d} style={`--t:${i}`} />)}
 					</g>
 				</svg>
@@ -385,10 +393,25 @@ const stats = [
 		stroke-width: 0.45;
 		stroke-linecap: round;
 	}
-	.is-arrived .app-lines path,
+	/* The Liwan state grows from the middle, in this order after arrival:
+	   AI circle → lines out to the triangle tips → triangles → arches open from the centre →
+	   lines out to the apps → each app lights up → names → pulses flow back in. */
+	.scene {
+		--t-tips: 150ms;
+		--t-triangles: 450ms;
+		--t-arches: 600ms;
+		--t-app-lines: 1000ms;
+		--t-apps: 1700ms;
+		--t-labels: 1900ms;
+		--t-pulses: 2100ms;
+	}
 	.is-arrived .tip-lines path {
 		stroke-dashoffset: 0;
-		transition: stroke-dashoffset 900ms var(--ease) 200ms;
+		transition: stroke-dashoffset 350ms var(--ease) var(--t-tips);
+	}
+	.is-arrived .app-lines path {
+		stroke-dashoffset: 0;
+		transition: stroke-dashoffset 750ms var(--ease) var(--t-app-lines);
 	}
 	.pulses circle {
 		fill: var(--accent);
@@ -397,19 +420,25 @@ const stats = [
 	}
 	.is-arrived .pulses circle {
 		opacity: 0.9;
-		transition-delay: 900ms;
+		transition-delay: var(--t-pulses);
 	}
+	/* The arches open outward from the centre (scale and fade), so no draw seam is ever shown. */
 	.mark-arches-hero {
 		fill: none;
 		stroke: var(--accent);
 		stroke-width: 3.2;
 		stroke-linejoin: round;
-		stroke-dasharray: 1;
-		stroke-dashoffset: 1;
+		opacity: 0;
+		transform-box: fill-box;
+		transform-origin: center;
+		transform: scale(0.45);
 	}
 	.is-arrived .mark-arches-hero {
-		stroke-dashoffset: 0;
-		transition: stroke-dashoffset 1100ms var(--ease);
+		opacity: 1;
+		transform: scale(1);
+		transition:
+			opacity 300ms var(--ease) var(--t-arches),
+			transform 650ms var(--ease-spring) var(--t-arches);
 	}
 	.mark-tri-hero {
 		fill: var(--accent);
@@ -422,9 +451,9 @@ const stats = [
 		opacity: 1;
 		transform: scale(1);
 		transition:
-			opacity 400ms var(--ease) calc(700ms + var(--t) * 90ms),
-			transform 500ms var(--ease-spring) calc(700ms + var(--t) * 90ms);
-		animation: tri-pulse 2.8s ease-in-out calc(1.6s + var(--t) * 0.35s) infinite;
+			opacity 300ms var(--ease) calc(var(--t-triangles) + var(--t) * 60ms),
+			transform 450ms var(--ease-spring) calc(var(--t-triangles) + var(--t) * 60ms);
+		animation: tri-pulse 2.8s ease-in-out calc(2.4s + var(--t) * 0.35s) infinite;
 	}
 	@keyframes tri-pulse {
 		50% {
@@ -521,13 +550,15 @@ const stats = [
 		width: 12%;
 		height: 12%;
 	}
+	/* Each app lights up when its line reaches it; the AI circle lights first. */
 	.is-arrived .node {
 		background: var(--node-bg);
 		border-color: transparent;
 		box-shadow: 0 8px 20px -8px var(--glow);
-		transition-delay: 0ms;
+		transition-delay: calc(var(--t-apps) + var(--i) * 30ms);
 	}
 	.is-arrived .node-ai {
+		transition-delay: 0ms;
 		background: var(--sand);
 		border-color: var(--sand-300);
 		box-shadow:
@@ -548,7 +579,10 @@ const stats = [
 	.is-arrived .node-icon {
 		opacity: 1;
 		transform: scale(1);
-		transition-delay: calc(var(--i) * 30ms);
+		transition-delay: calc(var(--t-apps) + var(--i) * 30ms);
+	}
+	.is-arrived .node-ai .node-icon {
+		transition-delay: 0ms;
 	}
 
 	.node-label {
@@ -568,7 +602,7 @@ const stats = [
 	}
 	.is-arrived .node-label {
 		opacity: 1;
-		transition-delay: 500ms;
+		transition-delay: var(--t-labels);
 	}
 
 	/* Stats and legend. */

@@ -12,6 +12,8 @@ export const en: Record<keyof typeof ar, string> = {
 	'nav.menu': 'Menu',
 	'nav.close': 'Close menu',
 	'nav.main': 'Main menu',
+	'theme.light': 'Light mode',
+	'theme.dark': 'Dark mode',
 
 	'cta.start': 'Start free',
 	'cta.login': 'Sign in',

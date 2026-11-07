@@ -21,17 +21,17 @@
 	--sand-300: #dccaa5;
 
 	/* Roles. light-dark() follows prefers-color-scheme unless [data-theme] forces a side. */
-	--bg: light-dark(#fcfbf8, #14102a);
-	--surface: light-dark(#ffffff, #1d1939);
-	--surface-sunken: light-dark(var(--sand-50), #0f0c21);
-	--surface-sand: light-dark(var(--sand), #2a2340);
-	--text: light-dark(#14102a, #f3efe6);
-	--text-muted: light-dark(#5c566f, #b5aec9);
-	--border: light-dark(#e4ddcf, #2f2a52);
-	--border-strong: light-dark(#cfc4ad, #463f72);
+	--bg: light-dark(#fcfbf8, #100c20);
+	--surface: light-dark(#ffffff, #1a1631);
+	--surface-sunken: light-dark(var(--sand-50), #0b0917);
+	--surface-sand: light-dark(var(--sand), #1f1a2c);
+	--text: light-dark(#14102a, #f4f1ea);
+	--text-muted: light-dark(#5c566f, #aaa3c0);
+	--border: light-dark(#e4ddcf, #2a2546);
+	--border-strong: light-dark(#cfc4ad, #3e3766);
 	--accent: light-dark(#7843c6, #c2aae5);
 	--accent-hover: light-dark(#6634ae, #d6c3ee);
-	--accent-soft: light-dark(var(--lavender-50), #2a2150);
+	--accent-soft: light-dark(var(--lavender-50), #241d42);
 	--on-accent: light-dark(#ffffff, #14102a);
 	--earth: light-dark(#6b4e2e, #dccaa5);
 	--focus: light-dark(#7843c6, #c2aae5);
@@ -85,16 +85,16 @@
 	);
 	--gradient-sand: light-dark(
 		linear-gradient(160deg, #faf6ee 0%, #f1e6d0 100%),
-		linear-gradient(160deg, #2a2340 0%, #1d1939 100%)
+		linear-gradient(160deg, #1f1a2c 0%, #151126 100%)
 	);
 	--gradient-border: light-dark(
 		linear-gradient(135deg, #c2aae5, #eadfc8 50%, #7843c6),
 		linear-gradient(135deg, #7843c6, #463f72 50%, #c2aae5)
 	);
-	--aurora-1: light-dark(rgb(120 67 198 / 0.22), rgb(120 67 198 / 0.45));
-	--aurora-2: light-dark(rgb(234 223 200 / 0.9), rgb(194 170 229 / 0.18));
-	--aurora-3: light-dark(rgb(194 170 229 / 0.35), rgb(107 78 46 / 0.3));
-	--glow: light-dark(rgb(120 67 198 / 0.28), rgb(194 170 229 / 0.25));
+	--aurora-1: light-dark(rgb(120 67 198 / 0.22), rgb(120 67 198 / 0.26));
+	--aurora-2: light-dark(rgb(234 223 200 / 0.9), rgb(194 170 229 / 0.09));
+	--aurora-3: light-dark(rgb(194 170 229 / 0.35), rgb(107 78 46 / 0.16));
+	--glow: light-dark(rgb(120 67 198 / 0.28), rgb(194 170 229 / 0.18));
 
 	/* Motion. */
 	--ease: cubic-bezier(0.22, 1, 0.36, 1);
