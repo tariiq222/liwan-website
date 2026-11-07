@@ -37,6 +37,7 @@ const calcJson = pricing ? JSON.stringify(pricing).replace(/</g, '\\u003c') : ''
 	id="pricing"
 	eyebrow="الأسعار"
 	title="سعر واضح، يكبر مع فريقك"
+	align="center"
 >
 	<div class:list={['glance', { 'no-prices': !pricing }]} data-calc={pricing ? '' : undefined}>
 		{pricing && <script is:inline type="application/json" data-calc-data set:html={calcJson} />}
@@ -348,9 +349,48 @@ const calcJson = pricing ? JSON.stringify(pricing).replace(/</g, '\\u003c') : ''
 	.calc [hidden] {
 		display: none;
 	}
+	/* Custom slider: the native one mis-paints its thumb on first load in right-to-left pages.
+	   The track fills from the start side up to the thumb; --fill is set by the calculator. */
 	input[type='range'] {
+		-webkit-appearance: none;
+		appearance: none;
 		width: 100%;
-		accent-color: var(--accent);
+		height: 28px;
+		margin: 0;
+		background: transparent;
+		cursor: pointer;
+	}
+	input[type='range']::-webkit-slider-runnable-track {
+		height: 6px;
+		border-radius: var(--radius-full);
+		background: linear-gradient(to left, var(--accent) var(--fill, 0%), var(--border-strong) var(--fill, 0%));
+	}
+	input[type='range']::-moz-range-track {
+		height: 6px;
+		border-radius: var(--radius-full);
+		background: linear-gradient(to left, var(--accent) var(--fill, 0%), var(--border-strong) var(--fill, 0%));
+	}
+	input[type='range']::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		width: 22px;
+		height: 22px;
+		margin-top: -8px;
+		border: 3px solid var(--surface);
+		border-radius: 50%;
+		background: var(--accent);
+		box-shadow: 0 1px 4px rgb(20 16 42 / 0.3);
+	}
+	input[type='range']::-moz-range-thumb {
+		width: 16px;
+		height: 16px;
+		border: 3px solid var(--surface);
+		border-radius: 50%;
+		background: var(--accent);
+		box-shadow: 0 1px 4px rgb(20 16 42 / 0.3);
+	}
+	input[type='range']:focus-visible {
+		outline: 2px solid var(--focus);
+		outline-offset: 4px;
 	}
 
 	.option {
@@ -536,9 +576,22 @@ const calcJson = pricing ? JSON.stringify(pricing).replace(/</g, '\\u003c') : ''
 		text-decoration: underline;
 	}
 
+	/* Wide screens: the base card stays in view beside the taller calculator. */
+	@media (min-width: 901px) {
+		.cols:not(.no-prices .cols) .base {
+			position: sticky;
+			top: calc(68px + var(--space-6));
+		}
+	}
+	/* Tablet and phone: one column; the base list flows into as many columns as fit. */
 	@media (max-width: 900px) {
 		.cols {
 			grid-template-columns: minmax(0, 1fr);
+		}
+		.facts {
+			grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr));
+			column-gap: var(--space-6);
+			row-gap: var(--space-3);
 		}
 	}
 	@media (max-width: 560px) {
@@ -554,7 +607,16 @@ const calcJson = pricing ? JSON.stringify(pricing).replace(/</g, '\\u003c') : ''
 			text-align: start;
 		}
 		.band {
+			flex-direction: column;
+			align-items: flex-start;
 			border-radius: var(--radius-lg);
+		}
+		.band-item {
+			align-items: flex-start;
+		}
+		.band-item :global(svg) {
+			margin-top: 0.3em;
+			flex-shrink: 0;
 		}
 		.band :global(.band-arrow) {
 			display: none;

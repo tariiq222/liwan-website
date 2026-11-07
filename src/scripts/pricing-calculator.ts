@@ -69,6 +69,8 @@ function initCalculator(root: HTMLElement): void {
 
 		renderPrices(period);
 		renderLines(quote);
+		const min = Number(usersInput.min);
+		usersInput.style.setProperty('--fill', `${((users - min) / (Number(usersInput.max) - min)) * 100}%`);
 		set('[data-users-out]', usersLabel(users));
 		show('[data-users-max]', users >= pricing.extra_user.max_users);
 		set('[data-storage-out]', storageLabel(storageGb));
