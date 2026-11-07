@@ -1,5 +1,27 @@
 ---
-import SimplePage from '../views/SimplePage.astro';
+import Base from '../layouts/Base.astro';
+import Section from '../components/Section.astro';
+import PageHero from '../components/pricing/PageHero.astro';
+import FaqList from '../components/pricing/FaqList.astro';
+import Pillars from '../components/security/Pillars.astro';
+import TopicList from '../components/security/TopicList.astro';
+import ClosingCta from '../components/home/ClosingCta.astro';
+import { faq } from '../components/security/topics';
+import { t } from '../i18n';
+
+const title = t('ar', 'page.security');
 ---
 
-<SimplePage locale="ar" pageKey="security" path="/security/" />
+<Base locale="ar" title={title} path="/security/">
+	<PageHero title="بيانات شركتك لشركتك وحدها" lead="نبني منصة ليوان على أن تبقى بياناتك عندك، ويراها من تسمح له فقط." />
+	<Section>
+		<Pillars />
+	</Section>
+	<Section tone="sunken" eyebrow="التفاصيل" title="كيف نحمي بياناتك">
+		<TopicList />
+	</Section>
+	<Section eyebrow="أسئلة شائعة" title="أسئلة عن بياناتك" align="center">
+		<FaqList items={faq} group="security-faq" />
+	</Section>
+	<ClosingCta />
+</Base>

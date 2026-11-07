@@ -1,0 +1,57 @@
+---
+import Icon from '../Icon.astro';
+import { pillars } from './topics';
+---
+
+<ul class="pillars">
+	{
+		pillars.map((p, i) => (
+			<li class="pillar" data-reveal style={`--i: ${i}`}>
+				<span class="ico"><Icon name={p.icon} size={26} /></span>
+				<h2>{p.title}</h2>
+				<p>{p.line}</p>
+			</li>
+		))
+	}
+</ul>
+
+<style>
+	.pillars {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+		gap: var(--space-6);
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	.pillar {
+		display: grid;
+		justify-items: start;
+		gap: var(--space-3);
+		padding: var(--space-8);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-lg);
+		background: var(--accent-soft);
+	}
+	.ico {
+		display: grid;
+		place-items: center;
+		width: 52px;
+		height: 52px;
+		border-radius: 50%;
+		background: var(--surface);
+		color: var(--accent);
+		box-shadow: var(--shadow-sm);
+	}
+	h2 {
+		font-size: var(--text-xl);
+	}
+	p {
+		color: var(--text-muted);
+	}
+	@media (max-width: 560px) {
+		.pillar {
+			padding: var(--space-6) var(--space-4);
+		}
+	}
+</style>
