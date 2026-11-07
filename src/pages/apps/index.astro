@@ -124,18 +124,27 @@ function priceLine(data: (typeof tiles)[number]): string {
 		gap: var(--space-3);
 		margin-top: var(--space-2);
 	}
+	/* The pillars sit just under the hero as one row of cards; the next section brings its own
+	   top spacing, so the row keeps none below. */
 	.pillars {
-		padding-block: 0 clamp(3rem, 2rem + 3vw, 5rem);
+		padding-block: clamp(2rem, 1.5rem + 2vw, 3rem) 0;
 	}
 	.grid {
 		display: grid;
 		grid-template-columns: repeat(4, 1fr);
-		gap: var(--space-6);
+		gap: var(--space-4);
 	}
 	.pillar {
 		display: grid;
-		gap: var(--space-2);
+		justify-items: center;
 		align-content: start;
+		gap: var(--space-2);
+		padding: var(--space-6) var(--space-4);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-lg);
+		background: var(--surface);
+		box-shadow: var(--shadow-sm);
+		text-align: center;
 	}
 	.pillar-icon {
 		display: grid;
@@ -165,7 +174,10 @@ function priceLine(data: (typeof tiles)[number]): string {
 	}
 	@media (max-width: 480px) {
 		.grid {
-			grid-template-columns: 1fr;
+			gap: var(--space-3);
+		}
+		.pillar {
+			padding: var(--space-4) var(--space-3);
 		}
 		.actions .button {
 			flex: 1 1 100%;
