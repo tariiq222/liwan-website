@@ -7,7 +7,7 @@ import Icon from '../Icon.astro';
 import Section from '../Section.astro';
 import { registerUrl } from '../../lib/links';
 import { formatMoney, getPricing } from '../../lib/pricing';
-import { daysLabel, numberAr, storageLabel, usersLabel } from '../../scripts/pricing-format';
+import { daysLabel, formatNumber, storageLabel, usersLabel } from '../../scripts/pricing-format';
 import { localePath } from '../../i18n';
 
 const pricing = await getPricing();
@@ -179,7 +179,7 @@ const calcJson = pricing ? JSON.stringify(pricing).replace(/</g, '\\u003c') : ''
 								<strong data-onboarding-amount />
 							</p>
 							<a class="button large" href={register} data-app-link>
-								جرّب ١٤ يومًا مجانًا
+								جرّب 14 يومًا مجانًا
 							</a>
 						</div>
 					</div>
@@ -191,7 +191,7 @@ const calcJson = pricing ? JSON.stringify(pricing).replace(/</g, '\\u003c') : ''
 	<div class="band" data-reveal>
 		<span class="band-item">
 			<Icon name="check" size={18} strokeWidth={2.4} />
-			١٤ يومًا تجربة مجانية بلا بطاقة
+			14 يومًا تجربة مجانية بلا بطاقة
 		</span>
 		{
 			pricing && (

@@ -1,7 +1,8 @@
-// Pure helpers for the pricing glance: the subscription quote and Arabic number wording.
+// Pure helpers for the pricing glance: the subscription quote and Arabic unit wording.
 // Used by the page at build time and by pricing-calculator.ts in the browser. Every amount comes
 // from the Pricing object; nothing here knows a price.
 import type { Pricing } from '../lib/pricing';
+import { NUMBER_LOCALE } from '../lib/numbers';
 
 export type Billing = 'monthly' | 'annual';
 
@@ -76,11 +77,11 @@ export function previousStorage(pricing: Pricing, gb: number): number {
 	return Math.max(lowered, pricing.free.storage_gb);
 }
 
-const arabicNumber = new Intl.NumberFormat('ar-SA');
+const numberFormat = new Intl.NumberFormat(NUMBER_LOCALE);
 const arabicPlural = new Intl.PluralRules('ar');
 
-export function numberAr(value: number): string {
-	return arabicNumber.format(value);
+export function formatNumber(value: number): string {
+	return numberFormat.format(value);
 }
 
 interface CountForms {
@@ -91,13 +92,13 @@ interface CountForms {
 	other: string;
 }
 
-// «مستخدم واحد» · «مستخدمان» · «٣ مستخدمين» · «١٢ مستخدمًا» · «١٠٠ مستخدم»
+// «مستخدم واحد» · «مستخدمان» · «3 مستخدمين» · «12 مستخدمًا» · «100 مستخدم»
 function countAr(value: number, forms: CountForms): string {
 	const rule = arabicPlural.select(value);
 	if (rule === 'one') return forms.one;
 	if (rule === 'two') return forms.two;
 	const word = rule === 'few' ? forms.few : rule === 'many' ? forms.many : forms.other;
-	return `${numberAr(value)} ${word}`;
+	return `${formatNumber(value)} ${word}`;
 }
 
 export function usersLabel(value: number): string {
@@ -109,5 +110,5 @@ export function daysLabel(value: number): string {
 }
 
 export function storageLabel(gb: number): string {
-	return `${numberAr(gb)} جيجابايت`;
+	return `${formatNumber(gb)} جيجابايت`;
 }

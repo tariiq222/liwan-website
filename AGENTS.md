@@ -37,6 +37,9 @@ Consult these guides before working on related tasks:
   - Every application is «تطبيق …» (for example «تطبيق إدارة العملاء», «تطبيق رسائل العملاء»,
     «تطبيق المهام»), always taken from its `name` in `src/content/apps`, never retyped.
   - «تطبيقاتك كلها في ليوان واحد» keeps «ليوان» as the courtyard image, not the product name.
+- Numbers (owner, 2026-11-08): every number uses Latin digits (0–9), Arabic pages included.
+  Format numbers and money with `NUMBER_LOCALE` from `src/lib/numbers.ts`; never type Arabic-Indic
+  digits (٠–٩) into copy.
 - Never claim anything that is not `available` in `src/config/claims.ts`. A `soon` claim carries the
   word "soon" (قريبًا); a `hidden` claim appears nowhere. States change only when the product's claims register changes.
 - No personal data is stored on this site and no third-party form service is used. The only form
