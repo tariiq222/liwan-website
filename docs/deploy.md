@@ -37,6 +37,8 @@ and served by nginx with `nginx.conf.template`:
   (fetch and form posts).
 - `X-Robots-Tag` comes from the `ROBOTS_TAG` environment variable. Staging sets it to
   `noindex, nofollow` in the Openship project env. Production leaves it unset (empty, header not sent).
+- Openship project settings: build kind `dockerfile`, runtime `docker` (not `bare`), port `8080`,
+  env `ROBOTS_TAG` (staging only).
 - The container listens on port 8080 (port 80 belongs to the Openship edge on the server).
 
 Test locally:
