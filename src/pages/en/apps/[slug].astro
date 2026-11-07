@@ -1,0 +1,13 @@
+---
+import { getCollection } from 'astro:content';
+import AppView from '../../../views/AppView.astro';
+
+export async function getStaticPaths() {
+	const apps = await getCollection('apps', ({ data }) => data.status !== 'hidden');
+	return apps.map((app) => ({ params: { slug: app.data.slug }, props: { app } }));
+}
+
+const { app } = Astro.props;
+---
+
+<AppView locale="en" app={app} />

@@ -1,0 +1,68 @@
+---
+import Mark from './Mark.astro';
+import { localePath, otherLocale, t, type Locale } from '../i18n';
+import { APP_URL } from '../config/site';
+
+interface Props {
+	locale: Locale;
+	path: string;
+}
+
+const { locale, path } = Astro.props;
+const other = otherLocale(locale);
+const links = [
+	{ href: localePath(locale, '/apps'), label: t(locale, 'nav.apps') },
+	{ href: localePath(locale, '/pricing'), label: t(locale, 'nav.pricing') },
+	{ href: localePath(locale, '/security'), label: t(locale, 'nav.security') },
+];
+---
+
+<header class="site-header">
+	<div class="container bar">
+		<a class="brand" href={localePath(locale, '/')}>
+			<Mark size={28} />
+			<span>{t(locale, 'brand.name')}</span>
+		</a>
+		<nav aria-label="Main">
+			{links.map((l) => <a href={l.href}>{l.label}</a>)}
+			<a href={localePath(other, path)} hreflang={other} lang={other}>{t(locale, 'nav.language')}</a>
+		</nav>
+		<a class="button" href={`${APP_URL}/register?lang=${locale}`}>{t(locale, 'cta.start')}</a>
+	</div>
+</header>
+
+<style>
+	.site-header {
+		border-bottom: 1px solid var(--border);
+		background: var(--bg);
+	}
+	.bar {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.75rem 1.5rem;
+		padding-block: 0.75rem;
+	}
+	.brand {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-weight: 700;
+		font-size: 1.2rem;
+		color: var(--text);
+		text-decoration: none;
+	}
+	nav {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem 1.25rem;
+		margin-inline-end: auto;
+	}
+	nav a {
+		color: var(--text);
+		text-decoration: none;
+	}
+	nav a:hover {
+		color: var(--accent);
+	}
+</style>

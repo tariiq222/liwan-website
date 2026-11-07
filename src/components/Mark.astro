@@ -1,0 +1,33 @@
+---
+// The LiwanOS mark, drawn from the copied path strings in src/brand/mark.ts. Below 24px it takes
+// the heavier stroke and the solid diamond, as in the product.
+import { MARK_ARCHES, MARK_DIAMOND_OUTLINE, MARK_DIAMOND_SOLID, MARK_TRIANGLES } from '../brand/mark';
+
+interface Props {
+	size?: number;
+	inverted?: boolean;
+}
+
+const { size = 28, inverted = false } = Astro.props;
+const heavy = size < 24;
+const color = inverted ? '#ffffff' : 'var(--accent)';
+---
+
+<svg
+	width={size}
+	height={size}
+	viewBox={heavy ? '-2 -2 68 68' : '0 0 64 64'}
+	aria-hidden="true"
+	style={`color: ${color}; flex-shrink: 0;`}
+>
+	<path
+		d={MARK_ARCHES}
+		fill="none"
+		stroke="currentColor"
+		stroke-width={heavy ? 7.5 : 4.6}
+		stroke-linejoin="round"
+		stroke-linecap="round"
+	/>
+	<path d={MARK_TRIANGLES.join('')} fill="currentColor" />
+	<path d={heavy ? MARK_DIAMOND_SOLID : MARK_DIAMOND_OUTLINE} fill="currentColor" />
+</svg>

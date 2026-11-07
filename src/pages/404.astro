@@ -1,0 +1,13 @@
+---
+import Base from '../layouts/Base.astro';
+import { localePath, t } from '../i18n';
+
+const locale = 'ar';
+---
+
+<Base locale={locale} title={t(locale, 'page.notFound')} path="/" noindex>
+	<div class="container" style="padding-block: 3rem;">
+		<h1>{t(locale, 'page.notFound')}</h1>
+		<p><a href={localePath(locale, '/')}>{t(locale, 'notFound.back')}</a></p>
+	</div>
+</Base>

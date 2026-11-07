@@ -1,0 +1,132 @@
+---
+import Mark from './Mark.astro';
+import { localePath, otherLocale, t, type DictKey, type Locale } from '../i18n';
+import { APP_URL, WHATSAPP_URL } from '../config/site';
+
+interface Props {
+	locale: Locale;
+	path: string;
+}
+
+const { locale, path } = Astro.props;
+const other = otherLocale(locale);
+const page = (route: string, key: DictKey) => ({ href: localePath(locale, route), label: t(locale, key) });
+
+// No email address anywhere: the domain cannot receive mail.
+const columns: { title: DictKey; links: { href: string; label: string }[] }[] = [
+	{
+		title: 'footer.product',
+		links: [page('/apps', 'page.apps'), page('/apps/ai', 'footer.ai'), page('/pricing', 'page.pricing')],
+	},
+	{
+		title: 'footer.company',
+		links: [
+			page('/security', 'footer.security'),
+			page('/contact', 'page.contact'),
+			{ href: `${APP_URL}/login?lang=${locale}`, label: t(locale, 'cta.login') },
+		],
+	},
+	{
+		title: 'footer.legal',
+		links: [page('/terms', 'page.terms'), page('/privacy', 'page.privacy'), page('/refund', 'page.refund'), page('/dpa', 'page.dpa')],
+	},
+];
+---
+
+<div class="sadu-band" aria-hidden="true"></div>
+<footer class="site-footer">
+	<div class="container grid">
+		<div class="brand-col">
+			<a class="brand" href={localePath(locale, '/')}>
+				<Mark size={28} />
+				<span>{t(locale, 'brand.name')}</span>
+			</a>
+			<p>{t(locale, 'brand.tagline')}</p>
+		</div>
+		{
+			columns.map((col) => (
+				<nav aria-label={t(locale, col.title)}>
+					<h2>{t(locale, col.title)}</h2>
+					<ul>
+						{col.links.map((l) => (
+							<li>
+								<a href={l.href}>{l.label}</a>
+							</li>
+						))}
+					</ul>
+				</nav>
+			))
+		}
+	</div>
+	<div class="container bottom">
+		<span>{t(locale, 'footer.copyright')}</span>
+		{WHATSAPP_URL && <a href={WHATSAPP_URL} rel="noopener">{t(locale, 'footer.whatsapp')}</a>}
+		<a href={localePath(other, path)} hreflang={other} lang={other}>{t(locale, 'nav.language')}</a>
+	</div>
+</footer>
+
+<style>
+	.sadu-band {
+		height: 28px;
+		background: var(--sand);
+		mask-image: url('/brand/sadu/sadu-band-slim.svg');
+		mask-repeat: repeat-x;
+		mask-position: center;
+		mask-size: auto 100%;
+		-webkit-mask-image: url('/brand/sadu/sadu-band-slim.svg');
+		-webkit-mask-repeat: repeat-x;
+		-webkit-mask-position: center;
+		-webkit-mask-size: auto 100%;
+		margin-top: 3rem;
+	}
+	.site-footer {
+		background: var(--surface-sunken);
+		padding-block: 2rem 1rem;
+	}
+	.grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+		gap: 2rem;
+	}
+	.brand {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-weight: 700;
+		font-size: 1.2rem;
+		color: var(--text);
+		text-decoration: none;
+	}
+	.brand-col p {
+		color: var(--text-muted);
+		margin-block: 0.5rem 0;
+	}
+	h2 {
+		font-size: 1rem;
+		margin: 0 0 0.5rem;
+	}
+	ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+	li a {
+		color: var(--text-muted);
+		text-decoration: none;
+	}
+	li a:hover {
+		color: var(--accent);
+	}
+	.bottom {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem 1.5rem;
+		margin-top: 2rem;
+		padding-top: 1rem;
+		border-top: 1px solid var(--border);
+		color: var(--text-muted);
+	}
+	.bottom a {
+		color: var(--text-muted);
+	}
+</style>

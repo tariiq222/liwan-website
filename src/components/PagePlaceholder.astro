@@ -1,0 +1,29 @@
+---
+import { plannedSections, type PageKey } from '../config/planned-sections';
+import type { Locale } from '../i18n';
+
+interface Props {
+	locale: Locale;
+	title: string;
+	pageKey: PageKey;
+}
+
+const { locale, title, pageKey } = Astro.props;
+const sections = plannedSections[pageKey][locale];
+---
+
+<div class="container placeholder">
+	<h1>{title}</h1>
+	<ol>
+		{sections.map((s) => <li>{s}</li>)}
+	</ol>
+</div>
+
+<style>
+	.placeholder {
+		padding-block: 3rem;
+	}
+	ol {
+		color: var(--text-muted);
+	}
+</style>

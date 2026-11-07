@@ -1,0 +1,43 @@
+export const ar = {
+	'brand.name': 'ليوان',
+	'brand.tagline': 'كل أعمال شركتك في مكان واحد وبذكاء واحد.',
+	'site.description': 'كل أعمال شركتك في مكان واحد وبذكاء واحد.',
+
+	'nav.apps': 'التطبيقات',
+	'nav.pricing': 'الأسعار',
+	'nav.security': 'الأمان',
+	'nav.language': 'English',
+
+	'cta.start': 'ابدأ مجانًا',
+	'cta.login': 'تسجيل الدخول',
+	'cta.contact': 'تواصل معنا',
+
+	'footer.product': 'المنتج',
+	'footer.company': 'الشركة',
+	'footer.legal': 'قانوني',
+	'footer.ai': 'ليوان AI',
+	'footer.security': 'الأمان والبيانات',
+	'footer.whatsapp': 'واتساب',
+	'footer.copyright': '© ٢٠٢٦ ليوان',
+
+	'page.home': 'الرئيسية',
+	'page.apps': 'التطبيقات',
+	'page.pricing': 'الأسعار',
+	'page.security': 'الأمان والبيانات',
+	'page.contact': 'تواصل معنا',
+	'page.terms': 'الشروط والأحكام',
+	'page.privacy': 'سياسة الخصوصية',
+	'page.refund': 'سياسة الاسترداد',
+	'page.dpa': 'اتفاقية معالجة البيانات',
+	'page.notFound': 'الصفحة غير موجودة',
+
+	'pricing.unavailable': 'تواصل معنا',
+	'pricing.free': 'مجاني',
+	'pricing.monthly': 'شهريًا',
+	'pricing.annual': 'سنويًا',
+	'pricing.extraUser': 'مستخدم إضافي',
+	'pricing.extraStorage': 'تخزين إضافي',
+	'pricing.onboarding': 'إعداد مع فريقنا',
+
+	'notFound.back': 'العودة إلى الرئيسية',
+} as const;

@@ -1,0 +1,19 @@
+---
+import Base from '../layouts/Base.astro';
+import PagePlaceholder from '../components/PagePlaceholder.astro';
+import type { PageKey } from '../config/planned-sections';
+import { t, type DictKey, type Locale } from '../i18n';
+
+interface Props {
+	locale: Locale;
+	pageKey: Exclude<PageKey, 'app'>;
+	path: string;
+}
+
+const { locale, pageKey, path } = Astro.props;
+const title = t(locale, `page.${pageKey}` as DictKey);
+---
+
+<Base locale={locale} title={title} path={path}>
+	<PagePlaceholder locale={locale} title={title} pageKey={pageKey} />
+</Base>

@@ -1,0 +1,60 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { DIRECTION, localePath, t, type Locale } from '../i18n';
+import { SITE_URL } from '../config/site';
+
+interface Props {
+	locale: Locale;
+	title: string;
+	// Locale-less path of the page, for example "/apps/crm/". Used for canonical and hreflang.
+	path: string;
+	description?: string;
+	noindex?: boolean;
+}
+
+const { locale, title, path, description, noindex = false } = Astro.props;
+const pageTitle = path === '/' ? `${t(locale, 'brand.name')} | ${title}` : `${title} | ${t(locale, 'brand.name')}`;
+const metaDescription = description ?? t(locale, 'site.description');
+const canonical = SITE_URL + localePath(locale, path);
+const alternates = [
+	{ hreflang: 'ar', href: SITE_URL + localePath('ar', path) },
+	{ hreflang: 'en', href: SITE_URL + localePath('en', path) },
+	{ hreflang: 'x-default', href: SITE_URL + localePath('ar', path) },
+];
+---
+
+<!doctype html>
+<html lang={locale} dir={DIRECTION[locale]}>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{pageTitle}</title>
+		<meta name="description" content={metaDescription} />
+		{noindex && <meta name="robots" content="noindex" />}
+		<link rel="canonical" href={canonical} />
+		{alternates.map((a) => <link rel="alternate" hreflang={a.hreflang} href={a.href} />)}
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content={t(locale, 'brand.name')} />
+		<meta property="og:title" content={pageTitle} />
+		<meta property="og:description" content={metaDescription} />
+		<meta property="og:url" content={canonical} />
+		<meta property="og:locale" content={locale === 'ar' ? 'ar_SA' : 'en_US'} />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			rel="stylesheet"
+			href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+		/>
+	</head>
+	<body>
+		<Header locale={locale} path={path} />
+		<main>
+			<slot />
+		</main>
+		<Footer locale={locale} path={path} />
+	</body>
+</html>

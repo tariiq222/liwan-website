@@ -1,0 +1,18 @@
+---
+import Base from '../layouts/Base.astro';
+import PagePlaceholder from '../components/PagePlaceholder.astro';
+import type { Locale } from '../i18n';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+	locale: Locale;
+	app: CollectionEntry<'apps'>;
+}
+
+const { locale, app } = Astro.props;
+const { name, headline, summary, slug } = app.data;
+---
+
+<Base locale={locale} title={name[locale]} description={summary[locale]} path={`/apps/${slug}/`}>
+	<PagePlaceholder locale={locale} title={headline[locale]} pageKey="app" />
+</Base>

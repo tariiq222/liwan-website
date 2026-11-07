@@ -1,0 +1,34 @@
+/* Brand tokens. Colors come from the product identity; do not invent new brand colors here. */
+:root {
+	color-scheme: light dark;
+
+	--lavender: #7843c6;
+	--lavender-dark: #c2aae5;
+	--sand: #eadfc8;
+	--ink: #14102a;
+	--brown: #6b4e2e;
+
+	/* Neutral tokens. light-dark() follows prefers-color-scheme unless [data-theme] forces a side. */
+	--bg: light-dark(#fcfbf8, #14102a);
+	--surface: light-dark(#ffffff, #1d1939);
+	--surface-sunken: light-dark(#f4f0e7, #0f0c21);
+	--text: light-dark(#14102a, #f3efe6);
+	--text-muted: light-dark(#5c566f, #b5aec9);
+	--border: light-dark(#e4ddcf, #2f2a52);
+	--accent: light-dark(#7843c6, #c2aae5);
+	--on-accent: light-dark(#ffffff, #14102a);
+
+	--font-ar: 'IBM Plex Sans Arabic', system-ui, sans-serif;
+	--font-en: 'IBM Plex Sans', system-ui, sans-serif;
+	--radius: 10px;
+	--gutter: clamp(16px, 4vw, 32px);
+	--max-width: 1120px;
+}
+
+:root[data-theme='light'] {
+	color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+	color-scheme: dark;
+}
