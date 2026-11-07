@@ -6,7 +6,7 @@ status: available
 plan: paid
 featureKey: inbox.enabled
 name:
-  ar: "رسائل العملاء"
+  ar: "تطبيق رسائل العملاء"
   en: "Customer messages"
 headline:
   ar: "كل قنوات عملائك في صندوق واحد لفريقك"
