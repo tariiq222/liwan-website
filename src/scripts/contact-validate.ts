@@ -1,10 +1,9 @@
 // Pure checks for the contact form. No DOM, no storage. Messages are the Arabic wording shown
 // under each field.
 
-const ARABIC_DIGITS = '٠١٢٣٤٥٦٧٨٩';
-
 export function toLatinDigits(value: string): string {
-	return value.replace(/[٠-٩]/g, (d) => String(ARABIC_DIGITS.indexOf(d)));
+	// Arabic-Indic digits are U+0660..U+0669.
+	return value.replace(/[\u0660-\u0669]/g, (d) => String(d.charCodeAt(0) - 0x660));
 }
 
 // Providers that sell personal mailboxes. A match is "provider.tld" (or provider.co.xx), so a
