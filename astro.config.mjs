@@ -13,6 +13,7 @@ export default defineConfig({
 	},
 	integrations: [
 		sitemap({
+			filter: (page) => !page.includes('/brand-kit/'),
 			i18n: { defaultLocale: 'ar', locales: { ar: 'ar-SA', en: 'en' } },
 		}),
 	],

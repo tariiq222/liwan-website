@@ -1,0 +1,604 @@
+---
+// Internal identity reference: colors, type, buttons, labels, cards, Sadu and the mark, in light and dark.
+// Not linked from the site, kept out of the sitemap and marked noindex.
+import Base from '../layouts/Base.astro';
+import Mark from '../components/Mark.astro';
+
+const brandColors = [
+	{ name: 'بنفسجي ليوان', token: '--lavender', hex: '#7843C6', role: 'اللون الأساسي: الأزرار والروابط والشعار' },
+	{ name: 'بنفسجي فاتح', token: '--lavender-dark', hex: '#C2AAE5', role: 'اللون الأساسي في الوضع الداكن' },
+	{ name: 'رملي', token: '--sand', hex: '#EADFC8', role: 'خلفيات دافئة والسدو و«قريبًا»' },
+	{ name: 'حبر', token: '--ink', hex: '#14102A', role: 'النص وخلفية الوضع الداكن' },
+	{ name: 'بني', token: '--brown', hex: '#6B4E2E', role: 'لمسة أرضية في السدو والوسوم' },
+];
+
+const roleColors = [
+	{ name: 'الخلفية', token: '--bg' },
+	{ name: 'السطح', token: '--surface' },
+	{ name: 'سطح رملي', token: '--surface-sunken' },
+	{ name: 'النص', token: '--text' },
+	{ name: 'نص ثانوي', token: '--text-muted' },
+	{ name: 'الحدود', token: '--border' },
+	{ name: 'تمييز ناعم', token: '--accent-soft' },
+	{ name: 'التمييز', token: '--accent' },
+];
+
+const typeScale = [
+	{ label: 'عرض', size: '--text-display', weight: 700, ar: 'كل أعمال شركتك في مكان واحد', en: 'Your whole company, one place' },
+	{ label: 'عنوان ١', size: '--text-3xl', weight: 700, ar: 'تطبيقات تتكلم مع بعض', en: 'Apps that talk to each other' },
+	{ label: 'عنوان ٢', size: '--text-2xl', weight: 700, ar: 'ابدأ مجانًا مع فريقك', en: 'Start free with your team' },
+	{ label: 'عنوان ٣', size: '--text-xl', weight: 600, ar: 'رسائل عملائك في صندوق واحد', en: 'Every customer message in one inbox' },
+	{ label: 'كبير', size: '--text-lg', weight: 400, ar: 'كل تطبيق يقرأ من نفس البيانات، فلا تنسخ شيئًا مرتين.', en: 'Every app reads the same data, so nothing is typed twice.' },
+	{ label: 'أساسي', size: '--text-base', weight: 400, ar: 'تابع صفقاتك من أول رسالة حتى آخر ريال، وكل خطوة لها مسؤول وموعد.', en: 'Follow each deal from the first message to the last riyal.' },
+	{ label: 'صغير', size: '--text-sm', weight: 400, ar: 'بلا بطاقة ائتمان، والإلغاء في أي وقت.', en: 'No card needed. Cancel any time.' },
+];
+
+const motifs = [
+	{ file: 'sadu-triangle', name: 'المثلث', w: 34, h: 42 },
+	{ file: 'sadu-dot', name: 'النقطة', w: 28, h: 26 },
+	{ file: 'sadu-diamond', name: 'المعيّن', w: 66, h: 94 },
+	{ file: 'sadu-tree', name: 'الشجرة', w: 80, h: 82 },
+	{ file: 'sadu-panel', name: 'اللوح', w: 116, h: 120 },
+];
+
+const sampleApps = [
+	{ name: 'المهام', line: 'كل مهمة لها مسؤول وموعد.', badge: 'free' },
+	{ name: 'المحادثات', line: 'فريقك يتكلم في مكان واحد.', badge: 'free' },
+	{ name: 'تيليجرام', line: 'رسائل تيليجرام في صندوق العملاء.', badge: 'soon' },
+];
+---
+
+<Base locale="ar" title="هوية ليوان" path="/brand-kit/" noindex>
+	<div class="kit">
+		<section class="intro container">
+			<div>
+				<span class="eyebrow">مرجع داخلي</span>
+				<h1>هوية ليوان</h1>
+				<p class="lead">الألوان والخطوط والأزرار والوسوم والسدو كما ستظهر في الموقع. أي تعديل هنا يطبق على كل الصفحات.</p>
+			</div>
+			<div class="theme-switch" role="group" aria-label="المظهر">
+				<button type="button" data-set-theme="light">فاتح</button>
+				<button type="button" data-set-theme="dark">داكن</button>
+				<button type="button" data-set-theme="auto" aria-pressed="true">تلقائي</button>
+			</div>
+		</section>
+
+		<!-- Sample: a hero composed only from the tokens below. -->
+		<section class="container">
+			<div class="sample-hero">
+				<span class="sadu hero-motif start" style="--sadu: url('/brand/sadu/sadu-panel.svg')" aria-hidden="true"></span>
+				<span class="sadu hero-motif end" style="--sadu: url('/brand/sadu/sadu-panel.svg')" aria-hidden="true"></span>
+				<div class="hero-copy">
+					<span class="badge free">مجاني لأول ٣ مستخدمين</span>
+					<h2 class="display">كل أعمال شركتك في مكان واحد وبذكاء واحد</h2>
+					<p class="lead">العملاء والرسائل والمهام والاجتماعات في نظام عربي واحد، يقرأ من بيانات واحدة.</p>
+					<div class="actions">
+						<a class="button large" href="#">ابدأ مجانًا</a>
+						<a class="button secondary large" href="#">شاهد التطبيقات</a>
+					</div>
+				</div>
+				<span class="sadu-band hero-band" aria-hidden="true"></span>
+			</div>
+		</section>
+
+		<section class="container block">
+			<header class="block-head">
+				<h2>الشعار</h2>
+				<p>الشكل الرسمي كما هو في المنتج. تحت ٢٤ بكسل يصير الخط أثقل والمعيّن مصمتًا.</p>
+			</header>
+			<div class="logo-grid">
+				<div class="logo-tile on-bg">
+					<div class="lockup"><Mark size={44} /><span>ليوان</span></div>
+					<small>على الخلفية</small>
+				</div>
+				<div class="logo-tile on-lavender">
+					<div class="lockup"><Mark size={44} inverted /><span>ليوان</span></div>
+					<small>على البنفسجي</small>
+				</div>
+				<div class="logo-tile on-ink">
+					<div class="lockup"><Mark size={44} inverted /><span>ليوان</span></div>
+					<small>على الحبر</small>
+				</div>
+				<div class="logo-tile on-sand">
+					<div class="lockup"><Mark size={44} /><span>ليوان</span></div>
+					<small>على الرملي</small>
+				</div>
+			</div>
+			<div class="sizes">
+				{[16, 20, 24, 32, 48, 72, 112].map((s) => (
+					<figure>
+						<Mark size={s} />
+						<figcaption>{s}</figcaption>
+					</figure>
+				))}
+			</div>
+		</section>
+
+		<section class="container block">
+			<header class="block-head">
+				<h2>الألوان</h2>
+				<p>خمسة ألوان من هوية المنتج، ومنها نشتق كل شيء في الموقع.</p>
+			</header>
+			<div class="swatches">
+				{brandColors.map((c) => (
+					<div class="swatch">
+						<span class="chip" style={`background: var(${c.token})`}></span>
+						<strong>{c.name}</strong>
+						<code dir="ltr">{c.hex}</code>
+						<small>{c.role}</small>
+					</div>
+				))}
+			</div>
+			<h3 class="sub">أدوار الألوان (تتغير مع المظهر)</h3>
+			<div class="roles">
+				{roleColors.map((c) => (
+					<div class="role">
+						<span class="chip small" style={`background: var(${c.token})`}></span>
+						<span class="role-text">
+							<span>{c.name}</span>
+							<code dir="ltr">{c.token}</code>
+						</span>
+					</div>
+				))}
+			</div>
+		</section>
+
+		<section class="container block">
+			<header class="block-head">
+				<h2>الخط</h2>
+				<p>IBM Plex Sans Arabic للعربي، وIBM Plex Sans للإنجليزي. نفس العائلة، فيتناسق الخطان في السطر الواحد.</p>
+			</header>
+			<div class="type-list">
+				{typeScale.map((t) => (
+					<div class="type-row">
+						<div class="type-meta">
+							<strong>{t.label}</strong>
+							<code dir="ltr">{t.size}</code>
+						</div>
+						<div class="type-samples">
+							<p style={`font-size: var(${t.size}); font-weight: ${t.weight}; line-height: 1.35`}>{t.ar}</p>
+							<p lang="en" dir="ltr" class="en" style={`font-size: var(${t.size}); font-weight: ${t.weight}; line-height: 1.35`}>{t.en}</p>
+						</div>
+					</div>
+				))}
+			</div>
+		</section>
+
+		<section class="container block">
+			<header class="block-head">
+				<h2>الأزرار والوسوم</h2>
+				<p>زر رئيسي واحد في كل قسم. «مجاني» بلون واضح، و«قريبًا» رملي هادئ حتى لا ينافس الموجود.</p>
+			</header>
+			<div class="row">
+				<a class="button large" href="#">ابدأ مجانًا</a>
+				<a class="button" href="#">ابدأ مجانًا</a>
+				<a class="button secondary" href="#">شاهد التطبيقات</a>
+				<a class="button ghost" href="#">تسجيل الدخول</a>
+				<a class="button small" href="#">جرّبه</a>
+			</div>
+			<div class="row">
+				<span class="badge free">مجاني</span>
+				<span class="badge soon">قريبًا</span>
+				<span class="badge neutral">ليوان AI</span>
+				<span class="badge neutral">متاح الآن</span>
+			</div>
+		</section>
+
+		<section class="container block">
+			<header class="block-head">
+				<h2>البطاقات</h2>
+				<p>بطاقة التطبيق: اسم، سطر واحد يقول الفائدة، ووسم الحالة.</p>
+			</header>
+			<div class="cards">
+				{sampleApps.map((a) => (
+					<article class="card app-card">
+						<div class="app-top">
+							<span class="app-icon"><span class="sadu" style="--sadu: url('/brand/sadu/sadu-diamond.svg')" aria-hidden="true"></span></span>
+							<span class={`badge ${a.badge}`}>{a.badge === 'free' ? 'مجاني' : 'قريبًا'}</span>
+						</div>
+						<h3>{a.name}</h3>
+						<p>{a.line}</p>
+					</article>
+				))}
+			</div>
+		</section>
+
+		<section class="container block">
+			<header class="block-head">
+				<h2>السدو</h2>
+				<p>نقوش السدو من هوية المنتج. نستخدمها فواصل وزخارف خفيفة، لا خلفيات مزدحمة.</p>
+			</header>
+			<div class="band-demos">
+				<div class="band-demo"><span class="sadu-band" style="color: var(--accent)"></span><small>بنفسجي</small></div>
+				<div class="band-demo"><span class="sadu-band" style="color: var(--sand-300)"></span><small>رملي</small></div>
+				<div class="band-demo"><span class="sadu-band" style="color: var(--earth)"></span><small>بني</small></div>
+			</div>
+			<div class="motifs">
+				{motifs.map((m) => (
+					<figure>
+						<span class="sadu" style={`--sadu: url('/brand/sadu/${m.file}.svg'); width: ${m.w}px; height: ${m.h}px; color: var(--accent)`}></span>
+						<figcaption>{m.name}</figcaption>
+					</figure>
+				))}
+			</div>
+		</section>
+
+		<section class="container block">
+			<header class="block-head">
+				<h2>الشكل والعمق</h2>
+				<p>زوايا ناعمة، وظلال خفيفة. الأزرار والوسوم دائرية بالكامل.</p>
+			</header>
+			<div class="depth">
+				<div class="depth-tile" style="border-radius: var(--radius-sm); box-shadow: var(--shadow-sm)">صغير</div>
+				<div class="depth-tile" style="border-radius: var(--radius); box-shadow: var(--shadow)">متوسط</div>
+				<div class="depth-tile" style="border-radius: var(--radius-lg); box-shadow: var(--shadow-lg)">كبير</div>
+			</div>
+		</section>
+	</div>
+</Base>
+
+<script>
+	const root = document.documentElement;
+	const buttons = document.querySelectorAll<HTMLButtonElement>('[data-set-theme]');
+	buttons.forEach((b) =>
+		b.addEventListener('click', () => {
+			const theme = b.dataset.setTheme;
+			if (theme === 'auto') root.removeAttribute('data-theme');
+			else root.setAttribute('data-theme', theme ?? '');
+			buttons.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+		}),
+	);
+</script>
+
+<style>
+	.kit {
+		padding-block: var(--space-12) var(--space-24);
+		display: grid;
+		gap: var(--space-16);
+	}
+	.intro {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: end;
+		justify-content: space-between;
+		gap: var(--space-6);
+	}
+	.intro h1 {
+		font-size: var(--text-3xl);
+		margin-block: var(--space-2);
+	}
+	.lead {
+		color: var(--text-muted);
+		font-size: var(--text-lg);
+		max-width: 60ch;
+	}
+	.theme-switch {
+		display: inline-flex;
+		padding: 4px;
+		border: 1px solid var(--border);
+		border-radius: var(--radius-full);
+		background: var(--surface);
+	}
+	.theme-switch button {
+		font: inherit;
+		font-size: var(--text-sm);
+		border: 0;
+		background: transparent;
+		color: var(--text-muted);
+		padding: 0.3rem 0.9rem;
+		border-radius: var(--radius-full);
+		cursor: pointer;
+	}
+	.theme-switch button[aria-pressed='true'] {
+		background: var(--accent);
+		color: var(--on-accent);
+	}
+
+	/* Sample hero. */
+	.sample-hero {
+		position: relative;
+		overflow: hidden;
+		border-radius: var(--radius-lg);
+		background: linear-gradient(180deg, var(--accent-soft), var(--bg) 85%);
+		border: 1px solid var(--border);
+		padding: var(--space-16) var(--gutter) var(--space-24);
+		text-align: center;
+	}
+	.hero-copy {
+		position: relative;
+		display: grid;
+		justify-items: center;
+		gap: var(--space-6);
+		max-width: 760px;
+		margin-inline: auto;
+	}
+	.display {
+		font-size: var(--text-display);
+		line-height: 1.2;
+		letter-spacing: -0.01em;
+	}
+	.actions {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: var(--space-3);
+	}
+	.hero-motif {
+		position: absolute;
+		width: 180px;
+		height: 186px;
+		top: var(--space-8);
+		color: var(--accent);
+		opacity: 0.09;
+	}
+	.hero-motif.start {
+		inset-inline-start: -40px;
+	}
+	.hero-motif.end {
+		inset-inline-end: -40px;
+		transform: scaleX(-1);
+	}
+	.hero-band {
+		position: absolute;
+		inset-inline: 0;
+		bottom: var(--space-6);
+		color: var(--accent);
+		opacity: 0.35;
+	}
+
+	/* Blocks. */
+	.block {
+		display: grid;
+		gap: var(--space-8);
+	}
+	.block-head {
+		display: grid;
+		gap: var(--space-2);
+		padding-bottom: var(--space-4);
+		border-bottom: 1px solid var(--border);
+	}
+	.block-head h2 {
+		font-size: var(--text-2xl);
+	}
+	.block-head p {
+		color: var(--text-muted);
+	}
+	.sub {
+		font-size: var(--text-lg);
+	}
+	code {
+		font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+		font-size: var(--text-xs);
+		color: var(--text-muted);
+	}
+	small {
+		color: var(--text-muted);
+		font-size: var(--text-xs);
+	}
+
+	/* Logo. */
+	.logo-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+		gap: var(--space-4);
+	}
+	.logo-tile {
+		display: grid;
+		gap: var(--space-4);
+		justify-items: center;
+		padding: var(--space-12) var(--space-4) var(--space-4);
+		border-radius: var(--radius-lg);
+		border: 1px solid var(--border);
+	}
+	.lockup {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-3);
+		font-size: 2rem;
+		font-weight: 700;
+	}
+	.on-bg {
+		background: var(--surface);
+	}
+	.on-lavender {
+		background: var(--lavender);
+		color: #fff;
+	}
+	.on-ink {
+		background: var(--ink);
+		color: #fff;
+	}
+	.on-sand {
+		background: var(--sand);
+		color: var(--ink);
+	}
+	.on-sand :global(svg) {
+		color: var(--lavender) !important;
+	}
+	.on-lavender small,
+	.on-ink small {
+		color: rgb(255 255 255 / 0.7);
+	}
+	.on-sand small {
+		color: var(--brown);
+	}
+	.sizes {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: end;
+		gap: var(--space-8);
+	}
+	.sizes figure,
+	.motifs figure {
+		margin: 0;
+		display: grid;
+		justify-items: center;
+		gap: var(--space-2);
+	}
+	figcaption {
+		font-size: var(--text-xs);
+		color: var(--text-muted);
+	}
+
+	/* Colors. */
+	.swatches {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+		gap: var(--space-4);
+	}
+	.swatch {
+		display: grid;
+		gap: var(--space-1);
+	}
+	.chip {
+		display: block;
+		height: 96px;
+		border-radius: var(--radius);
+		border: 1px solid var(--border);
+		margin-bottom: var(--space-2);
+	}
+	.chip.small {
+		height: 40px;
+		width: 40px;
+		margin: 0;
+		border-radius: var(--radius-full);
+		flex-shrink: 0;
+	}
+	.roles {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+		gap: var(--space-4);
+	}
+	.role {
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+	}
+	.role-text {
+		display: grid;
+		line-height: 1.4;
+	}
+	.role-text code,
+	.swatch code {
+		justify-self: start;
+	}
+
+	/* Type. */
+	.type-list {
+		display: grid;
+	}
+	.type-row {
+		display: grid;
+		grid-template-columns: 140px 1fr;
+		gap: var(--space-6);
+		padding-block: var(--space-6);
+		border-bottom: 1px dashed var(--border);
+	}
+	.type-meta {
+		display: grid;
+		align-content: start;
+		gap: var(--space-1);
+	}
+	.type-samples {
+		display: grid;
+		gap: var(--space-2);
+		min-width: 0;
+	}
+	.type-samples .en {
+		font-family: var(--font-en);
+		color: var(--text-muted);
+		text-align: start;
+	}
+
+	/* Buttons and labels. */
+	.row {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--space-4);
+	}
+
+	/* Cards. */
+	.cards {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+		gap: var(--space-4);
+	}
+	.app-card {
+		display: grid;
+		gap: var(--space-2);
+		transition:
+			transform var(--duration) var(--ease),
+			box-shadow var(--duration) var(--ease);
+	}
+	.app-card:hover {
+		transform: translateY(-2px);
+		box-shadow: var(--shadow);
+	}
+	.app-top {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: var(--space-2);
+	}
+	.app-icon {
+		display: grid;
+		place-items: center;
+		width: 44px;
+		height: 44px;
+		border-radius: var(--radius-full);
+		background: var(--accent-soft);
+		color: var(--accent);
+	}
+	.app-icon .sadu {
+		width: 18px;
+		height: 26px;
+	}
+	.app-card h3 {
+		font-size: var(--text-lg);
+	}
+	.app-card p {
+		color: var(--text-muted);
+	}
+
+	/* Sadu. */
+	.band-demos {
+		display: grid;
+		gap: var(--space-4);
+	}
+	.band-demo {
+		display: grid;
+		gap: var(--space-1);
+	}
+	.motifs {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: end;
+		gap: var(--space-12);
+	}
+
+	/* Depth. */
+	.depth {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+		gap: var(--space-8);
+	}
+	.depth-tile {
+		display: grid;
+		place-items: center;
+		height: 120px;
+		background: var(--surface);
+		border: 1px solid var(--border);
+		color: var(--text-muted);
+	}
+
+	@media (max-width: 640px) {
+		.type-row {
+			grid-template-columns: 1fr;
+			gap: var(--space-2);
+		}
+		.hero-motif {
+			display: none;
+		}
+	}
+</style>
