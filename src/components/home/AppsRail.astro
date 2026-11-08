@@ -5,18 +5,25 @@
 import { getCollection } from 'astro:content';
 import Icon from '../Icon.astro';
 import { localePath } from '../../i18n';
-import { CATEGORIES, HOME_APPS, HOME_ORDER, HOME_TINT } from './home-apps';
+import { claim } from '../../config/claims';
+import { CATEGORIES, HOME_AI_END, HOME_APPS, HOME_ORDER, HOME_TINT } from './home-apps';
 
 const entries = await getCollection('apps', ({ data }) => data.status === 'available');
 const bySlug = new Map(entries.map((e) => [e.data.slug, e.data]));
 const cards = HOME_ORDER.flatMap((slug) => {
 	const data = bySlug.get(slug);
 	const copy = HOME_APPS[slug];
-	return data && copy ? [{ data, copy, tint: HOME_TINT[slug] ?? 'var(--accent)' }] : [];
+	if (!data || !copy) return [];
+	// The inbox line names its channels; without both claims it falls back to the content summary.
+	const channels = claim('whatsapp') === 'available' && claim('tiktok') === 'available';
+	const desc = slug === 'inbox' && !channels ? data.summary.ar : copy.desc;
+	return [{ data, copy: { ...copy, desc }, tint: HOME_TINT[slug] ?? 'var(--accent)' }];
 });
+const appName = (slug: string) => entries.find((e) => e.data.slug === slug)?.data.name.ar ?? '';
+const aiStyle = `--ai-1: ${HOME_TINT.ai}; --ai-2: ${HOME_AI_END};`;
 ---
 
-<section class="apps" id="apps">
+<section class="apps" id="apps" style={aiStyle}>
 	<div class="container">
 		<div class="pill-row" data-reveal>
 			<span class="eyebrow-pill"><b>14 يومًا مجانًا</b> اختر ما يناسبك وجرّبه</span>
@@ -44,7 +51,7 @@ const cards = HOME_ORDER.flatMap((slug) => {
 			{
 				cards.map(({ data, copy, tint }) => (
 					<article
-						class:list={['card', { dark: data.slug === 'ai' }]}
+						class:list={['rcard', { dark: data.slug === 'ai' }]}
 						data-cats={copy.cats.join(' ')}
 						style={`--tint: ${tint}`}
 					>
@@ -77,7 +84,7 @@ const cards = HOME_ORDER.flatMap((slug) => {
 								) : (
 									<div class="row">
 										<span class="dot" style={`background: ${HOME_TINT[line.dot] ?? 'var(--accent)'}`} />
-										{line.done ? <s>{line.text}</s> : line.text}
+										{line.done ? <s>{line.text}</s> : line.app ? `${line.text} ${appName(line.app)}` : line.text}
 										{line.tag && <span class="tag">{line.tag}</span>}
 									</div>
 								),
@@ -101,10 +108,18 @@ const cards = HOME_ORDER.flatMap((slug) => {
 		});
 		rail.scrollTo({ left: 0 });
 	}
+	// Arrows only when the visible cards overflow the rail.
+	const arrows = document.querySelector<HTMLElement>('.arrows');
+	const syncArrows = () => {
+		if (rail && arrows) arrows.hidden = rail.scrollWidth <= rail.clientWidth + 1;
+	};
+	addEventListener('resize', syncArrows, { passive: true });
+	syncArrows();
 	tabs.forEach((tab) =>
 		tab.addEventListener('click', () => {
 			tabs.forEach((t) => t.setAttribute('aria-pressed', String(t === tab)));
 			filter(tab.dataset.tab ?? 'all');
+			syncArrows();
 		}),
 	);
 
@@ -199,6 +214,9 @@ const cards = HOME_ORDER.flatMap((slug) => {
 		background: var(--accent);
 		color: var(--on-accent);
 	}
+	.arrows[hidden] {
+		display: none;
+	}
 	.arrows {
 		position: absolute;
 		inset-inline-end: 0;
@@ -234,7 +252,7 @@ const cards = HOME_ORDER.flatMap((slug) => {
 	}
 
 	/* Card: the application's tint as a soft light gradient (dark mode mixes into the surface). */
-	.card {
+	.rcard {
 		scroll-snap-align: start;
 		flex: none;
 		width: 318px;
@@ -251,10 +269,10 @@ const cards = HOME_ORDER.flatMap((slug) => {
 			linear-gradient(170deg, color-mix(in oklab, var(--tint) 8%, var(--surface)), color-mix(in oklab, var(--tint) 32%, var(--surface)));
 		transition: transform 0.45s var(--ease);
 	}
-	.card[hidden] {
+	.rcard[hidden] {
 		display: none;
 	}
-	.card:hover {
+	.rcard:hover {
 		transform: scale(1.035);
 	}
 	.top {
@@ -283,7 +301,7 @@ const cards = HOME_ORDER.flatMap((slug) => {
 		font-size: 12px;
 		opacity: 0.75;
 	}
-	.card p {
+	.rcard p {
 		font-size: var(--text-sm);
 		line-height: 1.6;
 		min-height: 70px;
@@ -364,34 +382,34 @@ const cards = HOME_ORDER.flatMap((slug) => {
 	}
 
 	/* Liwan AI: deep ink card with a soft violet glow, the same in both themes. */
-	.card.dark {
+	.rcard.dark {
 		color: #fff;
 		background:
-			radial-gradient(110% 70% at 90% 0%, rgb(124 92 255 / 0.38), transparent 58%),
-			radial-gradient(90% 60% at 0% 100%, rgb(236 72 153 / 0.16), transparent 62%),
+			radial-gradient(110% 70% at 90% 0%, color-mix(in srgb, var(--ai-1) 38%, transparent), transparent 58%),
+			radial-gradient(90% 60% at 0% 100%, color-mix(in srgb, var(--ai-2) 16%, transparent), transparent 62%),
 			linear-gradient(165deg, #221a4a, #14102a 55%, #0a0816);
 		box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.09);
 	}
-	.card.dark .ic {
+	.rcard.dark .ic {
 		background: rgb(255 255 255 / 0.1);
 		box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.2);
 	}
-	.card.dark .try {
+	.rcard.dark .try {
 		background: #fff;
 		color: #14102a;
 	}
-	.card.dark .shot {
+	.rcard.dark .shot {
 		background: rgb(255 255 255 / 0.06);
 		color: #fff;
 		box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
 	}
-	.card.dark .row,
-	.card.dark .kpi div,
-	.card.dark .bub {
+	.rcard.dark .row,
+	.rcard.dark .kpi div,
+	.rcard.dark .bub {
 		background: rgb(255 255 255 / 0.08);
 	}
-	.card.dark .bub.me {
-		background: rgb(124 92 255 / 0.35);
+	.rcard.dark .bub.me {
+		background: color-mix(in srgb, var(--ai-1) 35%, transparent);
 	}
 
 	@media (max-width: 760px) {
@@ -406,7 +424,7 @@ const cards = HOME_ORDER.flatMap((slug) => {
 		}
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.card:hover {
+		.rcard:hover {
 			transform: none;
 		}
 	}

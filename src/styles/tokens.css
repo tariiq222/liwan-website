@@ -56,10 +56,9 @@
 	--app-appointments-action: #557309;
 
 	/* Website-only surfaces from the approved home mock (docs/brand.md). */
-	--hero-sky: light-dark(
-		linear-gradient(180deg, #d4e9fb 0%, #e2f0fc 35%, #eff7fe 68%, #f8fbff 88%, #fff 100%),
-		linear-gradient(180deg, #2d3446 0%, #2a2f3d 45%, #27272e 100%)
-	);
+	/* light-dark() takes colours only, so the dark sky is set in the theme blocks below. */
+	--hero-sky: linear-gradient(180deg, #d4e9fb 0%, #e2f0fc 35%, #eff7fe 68%, #f8fbff 88%, #fff 100%);
+	--hero-sky-dark: linear-gradient(180deg, #2d3446 0%, #2a2f3d 45%, #27272e 100%);
 	--glow: light-dark(rgb(20 16 42 / 0.16), rgb(0 0 0 / 0.4));
 
 	/* Type. */
@@ -116,6 +115,13 @@
 
 :root[data-theme='dark'] {
 	color-scheme: dark;
+	--hero-sky: var(--hero-sky-dark);
+}
+
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme='light']) {
+		--hero-sky: var(--hero-sky-dark);
+	}
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -10,7 +10,9 @@ import { localePath } from '../../i18n';
 const pricing = await getPricing();
 const apps = (await getCollection('apps', ({ data }) => data.status === 'available')).map((e) => e.data).sort((a, b) => a.order - b.order);
 const list = (names: string[]) => (names.length > 1 ? `${names.slice(0, -1).join('، ')} و${names.at(-1)}` : (names[0] ?? ''));
-const freeNames = list(apps.filter((a) => a.plan === 'free').map((a) => a.name.ar));
+// Liwan AI is part of the platform, not an application, so it is named apart.
+const aiName = apps.find((a) => a.slug === 'ai')?.name.ar;
+const freeNames = list(apps.filter((a) => a.plan === 'free' && a.slug !== 'ai').map((a) => a.name.ar));
 const paidNames = list(apps.filter((a) => a.plan === 'paid').map((a) => a.name.ar));
 const refundPeriod = pricing ? daysLabel(pricing.refund_days) : 'فترة الضمان';
 
@@ -18,7 +20,7 @@ const FAQ = [
 	{ q: 'هل أحتاج بطاقة ائتمان؟', a: 'لا. تجرّب 14 يومًا كاملة بلا بطاقة.' },
 	{ q: 'ماذا بعد التجربة؟', a: 'تبقى على التطبيقات المجانية دائمًا، وبياناتك محفوظة.' },
 	{ q: 'هل أسترجع مبلغي؟', a: `نعم، كاملًا خلال ${refundPeriod} من أول دفعة.` },
-	{ q: 'وش التطبيقات المجانية ووش المدفوعة؟', a: `المجانية: ${freeNames}. والمدفوعة: ${paidNames}.` },
+	{ q: 'وش التطبيقات المجانية ووش المدفوعة؟', a: `المجانية: ${freeNames}${aiName ? `، ومعها ${aiName}` : ''}. والمدفوعة: ${paidNames}.` },
 	{ q: 'كيف أربط واتساب شركتي؟', a: 'من داخل منصة ليوان بخطوات قليلة. ورسائل واتساب التسويقية تحاسبك عليها ميتا مباشرة.' },
 ];
 ---

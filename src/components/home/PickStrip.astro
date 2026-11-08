@@ -11,8 +11,9 @@ import { localePath } from '../../i18n';
 const apps = (await getCollection('apps', ({ data }) => data.status === 'available'))
 	.map((e) => e.data)
 	.sort((a, b) => a.order - b.order);
-// Two identical halves, each wider than the screen, so the loop never shows a gap.
-const half = [...apps, ...apps];
+// Two identical halves, each wider than the widest screen (24 tiles, about 3000px), so the loop
+// never shows a gap.
+const half = [...apps, ...apps, ...apps];
 const strip = [...half, ...half];
 
 const trust = [

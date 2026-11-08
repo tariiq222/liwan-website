@@ -7,7 +7,7 @@ import Icon from '../Icon.astro';
 import { ICONS, type IconName } from '../../brand/icons';
 import { claim } from '../../config/claims';
 import { registerUrl } from '../../lib/links';
-import { HOME_TINT } from './home-apps';
+import { HOME_AI_END, HOME_TINT } from './home-apps';
 
 const apps = new Map((await getCollection('apps', ({ data }) => data.status === 'available')).map((e) => [e.data.slug, e.data]));
 const ai = apps.get('ai');
@@ -21,7 +21,7 @@ const cards = [
 		text: 'يقرأ بصلاحياتك أنت، ولا يغيّر شيئًا إلا بموافقتك.',
 		show: Boolean(ai),
 	},
-	{ icon: 'lock' as IconName, title: 'بياناتك في السعودية', text: 'تُستضاف بيانات شركتك داخل المملكة، ولا تُشارَك مع أي طرف ثالث.', show: claim('saudiHosting') === 'available' },
+	{ icon: 'lock' as IconName, title: 'بياناتك في السعودية', text: 'تُستضاف بيانات شركتك داخل المملكة العربية السعودية.', show: claim('saudiHosting') === 'available' },
 ].filter((c) => c.show);
 
 // Isometric glass tiles. Every application has its own tint here (owner, 2026-11-08).
@@ -46,7 +46,7 @@ const D = 2 * S + G;
 let defs = '<defs>';
 for (const [slug] of grid) {
 	const c = HOME_TINT[slug];
-	const c2 = slug === 'ai' ? '#ec4899' : c;
+	const c2 = slug === 'ai' ? HOME_AI_END : c;
 	defs += `<linearGradient id="gl-${slug}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c}" stop-opacity=".8"/><stop offset="1" stop-color="${c2}" stop-opacity=".55"/></linearGradient>`;
 }
 defs +=

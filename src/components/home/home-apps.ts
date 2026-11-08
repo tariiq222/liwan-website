@@ -9,7 +9,7 @@
 export type Category = 'all' | 'sales' | 'team';
 
 export type ShotLine =
-	| { kind: 'row'; dot: string; text: string; tag?: string; done?: boolean }
+	| { kind: 'row'; dot: string; text: string; tag?: string; done?: boolean; app?: string }
 	| { kind: 'bubble'; text: string; me?: boolean }
 	| { kind: 'kpi'; items: { value: string; label: string }[] };
 
@@ -31,6 +31,9 @@ export const HOME_TINT: Record<string, string> = {
 	ai: '#7c3aed',
 };
 
+// Liwan AI's glass tile and dark card run from its violet to this pink.
+export const HOME_AI_END = '#ec4899';
+
 export const CATEGORIES: { key: Category; label: string }[] = [
 	{ key: 'all', label: 'الأساسيات' },
 	{ key: 'sales', label: 'المبيعات والعملاء' },
@@ -48,7 +51,8 @@ export const HOME_APPS: Record<string, HomeApp> = {
 		shot: [
 			{ kind: 'bubble', me: true, text: 'وش وضع صفقات هذا الأسبوع؟' },
 			{ kind: 'bubble', text: 'عندك 6 صفقات تحتاج متابعة، أهمها شركة الندى (عرض سعر منذ 3 أيام).' },
-			{ kind: 'row', dot: 'crm', text: 'المصدر: تطبيق إدارة العملاء', tag: 'الآن' },
+			// `app`: the row ends with that application's name from src/content/apps.
+			{ kind: 'row', dot: 'crm', text: 'المصدر:', app: 'crm', tag: 'الآن' },
 		],
 	},
 	crm: {

@@ -191,6 +191,8 @@ const saudi = claim('saudiHosting') === 'available';
 	}
 	.js .laptop.is-in {
 		transform: perspective(1400px) rotateX(var(--tilt, 10deg)) scale(var(--lscale, 0.94));
+		/* The tilt follows the scroll directly; only the fade-in is animated. */
+		transition: opacity var(--duration-slow) var(--ease);
 	}
 	.lid {
 		background: #161616;

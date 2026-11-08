@@ -4,6 +4,13 @@
 import { getCollection } from 'astro:content';
 import Icon from '../Icon.astro';
 import { claim } from '../../config/claims';
+import { HOME_TINT } from './home-apps';
+
+// Each card glows in the tints of the applications it describes (home-apps.ts).
+const glow = (main: string, soft: string) => [
+	`color-mix(in srgb, ${main} 65%, transparent)`,
+	`color-mix(in srgb, ${soft} 30%, transparent)`,
+];
 
 const apps = new Map((await getCollection('apps')).map((e) => [e.data.slug, e.data]));
 const ai = apps.get('ai');
@@ -14,7 +21,7 @@ const channels = claim('whatsapp') === 'available' && claim('tiktok') === 'avail
 const CASES = [
 	ai && {
 		icon: ai.icon,
-		glow: ['rgb(91 141 239 / 0.7)', 'rgb(124 58 237 / 0.3)'],
+		glow: glow(HOME_TINT.crm, HOME_TINT.ai),
 		text: `تسأل ${ai.name.ar} عن وضع الصفقات أو مهام الفريق، ويجاوبك بالعربي من بيانات شركتك بدل ما تفتح كل تطبيق.`,
 		who: 'صاحب الشركة',
 		line: 'يعرف وضع شغله في دقيقة',
@@ -22,14 +29,14 @@ const CASES = [
 	inbox &&
 		channels && {
 			icon: inbox.icon,
-			glow: ['rgb(42 214 122 / 0.55)', 'rgb(11 180 196 / 0.3)'],
+			glow: glow(HOME_TINT.inbox, HOME_TINT.meetings),
 			text: 'رسائل واتساب وتيك توك تجي في صندوق واحد، ولكل محادثة مسؤول، فما يبقى عميل ينتظر بدون رد.',
 			who: 'فريق المبيعات',
 			line: 'صندوق مشترك بدل جوالات متفرقة',
 		},
 	operations && {
 		icon: operations.icon,
-		glow: ['rgb(155 92 246 / 0.7)', 'rgb(255 79 163 / 0.28)'],
+		glow: glow(HOME_TINT.operations, HOME_TINT.chat),
 		text: 'طلبات الإجازة والشراء تمشي في مسار واضح، وتعرف وين وقف كل طلب ومين عنده.',
 		who: 'الإدارة والمالية',
 		line: 'موافقات بلا ملاحقة',
