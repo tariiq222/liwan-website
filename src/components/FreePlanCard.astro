@@ -1,0 +1,156 @@
+---
+// The free base card, shared by the home pricing glance and /pricing: a header, the user and
+// storage limits side by side, and the free applications and Liwan AI as icon tiles. Limits
+// come from the pricing object (hidden without it); names, icons and colours from
+// src/content/apps and src/lib/app-color.ts.
+import { getCollection } from 'astro:content';
+import Icon from './Icon.astro';
+import { appColorStyle } from '../lib/app-color';
+import type { Pricing } from '../lib/pricing';
+import { storageLabel, usersLabel } from '../scripts/pricing-format';
+
+interface Props {
+	pricing: Pricing | null;
+	// Heading level: h2 on /pricing, h3 inside the home section.
+	level?: 2 | 3;
+}
+
+const { pricing, level = 3 } = Astro.props;
+const Heading = level === 2 ? 'h2' : 'h3';
+const apps = (await getCollection('apps', ({ data }) => data.plan === 'free' && data.status === 'available'))
+	.map((e) => e.data)
+	.sort((a, b) => a.order - b.order);
+---
+
+<article class="free-card" data-reveal>
+	<header class="head">
+		<span class="badge free">مجانًا، دائمًا</span>
+		<Heading>الأساس</Heading>
+		<p class="sub">بلا مدة ولا بطاقة، وبياناتك محفوظة.</p>
+	</header>
+
+	{
+		pricing && (
+			<dl class="limits">
+				<div>
+					<dt>
+						<Icon name="users" size={16} /> المستخدمون
+					</dt>
+					<dd>{usersLabel(pricing.free.users)}</dd>
+				</div>
+				<div>
+					<dt>
+						<Icon name="database" size={16} /> التخزين
+					</dt>
+					<dd>{storageLabel(pricing.free.storage_gb)}</dd>
+				</div>
+			</dl>
+		)
+	}
+
+	<p class="label">يشمل</p>
+	<ul class="apps">
+		{
+			apps.map((a) => (
+				<li>
+					<span class="tile" style={appColorStyle(a)}>
+						<Icon name={a.icon} size={16} />
+					</span>
+					{a.name.ar}
+				</li>
+			))
+		}
+	</ul>
+
+</article>
+
+<style>
+	.free-card {
+		display: grid;
+		align-content: start;
+		gap: var(--space-6);
+		padding: var(--space-8);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-card);
+		background: var(--surface-muted);
+	}
+	.head {
+		display: grid;
+		justify-items: start;
+		gap: var(--space-2);
+	}
+	.head :is(h2, h3) {
+		font-family: var(--font-display);
+		font-size: var(--text-3xl);
+		line-height: 1.15;
+	}
+	.sub {
+		color: var(--text-mid);
+	}
+
+	/* Users and storage side by side. */
+	.limits {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: var(--space-3);
+		margin: 0;
+	}
+	.limits div {
+		display: grid;
+		gap: var(--space-1);
+		padding: var(--space-4);
+		border-radius: var(--radius);
+		background: var(--surface);
+		border: 1px solid var(--border);
+	}
+	.limits dt {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		color: var(--text-muted);
+		font-size: var(--text-sm);
+	}
+	.limits dd {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: var(--text-xl);
+		font-weight: 700;
+	}
+
+	.label {
+		margin-bottom: calc(var(--space-3) * -1);
+		color: var(--text-muted);
+		font-size: var(--text-sm);
+		font-weight: 600;
+	}
+	.apps {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: var(--space-3) var(--space-4);
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	.apps li {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		font-weight: 500;
+		min-width: 0;
+	}
+	.tile {
+		width: 30px;
+		height: 30px;
+		flex: none;
+		display: grid;
+		place-items: center;
+		border-radius: var(--radius-sm);
+		background: var(--app-tile);
+		color: var(--app-on);
+	}
+	@media (max-width: 420px) {
+		.apps {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

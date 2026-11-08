@@ -131,8 +131,22 @@ These come from `.mocks/home-v4.html` and apply to the site only, not the produc
 - **Light only (owner, 2026-11-08).** The site has no dark mode and no theme switch; it always
   shows the light column of the tables above. The dark columns are the product's values, kept
   here for reference.
+- **Site icon.** `public/favicon.svg` is the header mark in white on a transparent background,
+  drawn from `src/brand/mark.ts` with the small-size stroke and solid diamond.
 - **No Sadu (owner, 2026-11-08).** No Sadu bands, motifs or marks on any page, including the
   footer and section titles.
+
+## Currency
+
+Prices show the new Saudi riyal sign (SAMA, 2025; Unicode U+20C1), never «ر.س.» or «SAR».
+
+- The sign is SAMA's official symbol, copied unchanged to `public/brand/currency/sar.svg`
+  (source in `public/brand/currency/SOURCE.md`).
+- Fonts rarely carry U+20C1 yet, so the site loads `public/fonts/saudi-riyal.woff2`, a one-glyph
+  font built from that SVG, first in every font stack for that code point only.
+- Format every amount with `moneyFormatter` or `formatMoney` (`src/lib/numbers.ts`,
+  `src/lib/pricing.ts`). In Arabic the sign follows the number («99 ⃁», shown left of the number);
+  in English it comes first.
 
 ## Language and naming
 

@@ -59,11 +59,12 @@
 	--glow: rgb(20 16 42 / 0.16);
 
 	/* Type. */
-	--font-ar: 'IBM Plex Sans Arabic', system-ui, sans-serif;
-	--font-en: 'IBM Plex Sans', system-ui, sans-serif;
+	/* «Saudi Riyal» comes first in every stack but only holds U+20C1, the riyal sign. */
+	--font-ar: 'Saudi Riyal', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+	--font-en: 'Saudi Riyal', 'IBM Plex Sans', system-ui, sans-serif;
 	/* Rubik 600-800 is for large display text only: page titles, the hero headline, section
 	   titles and big numbers. Never buttons, navigation, tables or small text. */
-	--font-display: 'Rubik', 'IBM Plex Sans Arabic', 'IBM Plex Sans', system-ui, sans-serif;
+	--font-display: 'Saudi Riyal', 'Rubik', 'IBM Plex Sans Arabic', 'IBM Plex Sans', system-ui, sans-serif;
 	/* Type scale. IBM Plex Sans Arabic reads large, so the scale is modest; the upper sizes grow
 	   with the viewport between a phone (first value) and a wide screen (last value). */
 	--text-xs: 0.8125rem;

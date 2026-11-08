@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { Locale } from '../i18n';
-import { NUMBER_LOCALE } from './numbers';
+import { moneyFormatter } from './numbers';
 
 // Mirrors the product's public pricing contract (site-contract.md section 4.2, schema_version 1).
 // The product is the only source of prices: nothing here or elsewhere in this repository may
@@ -66,9 +66,5 @@ async function fetchPricing(): Promise<Pricing | null> {
 }
 
 export function formatMoney(locale: Locale, amount: number, currency: string): string {
-	return new Intl.NumberFormat(locale === 'ar' ? NUMBER_LOCALE : 'en-US', {
-		style: 'currency',
-		currency,
-		maximumFractionDigits: 0,
-	}).format(amount);
+	return moneyFormatter(currency, locale).format(amount);
 }

@@ -5,10 +5,12 @@
 import { getCollection } from 'astro:content';
 import Icon from '../Icon.astro';
 import Section from '../Section.astro';
+import FreePlanCard from '../FreePlanCard.astro';
 import { registerUrl } from '../../lib/links';
 import { formatMoney, getPricing } from '../../lib/pricing';
 import { daysLabel, formatNumber, storageLabel, usersLabel } from '../../scripts/pricing-format';
 import { localePath } from '../../i18n';
+import { appColorStyle } from '../../lib/app-color';
 
 const pricing = await getPricing();
 const register = registerUrl('ar');
@@ -16,20 +18,9 @@ const contact = localePath('ar', '/contact');
 const money = (amount: number) => (pricing ? formatMoney('ar', amount, pricing.currency) : '');
 
 const catalog = await getCollection('apps');
-const appName = (key: string, fallback: string) => catalog.find((entry) => entry.data.featureKey === `${key}.enabled`)?.data.name.ar ?? fallback;
+const appEntry = (key: string) => catalog.find((entry) => entry.data.featureKey === `${key}.enabled`)?.data;
+const appName = (key: string, fallback: string) => appEntry(key)?.name.ar ?? fallback;
 
-// The free apps are listed by their own names from src/content/apps, in catalogue order.
-const freeApps = catalog
-	.map((entry) => entry.data)
-	.filter((app) => app.plan === 'free' && app.status === 'available')
-	.sort((a, b) => a.order - b.order)
-	.map((app) => app.name.ar);
-
-const baseFacts = [
-	pricing && `حتى ${usersLabel(pricing.free.users)}`,
-	...freeApps,
-	pricing && `${storageLabel(pricing.free.storage_gb)} للتخزين`,
-].filter((fact): fact is string => Boolean(fact));
 const calcJson = pricing ? JSON.stringify(pricing).replace(/</g, '\\u003c') : '';
 ---
 
@@ -42,71 +33,49 @@ const calcJson = pricing ? JSON.stringify(pricing).replace(/</g, '\\u003c') : ''
 	<div class:list={['glance', { 'no-prices': !pricing }]} data-calc={pricing ? '' : undefined}>
 		{pricing && <script is:inline type="application/json" data-calc-data set:html={calcJson} />}
 
-		{
-			pricing && (
-				<div class="billing" role="radiogroup" aria-label="دورة الدفع" data-reveal>
-					<label>
-						<input type="radio" name="billing" value="monthly" checked />
-						<span class="seg">شهري</span>
-					</label>
-					<label>
-						<input type="radio" name="billing" value="annual" />
-						<span class="seg">
-							سنوي <span class="badge free">شهران مجانًا</span>
-						</span>
-					</label>
-				</div>
-			)
-		}
 
 		<div class="cols">
-			<article class="base" data-reveal style="--i: 1">
-				<h3>الأساس — مجانًا، دائمًا، بلا مدة</h3>
-				<ul class="facts">
-					{
-						baseFacts.map((fact) => (
-							<li>
-								<Icon name="check" size={16} strokeWidth={2.4} />
-								{fact}
-							</li>
-						))
-					}
-				</ul>
-				{
-					!pricing && (
-						<a class="button" href={contact}>
-							تواصل معنا
-						</a>
-					)
-				}
-			</article>
+			<FreePlanCard pricing={pricing} />
 
 			{
 				pricing && (
 					<div class="calc" data-reveal style="--i: 2">
-						<h3>احسب اشتراكك</h3>
+						<header class="calc-head">
+							<h3>احسب اشتراكك</h3>
+							<p>اختر ما يحتاجه فريقك، والسعر يتحدّث مباشرة.</p>
+						</header>
 
 						<fieldset class="group">
 							<legend>التطبيقات</legend>
+							<div class="app-options">
 							{pricing.apps.map((app) => (
 								<label class="option">
-									<input type="checkbox" data-app value={app.key} />
-									<span class="option-name">{appName(app.key, app.name_ar)}</span>
-									<span class="option-price">
-										<span data-price-app={app.key}>{money(app.monthly)}</span> <span data-period-word>شهريًا</span>
+									{appEntry(app.key) && (
+										<span class="option-ic" style={appColorStyle(appEntry(app.key)!)}>
+											<Icon name={appEntry(app.key)!.icon} size={18} />
+										</span>
+									)}
+									<span class="option-text">
+										<span class="option-name">{appName(app.key, app.name_ar)}</span>
+										<span class="option-price">
+											<span data-price-app={app.key}>{money(app.monthly)}</span> <span data-period-word>شهريًا</span>
+										</span>
 									</span>
+									<input type="checkbox" data-app value={app.key} />
 								</label>
 							))}
+							</div>
 						</fieldset>
 
-						<div class="group">
+						<div class="limits-row">
+						<div class="group panel">
 							<div class="group-head">
 								<label for="calc-users">المستخدمون</label>
 								<output for="calc-users" data-users-out>
-									{usersLabel(1)}
+									{usersLabel(pricing.free.users)}
 								</output>
 							</div>
-							<input id="calc-users" type="range" min="1" max={pricing.extra_user.max_users} step="1" value="1" data-users />
+							<input id="calc-users" type="range" min={pricing.free.users} max={pricing.extra_user.max_users} step="1" value={pricing.free.users} data-users />
 							<p class="hint">
 								أول {usersLabel(pricing.free.users)} مجانًا، وكل مستخدم إضافي{' '}
 								<span data-price-user>{money(pricing.extra_user.monthly)}</span> <span data-period-word>شهريًا</span>
@@ -116,7 +85,7 @@ const calcJson = pricing ? JSON.stringify(pricing).replace(/</g, '\\u003c') : ''
 							</p>
 						</div>
 
-						<div class="group">
+						<div class="group panel">
 							<div class="group-head">
 								<span id="calc-storage-label">التخزين</span>
 							</div>
@@ -134,23 +103,33 @@ const calcJson = pricing ? JSON.stringify(pricing).replace(/</g, '\\u003c') : ''
 								<span data-price-storage>{money(pricing.extra_storage.block_monthly)}</span> <span data-period-word>شهريًا</span>
 							</p>
 						</div>
+						</div>
 
-						<label class="option">
-							<input type="checkbox" data-onboarding />
-							<span class="option-name">
-								إعداد مع فريقنا
+						<label class="option onboarding">
+							<span class="option-ic plain">
+								<Icon name="user-plus" size={18} />
 							</span>
-							<span class="option-price">{money(pricing.onboarding.one_time)} مرة واحدة</span>
+							<span class="option-text">
+								<span class="option-name">إعداد مع فريقنا</span>
+								<span class="option-price">{money(pricing.onboarding.one_time)} مرة واحدة</span>
+							</span>
+							<input type="checkbox" data-onboarding />
 						</label>
 
-						<div class="total" aria-live="polite">
-							<p class="total-main">
-								<span class="total-label">اشتراكك</span>
-								<strong data-total>مجانًا</strong>
-								<span data-period data-period-word hidden>
-									شهريًا
-								</span>
-							</p>
+						<div class="total">
+							<div class="billing" role="radiogroup" aria-label="دورة الدفع">
+								<label>
+									<input type="radio" name="billing" value="monthly" checked />
+									<span class="seg">شهري</span>
+								</label>
+								<label>
+									<input type="radio" name="billing" value="annual" />
+									<span class="seg">
+										سنوي <span class="badge free">شهران مجانًا</span>
+									</span>
+								</label>
+							</div>
+							<div class="total-body" aria-live="polite">
 							<ul class="breakdown">
 								{pricing.apps.map((app) => (
 									<li data-line-app={app.key} hidden>
@@ -170,7 +149,18 @@ const calcJson = pricing ? JSON.stringify(pricing).replace(/</g, '\\u003c') : ''
 									</span>
 									<span data-amount />
 								</li>
+								<li class="discount" data-line-discount hidden>
+									<span>خصم الدفع السنوي (شهران مجانًا)</span>
+									<span data-amount />
+								</li>
 							</ul>
+							<p class="total-main">
+								<span class="total-label">اشتراكك</span>
+								<strong data-total>مجانًا</strong>
+								<span data-period data-period-word hidden>
+									شهريًا
+								</span>
+							</p>
 							<p class="saving" data-saving hidden>
 								توفّر <strong data-saving-amount /> في السنة بالدفع السنوي
 							</p>
@@ -178,9 +168,11 @@ const calcJson = pricing ? JSON.stringify(pricing).replace(/</g, '\\u003c') : ''
 								<span>إعداد مع فريقنا، مرة واحدة</span>
 								<strong data-onboarding-amount />
 							</p>
+							</div>
 							<a class="button large" href={register} data-app-link>
 								جرّب 14 يومًا مجانًا
 							</a>
+							<p class="total-note">بلا بطاقة · ألغِ متى ما تبي</p>
 						</div>
 					</div>
 				)
@@ -237,12 +229,22 @@ const calcJson = pricing ? JSON.stringify(pricing).replace(/</g, '\\u003c') : ''
 		justify-content: center;
 	}
 
+	/* Monthly or annual, at the top of the total box. */
 	.billing {
-		display: inline-flex;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
 		padding: 4px;
 		border: 1px solid var(--border);
 		border-radius: var(--radius);
 		background: var(--surface);
+	}
+	.billing .seg {
+		justify-content: center;
+		width: 100%;
+	}
+	.total-body {
+		display: grid;
+		gap: var(--space-3);
 	}
 	.billing label {
 		position: relative;
@@ -274,36 +276,6 @@ const calcJson = pricing ? JSON.stringify(pricing).replace(/</g, '\\u003c') : ''
 		outline-offset: 2px;
 	}
 
-	.base {
-		display: grid;
-		gap: var(--space-4);
-		padding: var(--space-8);
-		border: 1px solid var(--border-strong);
-		border-radius: var(--radius-card);
-		background: var(--surface-muted);
-	}
-	.base h3 {
-		font-size: var(--text-xl);
-	}
-	.base .button {
-		justify-self: start;
-	}
-	.facts {
-		display: grid;
-		gap: var(--space-2);
-		margin: 0;
-		padding: 0;
-		list-style: none;
-	}
-	.facts li {
-		display: flex;
-		align-items: center;
-		gap: var(--space-2);
-	}
-	.facts :global(svg) {
-		flex-shrink: 0;
-		color: var(--success);
-	}
 
 	.calc {
 		display: grid;
@@ -480,7 +452,7 @@ const calcJson = pricing ? JSON.stringify(pricing).replace(/</g, '\\u003c') : ''
 
 	.total {
 		display: grid;
-		gap: var(--space-3);
+		gap: var(--space-4);
 		padding: var(--space-6);
 		border-radius: var(--radius);
 		background: var(--surface-sunken);
@@ -597,16 +569,8 @@ const calcJson = pricing ? JSON.stringify(pricing).replace(/</g, '\\u003c') : ''
 		}
 	}
 	@media (max-width: 560px) {
-		.base,
 		.calc {
 			padding: var(--space-6) var(--space-4);
-		}
-		.option {
-			grid-template-columns: auto 1fr;
-		}
-		.option-price {
-			grid-column: 2;
-			text-align: start;
 		}
 		.band {
 			flex-direction: column;
@@ -623,5 +587,263 @@ const calcJson = pricing ? JSON.stringify(pricing).replace(/</g, '\\u003c') : ''
 		.band :global(.band-arrow) {
 			display: none;
 		}
+	}
+	/* Applications: two per row; the price sits under the name. */
+	.app-options {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: var(--space-2);
+	}
+	.app-options .option {
+		grid-template-columns: auto 1fr;
+		row-gap: 2px;
+		margin-bottom: 0;
+	}
+	.app-options .option-price {
+		grid-column: 2;
+	}
+	@media (max-width: 560px) {
+		.app-options {
+			grid-template-columns: 1fr;
+		}
+	}
+	/* Users and storage side by side. */
+	.limits-row {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: var(--space-6);
+		align-items: start;
+	}
+	@media (max-width: 640px) {
+		.limits-row {
+			grid-template-columns: 1fr;
+		}
+	}
+	/* Calculator polish (2026-11-08): app tiles, paired panels, one check style. */
+	.calc {
+		gap: var(--space-6);
+		padding: clamp(1.25rem, 1rem + 1.5vw, 2rem);
+		box-shadow: 0 1px 2px rgb(20 16 42 / 0.04), 0 18px 40px -24px rgb(20 16 42 / 0.25);
+	}
+	.calc-head {
+		display: grid;
+		gap: 4px;
+	}
+	.calc-head h3 {
+		font-family: var(--font-display);
+		font-size: var(--text-2xl);
+	}
+	.calc-head p {
+		color: var(--text-muted);
+		font-size: var(--text-sm);
+	}
+	legend,
+	.group-head label,
+	.group-head > span {
+		color: var(--text-muted);
+		font-size: var(--text-sm);
+		font-weight: 600;
+	}
+	.option {
+		grid-template-columns: auto 1fr auto;
+		gap: var(--space-3);
+		margin-bottom: 0;
+		padding: 14px 16px;
+		border-radius: var(--radius-card);
+	}
+	.option:has(input:checked) {
+		border-color: var(--accent);
+		background: var(--surface);
+		box-shadow: inset 0 0 0 1px var(--accent);
+	}
+	.option-ic {
+		width: 36px;
+		height: 36px;
+		display: grid;
+		place-items: center;
+		border-radius: var(--radius);
+		background: var(--app-tile);
+		color: var(--app-on);
+	}
+	.option-ic.plain {
+		background: var(--surface-muted);
+		color: var(--text);
+	}
+	.option-text {
+		display: grid;
+		gap: 2px;
+		min-width: 0;
+	}
+	.option-text .option-price {
+		text-align: start;
+		font-size: var(--text-xs);
+	}
+	.option input {
+		width: 20px;
+		height: 20px;
+		margin: 0;
+	}
+	.app-options .option {
+		grid-template-columns: auto 1fr auto;
+	}
+	.app-options .option-price {
+		grid-column: auto;
+	}
+
+	/* Users and storage: two matching panels. */
+	.panel {
+		align-content: start;
+		gap: var(--space-3);
+		padding: 16px;
+		border: 1px solid var(--border);
+		border-radius: var(--radius-card);
+	}
+	.panel output {
+		color: var(--text);
+		font-family: var(--font-display);
+		font-size: var(--text-lg);
+	}
+	.panel .hint {
+		font-size: var(--text-xs);
+		line-height: 1.6;
+	}
+	.limits-row {
+		gap: var(--space-3);
+		align-items: stretch;
+	}
+	.stepper {
+		justify-content: space-between;
+		gap: var(--space-2);
+		padding: 4px;
+		border-radius: var(--radius);
+		background: var(--surface-muted);
+	}
+	.stepper output {
+		min-width: 0;
+		flex: 1;
+	}
+	.step-btn {
+		width: 36px;
+		height: 36px;
+		border: 0;
+		border-radius: var(--radius-sm);
+		background: var(--surface);
+		box-shadow: var(--shadow-sm);
+	}
+	.step-btn:hover:not(:disabled) {
+		color: var(--text);
+		background: var(--surface);
+		box-shadow: 0 0 0 1px var(--accent);
+	}
+
+	/* Total: the billing switch on top, then the amount and the button. */
+	.total {
+		gap: var(--space-4);
+		padding: var(--space-4);
+		border-radius: var(--radius-card);
+		background: var(--surface-muted);
+	}
+	.billing {
+		background: var(--surface);
+	}
+	.seg {
+		min-height: 44px;
+	}
+	.total-body {
+		padding-inline: var(--space-2);
+	}
+	.total-main strong {
+		font-family: var(--font-display);
+		font-size: var(--text-3xl);
+	}
+	.total .button {
+		margin-top: 0;
+	}
+	/* Total as an ink summary card: the switch, the amount, then a white button. */
+	.total {
+		gap: var(--space-5, 1.25rem);
+		padding: var(--space-6);
+		background: var(--ink);
+		color: #fff;
+		box-shadow: 0 24px 48px -28px rgb(20 16 42 / 0.6);
+	}
+	.total .billing {
+		border: 0;
+		background: rgb(255 255 255 / 0.08);
+	}
+	.total .seg {
+		color: rgb(255 255 255 / 0.75);
+	}
+	.total .billing input:checked + .seg {
+		background: #fff;
+		color: var(--ink);
+	}
+	.total .billing input:focus-visible + .seg {
+		outline-color: #fff;
+	}
+	.total-body {
+		padding-inline: 0;
+	}
+	.total-label {
+		color: rgb(255 255 255 / 0.65);
+	}
+	.total-main strong {
+		color: #fff;
+		font-size: var(--text-3xl);
+	}
+	.total [data-period] {
+		color: rgb(255 255 255 / 0.65);
+	}
+	.breakdown {
+		color: rgb(255 255 255 / 0.7);
+	}
+	.saving {
+		color: #86efac;
+	}
+	.onboarding-line {
+		border-top-color: rgb(255 255 255 / 0.2);
+	}
+	.total .button:not(.secondary):not(.ghost) {
+		background: #fff;
+		color: var(--ink);
+	}
+	.total .button:not(.secondary):not(.ghost):hover {
+		background: #f4f4f5;
+	}
+	.total-note {
+		margin-top: calc(var(--space-2) * -1);
+		text-align: center;
+		color: rgb(255 255 255 / 0.6);
+		font-size: var(--text-xs);
+	}
+	/* Billing: a small two-option pill, not a full-width tab bar. */
+	.total .billing {
+		display: inline-flex;
+		justify-self: start;
+		padding: 3px;
+		border-radius: var(--radius-sm);
+	}
+	.total .seg {
+		min-height: 30px;
+		padding: 0 12px;
+		gap: 6px;
+		border-radius: 6px;
+		font-size: var(--text-sm);
+		font-weight: 500;
+	}
+	.total .billing .badge {
+		padding: 0 6px;
+		font-size: 11px;
+		line-height: 1.6;
+	}
+	/* Annual discount: its own green line under the items. */
+	.breakdown .discount {
+		color: #86efac;
+		font-weight: 600;
+	}
+	/* The total sits under the lines it adds up, with a hairline above it. */
+	.breakdown:has(li:not([hidden])) + .total-main {
+		padding-top: var(--space-3);
+		border-top: 1px solid rgb(255 255 255 / 0.15);
 	}
 </style>

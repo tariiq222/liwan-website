@@ -1,6 +1,6 @@
 // The yearly calculator on /apps (see YearCalc.astro). All amounts come from the pricing numbers
 // the page embedded as JSON; the competitor side is only what the visitor types.
-import { NUMBER_LOCALE } from '../lib/numbers';
+import { moneyFormatter } from '../lib/numbers';
 import { formatNumber, storageLabel } from './pricing-format';
 
 interface Tool {
@@ -43,7 +43,7 @@ function init(root: HTMLElement): void {
 	const raw = root.querySelector('script[data-calc-data]')?.textContent;
 	if (!raw) return;
 	const data = JSON.parse(raw) as CalcData;
-	const money = new Intl.NumberFormat(NUMBER_LOCALE, { style: 'currency', currency: data.currency, maximumFractionDigits: 0 });
+	const money = moneyFormatter(data.currency);
 
 	const employees = root.querySelector<HTMLInputElement>('[data-employees]');
 	const inputs = new Map(data.tools.map((t) => [t.key, root.querySelector<HTMLInputElement>(`[data-tool="${t.key}"]`)]));

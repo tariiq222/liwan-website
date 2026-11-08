@@ -48,10 +48,9 @@ const rows = [
 	.table {
 		display: grid;
 		border: 1px solid var(--border);
-		border-radius: var(--radius-lg);
+		border-radius: var(--radius-card);
 		background: var(--surface);
 		overflow: hidden;
-		box-shadow: var(--shadow-sm);
 	}
 	.row {
 		display: grid;
@@ -65,13 +64,24 @@ const rows = [
 	}
 	.head {
 		font-weight: 700;
-		background: var(--surface-sunken);
+		background: var(--surface-muted);
+	}
+	.head .col-liwan {
+		display: inline-flex;
+		justify-self: start;
+		padding: 4px 12px;
+		border-radius: var(--radius-sm);
+		background: var(--accent);
+		color: var(--on-accent);
+	}
+	.row > :last-child {
+		color: var(--text-muted);
 	}
 	.topic {
 		font-weight: 700;
 	}
 	.col-liwan {
-		color: var(--accent);
+		color: var(--text);
 		font-weight: 600;
 	}
 	@media (max-width: 720px) {

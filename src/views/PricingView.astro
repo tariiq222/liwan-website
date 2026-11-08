@@ -30,10 +30,6 @@ const apps = catalog.map((entry) => entry.data);
 const appNames: Record<string, string> = Object.fromEntries(
 	apps.filter((app) => app.featureKey).map((app) => [app.featureKey!.replace(/\.enabled$/, ''), app.name.ar]),
 );
-const freeApps = apps
-	.filter((app) => app.plan === 'free' && app.status === 'available')
-	.sort((a, b) => a.order - b.order)
-	.map((app) => app.name.ar);
 // Only applications that exist in src/content/apps are shown, always named from `name.ar`.
 const pricing = fetched && arabic ? { ...fetched, apps: fetched.apps.filter((app) => app.key in appNames) } : fetched;
 const money = (amount: number) => formatMoney(locale, amount, pricing?.currency ?? 'SAR');
@@ -71,7 +67,7 @@ const faq = [
 					</PageHero>
 
 					<Section>
-						<PlanBlocks pricing={pricing} freeApps={freeApps} appNames={appNames} />
+						<PlanBlocks pricing={pricing} appNames={appNames} />
 					</Section>
 
 					{

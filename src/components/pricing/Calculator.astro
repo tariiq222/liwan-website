@@ -25,6 +25,7 @@ const nameOf = (key: string) => appNames[key];
 
 		<fieldset class="group">
 			<legend>التطبيقات</legend>
+			<div class="app-options">
 			{
 				pricing.apps.map((app) => (
 					<label class="option">
@@ -36,14 +37,16 @@ const nameOf = (key: string) => appNames[key];
 					</label>
 				))
 			}
+			</div>
 		</fieldset>
 
+		<div class="limits-row">
 		<div class="group">
 			<div class="group-head">
 				<label for="calc-users">المستخدمون</label>
-				<output for="calc-users" data-users-out>{usersLabel(1)}</output>
+				<output for="calc-users" data-users-out>{usersLabel(pricing.free.users)}</output>
 			</div>
-			<input id="calc-users" type="range" min="1" max={pricing.extra_user.max_users} step="1" value="1" data-users />
+			<input id="calc-users" type="range" min={pricing.free.users} max={pricing.extra_user.max_users} step="1" value={pricing.free.users} data-users />
 			<p class="hint">
 				أول {usersLabel(pricing.free.users)} مجانًا، وكل مستخدم إضافي <span data-price-user>{money(pricing.extra_user.monthly)}</span>{' '}
 				<span data-period-word>شهريًا</span>
@@ -62,6 +65,7 @@ const nameOf = (key: string) => appNames[key];
 				أول {storageLabel(pricing.free.storage_gb)} مجانًا، ثم كل {storageLabel(pricing.extra_storage.block_gb)}{' '}
 				<span data-price-storage>{money(pricing.extra_storage.block_monthly)}</span> <span data-period-word>شهريًا</span>
 			</p>
+		</div>
 		</div>
 
 		<label class="option">
@@ -339,6 +343,37 @@ const nameOf = (key: string) => appNames[key];
 		.option-price {
 			grid-column: 2;
 			text-align: start;
+		}
+	}
+	/* Applications: two per row; the price sits under the name. */
+	.app-options {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: var(--space-2);
+	}
+	.app-options .option {
+		grid-template-columns: auto 1fr;
+		row-gap: 2px;
+		margin-bottom: 0;
+	}
+	.app-options .option-price {
+		grid-column: 2;
+	}
+	@media (max-width: 560px) {
+		.app-options {
+			grid-template-columns: 1fr;
+		}
+	}
+	/* Users and storage side by side. */
+	.limits-row {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: var(--space-6);
+		align-items: start;
+	}
+	@media (max-width: 640px) {
+		.limits-row {
+			grid-template-columns: 1fr;
 		}
 	}
 </style>
