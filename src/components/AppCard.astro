@@ -3,6 +3,7 @@
 // is given. The entrance wrapper is separate from the card so the hover lift is not overridden.
 import Icon from './Icon.astro';
 import type { IconName } from '../brand/icons';
+import { appColorStyle } from '../lib/app-color';
 
 type Status = 'free' | 'available' | 'soon';
 
@@ -15,18 +16,22 @@ interface Props {
 	status: Status;
 	href?: string;
 	index?: number;
+	// The application's slug and plan pick its one colour (docs/brand.md). Without them the tile is ink.
+	slug?: string;
+	plan?: 'paid' | 'free';
 }
 
 const BADGE_LABEL: Record<Status, string> = { free: 'مجاني', available: 'متاح الآن', soon: 'قريبًا' };
 
-const { icon, name, benefit, price, status, href, index = 0 } = Astro.props;
+const { icon, name, benefit, price, status, href, index = 0, slug = '', plan = 'free' } = Astro.props;
+const colorStyle = appColorStyle({ slug, plan });
 const Tag = href ? 'a' : 'div';
 ---
 
 <div class="app-card-wrap" data-reveal style={`--i: ${index}`}>
 	<Tag class="app-card gradient-border lift" data-spotlight href={href}>
 		<div class="app-card-top">
-			<span class="app-card-icon"><Icon name={icon} size={22} /></span>
+			<span class="app-card-icon" style={colorStyle}><Icon name={icon} size={22} /></span>
 			<span class:list={['badge', status]}>{BADGE_LABEL[status]}</span>
 		</div>
 		<h3>{name}</h3>
@@ -61,9 +66,9 @@ const Tag = href ? 'a' : 'div';
 		place-items: center;
 		width: 44px;
 		height: 44px;
-		border-radius: 50%;
-		background: var(--accent-soft);
-		color: var(--accent);
+		border-radius: var(--radius);
+		background: var(--app-tile);
+		color: var(--app-on);
 	}
 	h3 {
 		font-size: var(--text-lg);

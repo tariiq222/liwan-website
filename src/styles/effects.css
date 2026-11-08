@@ -16,6 +16,27 @@
 	transform: translateY(0) scale(0.98);
 }
 
+/* Kept for older markup: a highlighted phrase stays plain ink (docs/brand.md has no gradients). */
+.text-gradient {
+	color: inherit;
+}
+
+/* Featured cards: a plain hairline border. */
+.gradient-border {
+	border: 1px solid var(--border);
+	background: var(--surface);
+}
+
+/* Page-hero backdrop: the light sky from the home hero, fading to the page background. Put it as
+   the first child of a position: relative container. */
+.aurora {
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	pointer-events: none;
+	background: var(--hero-sky);
+}
+
 /* Pointer spotlight: a soft glow follows the cursor inside the card (see src/scripts/motion.ts). */
 [data-spotlight] {
 	position: relative;
