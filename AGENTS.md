@@ -49,4 +49,9 @@ Consult these guides before working on related tasks:
 - Never edit the product repository (`tariiq222/liwan`) from this project.
 - User-facing copy speaks to the customer in outcome language. Internal labels, caveats and
   implementation notes never appear on a page.
-- Decisions: `docs/decisions/2026-11-07-site-design.md` (section 1A overrides the rest).
+- Visual identity (owner, 2026-11-08): `docs/brand.md` is the single source for colours,
+  application colours, type and corners. Pages read tokens from `src/styles/tokens.css` and an
+  application's colour from `src/lib/app-color.ts`; never type a brand or application hex value
+  into a component. Lavender is no longer a brand colour.
+- Decisions: `docs/decisions/2026-11-07-site-design.md` (section 1A overrides the rest; its colour
+  notes are superseded by `docs/brand.md`).

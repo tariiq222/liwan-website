@@ -12,10 +12,19 @@ the product's `main` yet:
 If the product changes a value, the product wins. Update this file and record the new commit.
 Never change a value here first.
 
-**Status on the site.** `src/styles/tokens.css` and
-`docs/decisions/2026-11-07-site-design.md` still describe the old lavender identity (`#7843c6`)
-with sand. This guide replaces them. The site moves to it when the approved mock
-(`.mocks/home-v4.html`) is ported.
+**Status on the site.** This guide is the single source for how the site looks. Since
+2026-11-08 every page uses it. Where `docs/decisions/2026-11-07-site-design.md` still names
+lavender, sand backgrounds or gradients, this guide wins.
+
+## In code
+
+- `src/styles/tokens.css` holds every value below as a token. Components read roles, not hex
+  values: `--accent` (ink), `--on-accent`, `--bg`, `--surface`, `--surface-muted`, `--text`,
+  `--text-mid`, `--text-muted`, `--border`, the status tokens, `--font-display` and the radius
+  tokens `--radius-sm` (8), `--radius` (12), `--radius-card` (18), `--radius-lg` (24).
+- `src/lib/app-color.ts` gives an application's tile, text-on-tile and button colours from its
+  `slug` and `plan`. Use it for every application icon, dot and button.
+- `/brand-kit/` (not linked, noindex) shows all of this in light and dark.
 
 ## Mark and pattern
 
@@ -109,13 +118,19 @@ These come from `.mocks/home-v4.html` and apply to the site only, not the produc
 - **Hero background.** A light sky gradient that fades to white, with no cloud shapes and no
   white patches:
   `linear-gradient(180deg, #d4e9fb 0%, #e2f0fc 35%, #eff7fe 68%, #f8fbff 88%, #fff 100%)`.
-  The headline and buttons on it stay ink.
+  The headline and buttons on it stay ink. The same sky (`--hero-sky`) sits behind the top of the
+  application pages and the pricing page. In dark mode it is a deep slate,
+  `linear-gradient(180deg, #2d3446 0%, #2a2f3d 45%, #27272e 100%)`, fading into the dark page
+  background.
 - **Buttons.** The primary button is solid ink with white text. The secondary button is white
   with a 1.5px ink border. Buttons are 52px tall, or 38px in the small size.
 - **Application icon strip.** Each tile uses its application colour from the table above. The
   strip's ends fade out with a CSS mask (`mask-image`), not with white overlays, so it works in
   both directions and on any background. Leave room under the strip so the tile shadows are not
   cut off.
+
+- **Dark mode.** The site keeps its light and dark switch. Dark mode uses the dark column of
+  every table above.
 
 ## Language and naming
 

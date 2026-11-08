@@ -1,5 +1,6 @@
-/* Brand tokens. Colors come from the product identity; do not invent new brand colors here.
-   Every page reads these tokens, so a change here changes the whole site. */
+/* Brand tokens. Every value here comes from docs/brand.md, the single source for the identity;
+   change docs/brand.md first, then this file. Every page reads these tokens, so a change here
+   changes the whole site. */
 :root {
 	color-scheme: light dark;
 
