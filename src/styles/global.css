@@ -1,6 +1,14 @@
 @import './tokens.css';
 @import './effects.css';
 
+/* The new Saudi riyal sign (U+20C1), drawn from SAMA's official symbol; see src/lib/numbers.ts. */
+@font-face {
+	font-family: 'Saudi Riyal';
+	src: url('/fonts/saudi-riyal.woff2') format('woff2');
+	font-display: block;
+	unicode-range: U+20C1;
+}
+
 *,
 *::before,
 *::after {

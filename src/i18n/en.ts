@@ -4,6 +4,7 @@ export const en: Record<keyof typeof ar, string> = {
 	'brand.name': 'LiwanOS',
 	'brand.platform': 'LiwanOS',
 	'brand.tagline': 'Every app your team needs on one platform, with Liwan AI built in.',
+	'home.title': 'All your work in one place',
 	'site.description': 'Your whole business in one place, with one AI.',
 
 	'nav.apps': 'Apps',

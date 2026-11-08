@@ -2,6 +2,8 @@ export const ar = {
 	'brand.name': 'ليوان',
 	'brand.platform': 'منصة ليوان',
 	'brand.tagline': 'كل أعمالك بنظام ذكي واحد.',
+	// Home tab title after «منصة ليوان | » (owner, 2026-11-08).
+	'home.title': 'تجمع أعمالك',
 	'site.description': 'كل أعمالك بنظام ذكي واحد.',
 
 	'nav.apps': 'التطبيقات',

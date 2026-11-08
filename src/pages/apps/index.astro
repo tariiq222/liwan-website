@@ -1,95 +1,162 @@
 ---
-// /apps/: the applications index (spec 2J). Hero, four platform pillars, the grid of
-// applications (paid first, then free), the comparison, the yearly calculator and a closing call.
+// /apps/: the applications index (spec 2J). Sky hero with the application tiles, four platform
+// pillars, the applications in two groups (paid, then free), the comparison, the yearly
+// calculator and a closing call. Names, headlines, summaries and icons come from src/content/apps;
+// prices from the pricing endpoint.
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
-import Section from '../../components/Section.astro';
 import Icon from '../../components/Icon.astro';
-import AppCard from '../../components/AppCard.astro';
 import ClosingCta from '../../components/home/ClosingCta.astro';
 import Compare from '../../components/apps/Compare.astro';
 import YearCalc from '../../components/apps/YearCalc.astro';
 import { priceFor } from '../../lib/app-price';
+import { appColorStyle } from '../../lib/app-color';
 import { registerUrl } from '../../lib/links';
 import { getPricing } from '../../lib/pricing';
 import { localePath, t } from '../../i18n';
 import type { IconName } from '../../brand/icons';
 
-const PILLARS: { icon: IconName; title: string; line: string }[] = [
-	{ icon: 'lock', title: 'دخول واحد', line: 'حساب واحد لكل تطبيقاتك.' },
-	{ icon: 'shield', title: 'صلاحيات واحدة', line: 'كل موظف يرى ما يخصه فقط.' },
-	{ icon: 'sparkles', title: 'مساعد واحد', line: 'ليوان AI يعمل عبر تطبيقاتك.' },
-	{ icon: 'database', title: 'بياناتك في مكان واحد', line: 'تطبيقاتك كلها تقرأ من المصدر نفسه.' },
-];
-
 const pricing = await getPricing();
-const all = await getCollection('apps', ({ data }) => data.status !== 'hidden');
-const tiles = all
-	.map((entry) => entry.data)
-	.sort((a, b) => Number(a.plan === 'free') - Number(b.plan === 'free') || a.order - b.order);
+const all = (await getCollection('apps', ({ data }) => data.status !== 'hidden')).map((entry) => entry.data).sort((a, b) => a.order - b.order);
+const paid = all.filter((a) => a.plan === 'paid');
+const free = all.filter((a) => a.plan === 'free');
+const ai = all.find((a) => a.slug === 'ai');
+const appCount = all.filter((a) => a.slug !== 'ai').length;
 
 const platform = t('ar', 'brand.platform');
 // Application names come from the content collection, never retyped.
-const description = `${platform}: ${tiles.map((data) => data.name.ar).join('، ')}.`;
+const description = `${platform}: ${all.map((data) => data.name.ar).join('، ')}.`;
 
-function priceLine(data: (typeof tiles)[number]): string {
+const PILLARS: { icon: IconName; title: string; line: string }[] = [
+	{ icon: 'lock', title: 'دخول واحد', line: 'حساب واحد لك ولفريقك في كل التطبيقات.' },
+	{ icon: 'shield', title: 'صلاحيات واحدة', line: 'تحدد مرة واحدة ما يراه كل موظف.' },
+	{ icon: 'sparkles', title: ai ? `${ai.name.ar} معك` : 'مساعد واحد', line: 'يجاوبك من بيانات تطبيقاتك كلها، بصلاحياتك أنت.' },
+	{ icon: 'database', title: 'بيانات واحدة', line: 'العميل نفسه في الرسائل والمهام والاجتماعات، بلا نسخ.' },
+];
+
+function priceLine(data: (typeof all)[number]): string {
 	if (data.plan === 'free') return 'مجاني مع كل حساب';
 	const price = priceFor(pricing, data.featureKey);
 	return price ? `${price.monthly} شهريًا للشركة` : 'تواصل معنا للسعر';
 }
+const href = (slug: string) => localePath('ar', `/apps/${slug}/`);
 ---
 
-<Base
-	locale="ar"
-	title="التطبيقات"
-	description={description}
-	path="/apps/"
->
+<Base locale="ar" title="التطبيقات" description={description} path="/apps/">
 	<section class="hero">
-		<div class="aurora" aria-hidden="true"></div>
 		<div class="container inner">
-			<h1 data-reveal>{platform}: <span class="text-gradient">نظام واحد تدير به شركتك</span></h1>
-			<p data-reveal style="--i: 1">تطبيقات تعمل معًا بحساب واحد وصلاحيات واحدة.</p>
-			<div class="actions" data-reveal style="--i: 2">
-				<a class="button large" href={registerUrl('ar')} data-app-link>جرّب 14 يومًا مجانًا</a>
-				<a class="button large secondary" href="#grid">شاهد التطبيقات</a>
+			<span class="eyebrow-pill" data-reveal><b>{appCount} تطبيقات</b> ومعها {ai?.name.ar}</span>
+			<h1 data-reveal style="--i: 1">تطبيقاتك كلها في ليوان واحد</h1>
+			<p class="lead" data-reveal style="--i: 2">
+				ابدأ بالتطبيق الذي يحتاجه فريقك اليوم، وأضف غيره متى ما احتجت. كلها بحساب واحد وصلاحيات واحدة، وتشتغل على نفس
+				البيانات.
+			</p>
+			<div class="actions" data-reveal style="--i: 3">
+				<a class="button" href={registerUrl('ar')} data-app-link>جرّب 14 يومًا مجانًا</a>
+				<a class="button secondary" href="#grid">شوف التطبيقات</a>
 			</div>
+			<ul class="tile-row" data-reveal style="--i: 4">
+				{
+					all.map((a) => (
+						<li>
+							<a href={href(a.slug)} style={appColorStyle(a)} aria-label={a.name.ar} title={a.name.ar}>
+								<Icon name={a.icon} size={26} />
+							</a>
+						</li>
+					))
+				}
+			</ul>
 		</div>
 	</section>
 
-	<section class="pillars">
-		<div class="container grid">
+	<section class="pillars" aria-label={`ما يجمع تطبيقات ${platform}`}>
+		<div class="container">
+			<ul class="pillar-strip">
+				{
+					PILLARS.map((p, i) => (
+						<li data-reveal style={`--i: ${i}`}>
+							<span class="pillar-icon">
+								<Icon name={p.icon} size={20} />
+							</span>
+							<span>
+								<strong>{p.title}</strong>
+								<small>{p.line}</small>
+							</span>
+						</li>
+					))
+				}
+			</ul>
+		</div>
+	</section>
+
+	<section class="apps" id="grid">
+		<div class="container">
+			<h2 class="sec" data-reveal>اختر ما يحتاجه فريقك</h2>
+			<p class="sec-lead" data-reveal style="--i: 1">كل تطبيق له صفحة تشرح ما يقدمه، وكلها تشتغل مع بعض من أول يوم.</p>
+
 			{
-				PILLARS.map((p, i) => (
-					<div class="pillar" data-reveal style={`--i: ${i}`}>
-						<span class="pillar-icon"><Icon name={p.icon} size={22} /></span>
-						<h2>{p.title}</h2>
-						<p>{p.line}</p>
+				paid.length > 0 && (
+					<div class="group">
+						<header class="group-head" data-reveal>
+							<h3>للمبيعات والعملاء</h3>
+							<p>تطبيقات مدفوعة، تجرّبها 14 يومًا مجانًا.</p>
+						</header>
+						<div class="paid-grid">
+							{paid.map((a, i) => (
+								<a class="app big" href={href(a.slug)} data-reveal style={`${appColorStyle(a)} --i: ${i};`}>
+									<span class="app-top">
+										<span class="tile">
+											<Icon name={a.icon} size={24} />
+										</span>
+										<span class:list={['badge', a.status === 'soon' ? 'soon' : 'available']}>
+											{a.status === 'soon' ? 'قريبًا' : 'متاح الآن'}
+										</span>
+									</span>
+									<span class="name">{a.name.ar}</span>
+									<strong class="headline">{a.headline.ar}</strong>
+									<span class="summary">{a.summary.ar}</span>
+									<span class="app-foot">
+										<span class="price">{priceLine(a)}</span>
+										<span class="more">
+											اعرف أكثر <Icon name="arrow-left" size={16} />
+										</span>
+									</span>
+								</a>
+							))}
+						</div>
 					</div>
-				))
+				)
+			}
+
+			{
+				free.length > 0 && (
+					<div class="group">
+						<header class="group-head" data-reveal>
+							<h3>لكل فريق، مجانًا</h3>
+							<p>تأتيك مع أي حساب، بلا مدة ولا بطاقة.</p>
+						</header>
+						<div class="free-grid">
+							{free.map((a) => (
+								<a class="app" href={href(a.slug)} style={appColorStyle(a)} data-reveal>
+									<span class="app-top">
+										<span class="tile">
+											<Icon name={a.icon} size={20} />
+										</span>
+										<span class:list={['badge', a.status === 'soon' ? 'soon' : 'free']}>{a.status === 'soon' ? 'قريبًا' : 'مجاني'}</span>
+									</span>
+									<span class="name">{a.name.ar}</span>
+									<span class="summary">{a.summary.ar}</span>
+									<span class="more">
+										اعرف أكثر <Icon name="arrow-left" size={16} />
+									</span>
+								</a>
+							))}
+						</div>
+					</div>
+				)
 			}
 		</div>
 	</section>
-
-	<Section id="grid" eyebrow="التطبيقات" title="ابدأ بما يحتاجه فريقك اليوم">
-		<div class="tiles">
-			{
-				tiles.map((data, i) => (
-					<AppCard
-						icon={data.icon}
-						slug={data.slug}
-						plan={data.plan}
-						name={data.name.ar}
-						benefit={data.summary.ar}
-						price={priceLine(data)}
-						href={localePath('ar', `/apps/${data.slug}/`)}
-						status={data.status === 'soon' ? 'soon' : data.plan === 'free' ? 'free' : 'available'}
-						index={i % 4}
-					/>
-				))
-			}
-		</div>
-	</Section>
 
 	<Compare />
 	<YearCalc />
@@ -100,89 +167,265 @@ function priceLine(data: (typeof tiles)[number]): string {
 	.hero {
 		position: relative;
 		overflow: hidden;
-		isolation: isolate;
-		padding-block: clamp(4rem, 3rem + 6vw, 8rem) clamp(2.5rem, 2rem + 3vw, 4rem);
+		padding-block: clamp(3.5rem, 2.5rem + 4vw, 6rem) clamp(3rem, 2rem + 3vw, 4.5rem);
 		text-align: center;
+		background: var(--hero-sky);
 	}
 	.inner {
-		position: relative;
-		z-index: 1;
 		display: grid;
 		justify-items: center;
 		gap: var(--space-4);
 	}
 	h1 {
-		font-size: var(--text-display);
-		max-width: 18ch;
+		font-size: clamp(2.25rem, 1.2rem + 4.2vw, 4.25rem);
+		line-height: 1.1;
+		letter-spacing: -0.02em;
+		max-width: 16ch;
+		margin-top: var(--space-2);
 	}
-	.hero p {
-		font-size: var(--text-xl);
-		color: var(--text-muted);
+	.lead {
+		max-width: 640px;
+		color: var(--text-mid);
+		font-size: var(--text-lg);
 	}
 	.actions {
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;
-		gap: var(--space-3);
-		margin-top: var(--space-2);
+		gap: 14px;
+		margin-top: var(--space-4);
 	}
-	/* The pillars sit just under the hero as one row of cards; the next section brings its own
-	   top spacing, so the row keeps none below. */
-	.pillars {
-		padding-block: clamp(2rem, 1.5rem + 2vw, 3rem) 0;
+	.tile-row {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 14px;
+		margin: var(--space-8) 0 0;
+		padding: 0;
+		list-style: none;
 	}
-	.grid {
-		display: grid;
-		grid-template-columns: repeat(4, 1fr);
-		gap: var(--space-4);
-	}
-	.pillar {
-		display: grid;
-		justify-items: center;
-		align-content: start;
-		gap: var(--space-2);
-		padding: var(--space-6) var(--space-4);
-		border: 1px solid var(--border);
-		border-radius: var(--radius-lg);
-		background: var(--surface);
-		box-shadow: var(--shadow-sm);
-		text-align: center;
-	}
-	.pillar-icon {
+	.tile-row a {
+		width: 60px;
+		height: 60px;
 		display: grid;
 		place-items: center;
-		width: 44px;
-		height: 44px;
-		border-radius: 50%;
-		background: var(--accent-soft);
-		color: var(--accent);
+		border-radius: 18px;
+		background: var(--app-tile);
+		color: var(--app-on);
+		box-shadow: 0 12px 24px -14px rgb(20 16 42 / 0.5);
+		transition: transform var(--duration) var(--ease);
 	}
-	.pillar h2 {
-		font-size: var(--text-lg);
+	.tile-row a:hover {
+		transform: translateY(-3px);
 	}
-	.pillar p {
+
+	/* Pillars: one strip with four parts. */
+	.pillars {
+		padding-block: var(--space-12) 0;
+	}
+	.pillar-strip {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		border: 1px solid var(--border);
+		border-radius: var(--radius-card);
+		background: var(--surface);
+	}
+	.pillar-strip li {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--space-3);
+		padding: var(--space-6);
+	}
+	.pillar-strip li + li {
+		border-inline-start: 1px solid var(--border);
+	}
+	.pillar-icon {
+		width: 40px;
+		height: 40px;
+		flex: none;
+		display: grid;
+		place-items: center;
+		border-radius: var(--radius);
+		background: var(--accent);
+		color: var(--on-accent);
+	}
+	.pillar-strip strong {
+		display: block;
+		margin-bottom: 2px;
+	}
+	.pillar-strip small {
 		color: var(--text-muted);
 		font-size: var(--text-sm);
+		line-height: 1.6;
 	}
-	.tiles {
+
+	/* Applications. */
+	.apps {
+		padding-block: clamp(4rem, 3rem + 4vw, 6rem);
+	}
+	.group {
+		margin-top: var(--space-12);
+	}
+	.group-head {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: var(--space-2) var(--space-6);
+		margin-bottom: var(--space-6);
+		padding-bottom: var(--space-4);
+		border-bottom: 1px solid var(--border);
+	}
+	.group-head h3 {
+		font-family: var(--font-display);
+		font-size: var(--text-2xl);
+	}
+	.group-head p {
+		color: var(--text-muted);
+	}
+	.paid-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+		grid-template-columns: repeat(2, 1fr);
+		gap: var(--space-6);
+	}
+	.free-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
 		gap: var(--space-4);
 	}
-	@media (max-width: 820px) {
-		.grid {
+	.app {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2);
+		padding: var(--space-6);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-card);
+		background: var(--surface);
+		color: var(--text);
+		text-decoration: none;
+		transition:
+			transform var(--duration) var(--ease),
+			box-shadow var(--duration) var(--ease),
+			border-color var(--duration) var(--ease);
+	}
+	.app:hover,
+	:global(.js) .app.is-in:hover {
+		transform: translateY(-3px);
+		border-color: var(--border-strong);
+		box-shadow: 0 18px 40px -22px rgb(20 16 42 / 0.3);
+	}
+	.app.big {
+		padding: var(--space-8);
+		background:
+			radial-gradient(120% 80% at 100% 0%, color-mix(in oklab, var(--app-tile) 10%, transparent), transparent 60%),
+			var(--surface);
+	}
+	.app-top {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: var(--space-2);
+	}
+	.tile {
+		width: 44px;
+		height: 44px;
+		display: grid;
+		place-items: center;
+		border-radius: var(--radius);
+		background: var(--app-tile);
+		color: var(--app-on);
+	}
+	.big .tile {
+		width: 52px;
+		height: 52px;
+	}
+	.name {
+		font-weight: 700;
+		font-size: var(--text-lg);
+	}
+	.big .name {
+		color: var(--text-muted);
+		font-size: var(--text-sm);
+		font-weight: 600;
+	}
+	.headline {
+		font-family: var(--font-display);
+		font-size: var(--text-2xl);
+		line-height: 1.25;
+	}
+	.summary {
+		color: var(--text-mid);
+		font-size: var(--text-sm);
+		line-height: 1.7;
+	}
+	.app-foot {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-3);
+		margin-top: auto;
+		padding-top: var(--space-4);
+	}
+	.price {
+		font-weight: 700;
+	}
+	.more {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		margin-top: auto;
+		padding-top: var(--space-2);
+		font-size: var(--text-sm);
+		font-weight: 600;
+	}
+	.app-foot .more {
+		margin-top: 0;
+		padding-top: 0;
+	}
+	.more :global(svg) {
+		transition: transform var(--duration) var(--ease);
+	}
+	.app:hover .more :global(svg) {
+		transform: translateX(-3px);
+	}
+
+	@media (max-width: 960px) {
+		.pillar-strip {
+			grid-template-columns: repeat(2, 1fr);
+		}
+		.pillar-strip li:nth-child(3) {
+			border-inline-start: 0;
+		}
+		.pillar-strip li:nth-child(n + 3) {
+			border-top: 1px solid var(--border);
+		}
+		.free-grid {
 			grid-template-columns: repeat(2, 1fr);
 		}
 	}
-	@media (max-width: 480px) {
-		.grid {
-			gap: var(--space-3);
+	@media (max-width: 640px) {
+		.pillar-strip,
+		.paid-grid,
+		.free-grid {
+			grid-template-columns: 1fr;
 		}
-		.pillar {
-			padding: var(--space-4) var(--space-3);
+		.pillar-strip li + li {
+			border-inline-start: 0;
+			border-top: 1px solid var(--border);
 		}
-		.actions .button {
-			flex: 1 1 100%;
+		.tile-row a {
+			width: 48px;
+			height: 48px;
+			border-radius: 14px;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.app:hover,
+		.tile-row a:hover {
+			transform: none;
 		}
 	}
 </style>
