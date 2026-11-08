@@ -11,8 +11,6 @@ export const ar = {
 	'nav.menu': 'القائمة',
 	'nav.close': 'إغلاق القائمة',
 	'nav.main': 'القائمة الرئيسية',
-	'theme.light': 'الوضع الفاتح',
-	'theme.dark': 'الوضع الداكن',
 
 	'cta.start': 'ابدأ مجانًا',
 	'cta.login': 'تسجيل الدخول',

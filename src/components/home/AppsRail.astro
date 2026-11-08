@@ -251,10 +251,8 @@ const aiStyle = `--ai-1: ${HOME_TINT.ai}; --ai-2: ${HOME_AI_END};`;
 		display: none;
 	}
 
-	/* Card: the application's tint as a soft light gradient (dark mode mixes into the surface). */
+	/* Card: the application's tint as a soft light gradient . */
 	.rcard {
-		/* Cards keep their light tints in dark mode too; the Liwan AI card stays dark. */
-		color-scheme: light;
 		scroll-snap-align: start;
 		flex: none;
 		width: 318px;
@@ -379,13 +377,12 @@ const aiStyle = `--ai-1: ${HOME_TINT.ai}; --ai-2: ${HOME_AI_END};`;
 		margin-bottom: 6px;
 	}
 	.bub.me {
-		background: light-dark(#dcf8c6, #1f3d2a);
+		background: #dcf8c6;
 		margin-inline-start: auto;
 	}
 
 	/* Liwan AI: deep ink card with a soft violet glow, the same in both themes. */
 	.rcard.dark {
-		color-scheme: dark;
 		color: #fff;
 		background:
 			radial-gradient(110% 70% at 90% 0%, color-mix(in srgb, var(--ai-1) 38%, transparent), transparent 58%),

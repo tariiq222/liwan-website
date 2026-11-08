@@ -90,17 +90,6 @@
 	transform: none;
 }
 
-/* Sadu band that drifts slowly sideways. One tile is 238 x 124, drawn 28px tall. */
-.sadu-band.drift {
-	animation: sadu-drift 6s linear infinite;
-}
-@keyframes sadu-drift {
-	to {
-		-webkit-mask-position: calc(28px * 238 / 124) center;
-		mask-position: calc(28px * 238 / 124) center;
-	}
-}
-
 /* Mark entrance: the arches draw, the four triangles pop in, then the diamond lights. */
 .mark-anim .mark-arches {
 	stroke-dasharray: 1;
@@ -146,7 +135,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.sadu-band.drift,
 	.float {
 		animation: none;
 	}

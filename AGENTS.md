@@ -44,6 +44,7 @@ Consult these guides before working on related tasks:
   word "soon" (قريبًا); a `hidden` claim appears nowhere. States change only when the product's claims register changes.
 - No personal data is stored on this site and no third-party form service is used. The only form
   posts to the product's contact endpoint (`https://app.liwanos.com/api/v1/public/contact`).
+- The site is light only and uses no Sadu pattern (owner, 2026-11-08); see `docs/brand.md`.
 - Brand assets (`public/brand/sadu`, `src/brand/mark.ts`) are copies from the product repository.
   Never redraw or edit them here; see `src/brand/SOURCE.md`.
 - Never edit the product repository (`tariiq222/liwan`) from this project.

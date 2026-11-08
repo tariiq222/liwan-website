@@ -24,11 +24,13 @@ lavender, sand backgrounds or gradients, this guide wins.
   tokens `--radius-sm` (8), `--radius` (12), `--radius-card` (18), `--radius-lg` (24).
 - `src/lib/app-color.ts` gives an application's tile, text-on-tile and button colours from its
   `slug` and `plan`. Use it for every application icon, dot and button.
-- `/brand-kit/` (not linked, noindex) shows all of this in light and dark.
+- `/brand-kit/` (not linked, noindex) shows all of this.
 
 ## Mark and pattern
 
-These are unchanged. The mark (`src/brand/mark.ts`) and the Sadu pattern (`public/brand/sadu`)
+The site uses the mark only. The Sadu pattern is not used on the site (owner, 2026-11-08); its
+files stay in `public/brand/sadu` as copies from the product. The mark (`src/brand/mark.ts`) and
+the Sadu pattern (`public/brand/sadu`)
 are copies from the product. Never redraw or edit them here; see `src/brand/SOURCE.md`.
 
 ## Colour
@@ -54,7 +56,6 @@ Lavender is no longer a brand colour. Do not use it for buttons, links or accent
 | Main text | `#14102a` | `#f3f3f6` |
 | Mid-tone text | `#3a3550` | n/a |
 | Secondary text | `#6b6b76` | `#a9a9b5` |
-| Sand (Sadu details only) | `#eadfc8` | n/a |
 
 ### Status
 
@@ -119,9 +120,7 @@ These come from `.mocks/home-v4.html` and apply to the site only, not the produc
   white patches:
   `linear-gradient(180deg, #d4e9fb 0%, #e2f0fc 35%, #eff7fe 68%, #f8fbff 88%, #fff 100%)`.
   The headline and buttons on it stay ink. The same sky (`--hero-sky`) sits behind the top of the
-  application pages and the pricing page. In dark mode it is a deep slate,
-  `linear-gradient(180deg, #17346b 0%, #1d3460 30%, #232c4a 62%, #27272e 100%)`, a night sky
-  fading into the dark page background.
+  application pages and the pricing page.
 - **Buttons.** The primary button is solid ink with white text. The secondary button is white
   with a 1.5px ink border. Buttons are 52px tall, or 38px in the small size.
 - **Application icon strip.** Each tile uses its application colour from the table above. The
@@ -129,11 +128,11 @@ These come from `.mocks/home-v4.html` and apply to the site only, not the produc
   both directions and on any background. Leave room under the strip so the tile shadows are not
   cut off.
 
-- **Dark mode (owner, 2026-11-08).** The site keeps its light and dark switch. Only the page,
-  text and plain surfaces darken, using the dark column of every table above. Colour stays:
-  product screens (the hero laptop, the how-to-start window, application page mocks) and the
-  application cards on the home rail keep their light colours (`color-scheme: light`), the
-  sky becomes a blue night sky, and application tiles keep their colours.
+- **Light only (owner, 2026-11-08).** The site has no dark mode and no theme switch; it always
+  shows the light column of the tables above. The dark columns are the product's values, kept
+  here for reference.
+- **No Sadu (owner, 2026-11-08).** No Sadu bands, motifs or marks on any page, including the
+  footer and section titles.
 
 ## Language and naming
 

@@ -7,8 +7,9 @@ records approved requirements only. It does not claim any implementation exists.
 > gradients are defined only in [`docs/brand.md`](../brand.md). Wherever this document names
 > lavender (`#7843c6`, `#c2aae5`), sand backgrounds or bands, brown, gradients or fully round
 > buttons, read the matching value from `docs/brand.md` instead: brand ink for lavender, the
-> muted grey surface for sand backgrounds, sand for Sadu details only. Layout, copy, structure and
-> every other decision here still apply.
+> muted grey surface for sand backgrounds. The site is light only and uses no Sadu (owner,
+> 2026-11-08): ignore every dark-mode, theme-toggle and Sadu band or motif mention below. Layout,
+> copy, structure and every other decision here still apply.
 
 ## 1. Intent
 
