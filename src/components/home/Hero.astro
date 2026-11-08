@@ -1,690 +1,416 @@
 ---
-// Home hero (spec 2A with 1A, simplified by the owner 2026-11-07): eight scattered system cards
-// (seven apps plus an AI assistant), joined by cut links, fold into one ring around the LiwanOS
-// mark with Liwan AI at its heart; each app's line enters its Sadu triangle through the middle
-// of the triangle's base. The loop is driven by src/scripts/hero.ts; under reduced motion it
-// shows the Liwan state.
+// Home hero (approved mock .mocks/home-v4.html, 2026-11-08): the sky backdrop, headline, two
+// calls to action and a laptop showing the platform's home screen. Application names and colours
+// come from src/content/apps and src/lib/app-color.ts; the activity rows are sample data.
 import { getCollection } from 'astro:content';
 import Icon from '../Icon.astro';
-import { MARK_ARCHES, MARK_TRIANGLES } from '../../brand/mark';
+import { claim } from '../../config/claims';
 import { registerUrl } from '../../lib/links';
-import { getPricing } from '../../lib/pricing';
-import { localePath } from '../../i18n';
-import { NUMBER_LOCALE } from '../../lib/numbers';
+import { appColorStyle } from '../../lib/app-color';
+import { t } from '../../i18n';
+import { HOME_APPS } from './home-apps';
 
-// Ring order, clockwise from the top (spec 1A).
-const RING = ['crm', 'inbox', 'meetings', 'documents', 'operations', 'tasks', 'chat'] as const;
-
-// Generic system names for the «before» windows: never a competitor's name.
-const SYSTEM_NAMES: Record<(typeof RING)[number], string> = {
-	crm: 'نظام العملاء',
-	inbox: 'منصة الرسائل',
-	meetings: 'برنامج الاجتماعات',
-	documents: 'تخزين الملفات',
-	operations: 'نظام الطلبات',
-	tasks: 'أداة المهام',
-	chat: 'تطبيق الدردشة',
-};
-
-// Scattered card positions (top-left corner, percent of the square scene) and tilt in degrees.
-const CARD_W = 30;
-const CARD_H = 11;
-const SCATTER = [
-	[2, 10, -7],
-	[40, 2, 6],
-	[68, 18, -4],
-	[10, 40, 5],
-	[62, 46, -8],
-	[0, 74, 4],
-	[56, 84, 7],
-] as const;
-const AI_SCATTER = [32, 58, -5] as const;
-
-// Cut links between neighbouring cards: the systems do not talk to each other. Indexes into
-// SCATTER; 'ai' is the assistant card.
-const CUT_LINKS = [
-	[0, 1],
-	[1, 2],
-	[0, 3],
-	[2, 4],
-	[3, 'ai'],
-	['ai', 4],
-	[3, 5],
-	[5, 'ai'],
-	['ai', 6],
-] as const;
-
-// Geometry of the Liwan state, in scene percent. The mark (64 units) is drawn 44% wide at the centre.
-const CENTER = 50;
-const RING_RADIUS = 38;
-const NODE = 13;
-const AI_NODE = 12;
-const MARK_SCALE = 44 / 64;
-const MARK_OFFSET = CENTER - 22;
-const toScene = (v: number) => +(MARK_OFFSET + v * MARK_SCALE).toFixed(2);
-
-// Each Sadu triangle: the midpoint of its outer base (where app lines land) and its inner tip.
-const TRIANGLES = {
-	tl: { base: [toScene(12.2), toScene(12.2)], tip: [toScene(18.92), toScene(18.92)] },
-	tr: { base: [toScene(51.8), toScene(12.2)], tip: [toScene(45.08), toScene(18.92)] },
-	br: { base: [toScene(51.8), toScene(51.8)], tip: [toScene(45.08), toScene(45.08)] },
-	bl: { base: [toScene(12.2), toScene(51.8)], tip: [toScene(18.92), toScene(45.08)] },
-} as const;
-
-function quadrant(angle: number): keyof typeof TRIANGLES {
-	const a = ((angle % 360) + 360) % 360;
-	if (a >= 180 && a <= 270) return 'tl';
-	if (a > 270) return 'tr';
-	if (a <= 90) return 'br';
-	return 'bl';
-}
-
-const entries = await getCollection('apps');
+const platform = t('ar', 'brand.platform');
+const entries = await getCollection('apps', ({ data }) => data.status === 'available');
 const bySlug = new Map(entries.map((e) => [e.data.slug, e.data]));
-
-const round = (v: number) => +v.toFixed(2);
-
-// A smooth line between the middle of the triangle's base and the app circle. It leaves the
-// triangle along the triangle's own axis and reaches the app heading away from the centre.
-// It is drawn from the triangle outward, so the Liwan state grows from the middle.
-function lineOut(x: number, y: number, corner: keyof typeof TRIANGLES): string {
-	const { base, tip } = TRIANGLES[corner];
-	const toCenter = Math.hypot(CENTER - x, CENTER - y);
-	const ux = (CENTER - x) / toCenter;
-	const uy = (CENTER - y) / toCenter;
-	const axisLength = Math.hypot(base[0] - tip[0], base[1] - tip[1]);
-	const ax = (base[0] - tip[0]) / axisLength;
-	const ay = (base[1] - tip[1]) / axisLength;
-	const start = [x + ux * (NODE / 2 + 0.6), y + uy * (NODE / 2 + 0.6)];
-	const c1 = [start[0] + ux * 9, start[1] + uy * 9];
-	const c2 = [base[0] + ax * 9, base[1] + ay * 9];
-	return `M${base[0]} ${base[1]} C${round(c2[0])} ${round(c2[1])} ${round(c1[0])} ${round(c1[1])} ${round(start[0])} ${round(start[1])}`;
-}
-
-function cardCenter(index: number | 'ai'): [number, number] {
-	const [bx, by] = index === 'ai' ? AI_SCATTER : SCATTER[index];
-	return [bx + CARD_W / 2, by + CARD_H / 2];
-}
-
-// Each cut link is two dashed halves with a gap in the middle, where a small ✕ sits.
-const cuts = CUT_LINKS.map(([from, to]) => {
-	const [x1, y1] = cardCenter(from);
-	const [x2, y2] = cardCenter(to);
-	const mx = (x1 + x2) / 2;
-	const my = (y1 + y2) / 2;
-	const length = Math.hypot(x2 - x1, y2 - y1);
-	const gx = ((x2 - x1) / length) * 2.2;
-	const gy = ((y2 - y1) / length) * 2.2;
-	return {
-		path: `M${round(x1)} ${round(y1)} L${round(mx - gx)} ${round(my - gy)} M${round(mx + gx)} ${round(my + gy)} L${round(x2)} ${round(y2)}`,
-		cross: `M${round(mx - 1)} ${round(my - 1)} L${round(mx + 1)} ${round(my + 1)} M${round(mx + 1)} ${round(my - 1)} L${round(mx - 1)} ${round(my + 1)}`,
-	};
-});
-
-const nodes = RING.map((slug, i) => {
-	const app = bySlug.get(slug);
-	if (!app) throw new Error(`Hero: app "${slug}" is missing from src/content/apps`);
-	const angle = -90 + (i * 360) / RING.length;
-	const rad = (angle * Math.PI) / 180;
-	const x = round(CENTER + RING_RADIUS * Math.cos(rad));
-	const y = round(CENTER + RING_RADIUS * Math.sin(rad));
-	const [bx, by, rot] = SCATTER[i];
-	return {
-		slug,
-		name: app.name.ar,
-		icon: app.icon,
-		system: SYSTEM_NAMES[slug],
-		x,
-		y,
-		labelAbove: y < CENTER,
-		line: lineOut(x, y, quadrant(angle)),
-		style: `--bx:${bx}%;--by:${by}%;--rot:${rot}deg;--ax:${x - NODE / 2}%;--ay:${y - NODE / 2}%;--i:${i}`,
-	};
-});
-
-// A short straight line from the edge of the AI circle out to each triangle's tip.
-const aiInset = (AI_NODE / 2 + 0.8) / Math.SQRT2;
-const tipLines = Object.values(TRIANGLES).map(({ tip }) => {
-	const dx = Math.sign(CENTER - tip[0]);
-	const dy = Math.sign(CENTER - tip[1]);
-	return `M${round(CENTER - dx * aiInset)} ${round(CENTER - dy * aiInset)} L${tip[0]} ${tip[1]}`;
-});
-const aiStyle = `--bx:${AI_SCATTER[0]}%;--by:${AI_SCATTER[1]}%;--rot:${AI_SCATTER[2]}deg;--ax:${CENTER - AI_NODE / 2}%;--ay:${CENTER - AI_NODE / 2}%;--i:${RING.length}`;
-const before = RING.length + 1;
-
-const pricing = await getPricing();
-const freeLine = pricing
-	? `تطبيقات أساسية مجانية دائمًا، حتى ${pricing.free.users.toLocaleString(NUMBER_LOCALE)} مستخدمين`
-	: 'تطبيقات أساسية مجانية دائمًا';
-
-const stats = [
-	{ key: 'systems', label: 'أنظمة' },
-	{ key: 'logins', label: 'تسجيلات دخول' },
-	{ key: 'subscriptions', label: 'اشتراكات' },
-];
+// Side menu follows the catalogue order; Liwan AI sits last, as in the product.
+const sideApps = [...entries.map((e) => e.data)].sort((a, b) => a.order - b.order);
+const startTiles = ['crm', 'inbox', 'tasks', 'meetings', 'documents', 'ai'].flatMap((s) => (bySlug.has(s) ? [bySlug.get(s)!] : []));
+const promoTiles = ['crm', 'inbox', 'tasks', 'ai'].flatMap((s) => (bySlug.has(s) ? [bySlug.get(s)!] : []));
+const app = (slug: string) => bySlug.get(slug);
+const feed = [
+	{ slug: 'inbox', who: 'نورة الشهري', what: 'ردّت على 12 رسالة واتساب' },
+	{ slug: 'crm', who: 'شركة الندى', what: 'انتقلت إلى «تفاوض»' },
+	{ slug: 'ai', who: app('ai')?.name.ar ?? '', what: 'جاوب سارة عن صفقات الأسبوع' },
+].filter((row) => app(row.slug));
+const saudi = claim('saudiHosting') === 'available';
 ---
 
 <section class="hero">
-	<div class="aurora" aria-hidden="true"></div>
-	<div class="container hero-grid">
-		<div class="copy">
-			<span class="badge free" data-reveal style="--i: 0">{freeLine}</span>
-			<h1 data-reveal style="--i: 1">كل أعمالك <span class="text-gradient">بنظام ذكي واحد</span></h1>
-			<p class="lead" data-reveal style="--i: 2">تطبيقاتك كلها في ليوان واحد.</p>
-			<div class="actions" data-reveal style="--i: 3">
-				<a class="button large" href={registerUrl('ar')} data-app-link>ابدأ تجربة 14 يومًا</a>
-				<a class="button secondary large" href={localePath('ar', '/apps')}>شاهد التطبيقات</a>
+	<div class="container head">
+		{
+			saudi && (
+				<span class="eyebrow-pill" data-reveal>
+					<b>استضافة سعودية</b> بياناتك محفوظة داخل المملكة
+				</span>
+			)
+		}
+		<h1 data-reveal style="--i: 1">{platform} تجمع أعمالك</h1>
+		<p class="lead" data-reveal style="--i: 2">
+			كل أقسام شركتك في منصة وحدة، من المبيعات والعملاء إلى الفريق والعمليات.<br />تحوّل رقمي كامل، وتنجز أعمالك من
+			مكان واحد.
+		</p>
+		<div class="cta" data-reveal style="--i: 3">
+			<a class="button" href={registerUrl('ar')} data-app-link>جرّبها 14 يومًا مجانًا</a>
+			<a class="button secondary" href="#how">شوف كيف تشتغل</a>
+		</div>
+		<p class="fine" data-reveal style="--i: 3">بلا بطاقة · ألغِ متى ما تبي</p>
+	</div>
+
+	<div class="laptop" data-reveal="fade" style="--i: 2" data-laptop aria-hidden="true">
+		<div class="lid">
+			<div class="screen">
+				<aside class="side">
+					<div class="me"><span></span> شركة الندى</div>
+					<ul>
+						<li class="on"><Icon name="search" size={12} /> استكشف</li>
+						{
+							sideApps.map((a) => (
+								<li>
+									<Icon name={a.icon} size={12} /> <span>{a.name.ar}</span>
+								</li>
+							))
+						}
+					</ul>
+				</aside>
+				<div class="main">
+					<div class="bar">
+						<div class="q"><Icon name="search" size={12} />&nbsp; ابحث</div>
+						<span class="bb">+ تطبيق</span>
+						<span class="pf"></span>
+					</div>
+					<div class="promo">
+						<div>
+							<b>التطبيقات التي يحتاجها كل فريق</b>
+							<span>ابدأ بإدارة العملاء ورسائلهم، والباقي يجي معها.</span>
+						</div>
+						<div class="ic">
+							{
+								promoTiles.map((a) => (
+									<span class="tile-ic" style={appColorStyle(a)}>
+										<Icon name={a.icon} size={14} />
+									</span>
+								))
+							}
+						</div>
+					</div>
+					<h6>ابدأ من هنا <small>عرض الكل ‹</small></h6>
+					<div class="grid">
+						{
+							startTiles.map((a) => (
+								<div class="tile">
+									<span class="tile-ic" style={appColorStyle(a)}>
+										<Icon name={a.icon} size={14} />
+									</span>
+									<div>
+										<b>{a.name.ar}</b>
+										<em>{HOME_APPS[a.slug]?.tag ?? a.headline.ar}</em>
+									</div>
+									<span class="go">فتح</span>
+								</div>
+							))
+						}
+					</div>
+					<h6 class="feed-title">نشاط فريقك اليوم <small>الكل ‹</small></h6>
+					<div class="grid feed">
+						{
+							feed.map((row) => {
+								const a = app(row.slug)!;
+								return (
+									<div class="tile">
+										<span class="tile-ic" style={appColorStyle(a)}>
+											<Icon name={a.icon} size={14} />
+										</span>
+										<div>
+											<b>{row.who}</b>
+											<em>{row.what}</em>
+										</div>
+									</div>
+								);
+							})
+						}
+					</div>
+				</div>
 			</div>
 		</div>
-
-		<figure class="stage" data-reveal="fade" style="--i: 1">
-			<div class="scene" data-hero-scene aria-hidden="true">
-				<svg class="cut-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-					{
-						cuts.map((c) => (
-							<g>
-								<path class="cut-line" d={c.path} />
-								<path class="cut-cross" d={c.cross} />
-							</g>
-						))
-					}
-				</svg>
-				<svg class="scene-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-					<defs>
-						{
-							nodes.map((n) => (
-								<mask id={`hero-reveal-${n.slug}`} maskUnits="userSpaceOnUse" x="-10" y="-10" width="120" height="120">
-									<path class="reveal reveal-app" d={n.line} pathLength="1" />
-								</mask>
-							))
-						}
-						{
-							tipLines.map((d, i) => (
-								<mask id={`hero-reveal-tip-${i}`} maskUnits="userSpaceOnUse" x="-10" y="-10" width="120" height="120">
-									<path class="reveal reveal-tip" d={d} pathLength="1" />
-								</mask>
-							))
-						}
-					</defs>
-					<g class="app-lines">
-						{nodes.map((n) => <path id={`hero-line-${n.slug}`} d={n.line} mask={`url(#hero-reveal-${n.slug})`} />)}
-					</g>
-					<g class="tip-lines">
-						{tipLines.map((d, i) => <path d={d} mask={`url(#hero-reveal-tip-${i})`} />)}
-					</g>
-					<g class="pulses">
-						{
-							nodes.map((n, i) => (
-								<circle r="0.8">
-									<animateMotion
-									dur="2.6s"
-									begin={`${(i * 0.37).toFixed(2)}s`}
-									repeatCount="indefinite"
-									keyPoints="1;0"
-									keyTimes="0;1"
-									calcMode="linear"
-								>
-										<mpath href={`#hero-line-${n.slug}`} />
-									</animateMotion>
-								</circle>
-							))
-						}
-					</g>
-					<g class="mark" transform={`translate(${MARK_OFFSET} ${MARK_OFFSET}) scale(${MARK_SCALE})`}>
-						<path class="mark-arches-hero" d={MARK_ARCHES} />
-						{MARK_TRIANGLES.map((d, i) => <path class="mark-tri-hero" d={d} style={`--t:${i}`} />)}
-					</g>
-				</svg>
-
-				{
-					nodes.map((n) => (
-						<div class="node" style={n.style}>
-							<div class="win">
-								<Icon name={n.icon} class="win-icon" />
-								<span class="win-name">{n.system}</span>
-							</div>
-							<span class="node-icon">
-								<Icon name={n.icon} size={22} strokeWidth={2} />
-							</span>
-						</div>
-					))
-				}
-				<div class="node node-ai" style={aiStyle}>
-					<div class="win">
-						<Icon name="sparkles" class="win-icon" />
-						<span class="win-name">مساعد ذكي</span>
-					</div>
-					<span class="node-icon">
-						<Icon name="sparkles" size={22} strokeWidth={2} />
-					</span>
-				</div>
-
-				{
-					nodes.map((n) => (
-						<span
-							class:list={['node-label', { above: n.labelAbove }]}
-							style={`--lx:${n.x}%;--ly:${n.labelAbove ? n.y - NODE / 2 : n.y + NODE / 2}%`}
-						>
-							{n.name}
-						</span>
-					))
-				}
-			</div>
-
-			<figcaption class="stats" data-hero-stats>
-				{
-					stats.map((s) => (
-						<div class="stat">
-							<strong data-count>{before.toLocaleString(NUMBER_LOCALE)}</strong>
-							<span>{s.label}</span>
-						</div>
-					))
-				}
-			</figcaption>
-		</figure>
+		<div class="base"></div>
+		<div class="foot"></div>
 	</div>
 </section>
 
 <script>
-	import '../../scripts/hero';
+	// The laptop starts slightly tilted back and straightens as the visitor scrolls.
+	const lap = document.querySelector<HTMLElement>('[data-laptop]');
+	if (lap && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+		const tilt = () => {
+			const p = Math.min(1, Math.max(0, scrollY / (innerHeight * 0.6)));
+			lap.style.setProperty('--tilt', `${(10 * (1 - p)).toFixed(2)}deg`);
+			lap.style.setProperty('--lscale', (0.94 + 0.06 * p).toFixed(3));
+		};
+		addEventListener('scroll', tilt, { passive: true });
+		tilt();
+	}
 </script>
 
 <style>
 	.hero {
 		position: relative;
 		overflow: hidden;
-		padding-block: clamp(2.5rem, 2rem + 3vw, 5rem) clamp(3rem, 2rem + 4vw, 6rem);
+		padding-top: clamp(3rem, 2rem + 3vw, 4.5rem);
+		text-align: center;
+		background: var(--hero-sky);
 	}
-	.hero-grid {
+	.head {
 		position: relative;
 		z-index: 1;
 		display: grid;
-		grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
-		align-items: center;
-		gap: clamp(2rem, 1rem + 4vw, 4.5rem);
-	}
-	.copy {
-		display: grid;
-		justify-items: start;
-		gap: var(--space-6);
+		justify-items: center;
 	}
 	h1 {
-		font-size: var(--text-display);
-		line-height: 1.18;
-		letter-spacing: -0.01em;
+		font-size: clamp(2.375rem, 1rem + 5.4vw, 4.875rem);
+		line-height: 1.1;
+		letter-spacing: -0.02em;
+		margin: 1.625rem auto 1.375rem;
+		max-width: 900px;
 	}
 	.lead {
-		color: var(--text-muted);
-		font-size: var(--text-xl);
-		max-width: 34ch;
+		font-size: var(--text-lg);
+		color: var(--text-mid);
+		max-width: 720px;
 	}
-	.actions {
+	.cta {
 		display: flex;
+		gap: 14px;
+		justify-content: center;
 		flex-wrap: wrap;
-		gap: var(--space-3);
+		margin-top: 2.125rem;
+	}
+	.fine {
+		margin-top: 14px;
+		font-size: var(--text-sm);
+		color: var(--text-muted);
 	}
 
-	/* Stage. */
-	.stage {
-		margin: 0;
-		display: grid;
-		gap: var(--space-4);
-		width: 100%;
-		max-width: 560px;
-		justify-self: center;
-	}
-	.scene {
+	/* Laptop. The device frame stays dark in both themes; the screen follows the theme. */
+	.laptop {
+		width: min(1000px, 92%);
+		margin: 4.375rem auto -6px;
 		position: relative;
-		aspect-ratio: 1;
-		container-type: inline-size;
-		/* Apps: outlined circles with no fill, ring and icon in the brand lavender; Liwan AI is
-		   the sand heart. Connecting lines are a quiet grey so the apps and the mark lead. */
-		--node-bg: transparent;
-		--node-ring: var(--accent);
-		--node-icon: var(--accent);
-		--line: light-dark(#d2cfdb, #3f3a58);
+		z-index: 1;
+		transform-origin: 50% 100%;
 	}
-	.scene-svg {
-		position: absolute;
-		inset: 0;
-		width: 100%;
-		height: 100%;
-		overflow: visible;
-		opacity: 0;
-		transition: opacity 400ms var(--ease);
+	.js .laptop.is-in {
+		transform: perspective(1400px) rotateX(var(--tilt, 10deg)) scale(var(--lscale, 0.94));
 	}
-	.is-arrived .scene-svg {
-		opacity: 1;
+	.lid {
+		background: #161616;
+		border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+		padding: 16px 16px 0;
+		box-shadow: 0 40px 90px rgb(20 16 42 / 0.22);
 	}
-	/* Ring lines are dashed. Each one is revealed by a white mask stroke that draws itself
-	   (pathLength 1), so the dashes appear from the centre outward. */
-	.app-lines path,
-	.tip-lines path {
-		fill: none;
-		stroke: var(--line);
-		stroke-width: 0.45;
-		stroke-linecap: round;
-		stroke-dasharray: 0.9 1;
-	}
-	.reveal {
-		fill: none;
-		stroke: #fff;
-		stroke-width: 2;
-		stroke-linecap: round;
-		stroke-dasharray: 1;
-		stroke-dashoffset: 1;
-	}
-
-	/* «Before»: dashed links between the systems, cut in the middle. */
-	.cut-svg {
-		position: absolute;
-		inset: 0;
-		width: 100%;
-		height: 100%;
-		overflow: visible;
-		transition: opacity 200ms linear;
-	}
-	.is-fading .cut-svg {
-		opacity: 0;
-	}
-	.cut-line {
-		fill: none;
-		stroke: var(--border-strong);
-		stroke-width: 0.35;
-		stroke-dasharray: 1.2 1.2;
-		stroke-linecap: round;
-		animation: cut-flow 1.6s linear infinite;
-	}
-	@keyframes cut-flow {
-		to {
-			stroke-dashoffset: -2.4;
-		}
-	}
-	.cut-cross {
-		fill: none;
-		stroke: var(--warning);
-		stroke-width: 0.45;
-		stroke-linecap: round;
-	}
-	/* The Liwan state grows from the middle, in this order after arrival:
-	   AI circle → lines out to the triangle tips → triangles → arches open from the centre →
-	   lines out to the apps → each app lights up → names → pulses flow back in. */
-	.scene {
-		--t-tips: 150ms;
-		--t-triangles: 450ms;
-		--t-arches: 600ms;
-		--t-app-lines: 1000ms;
-		--t-apps: 1700ms;
-		--t-labels: 1900ms;
-		--t-pulses: 2100ms;
-	}
-	.is-arrived .reveal-tip {
-		stroke-dashoffset: 0;
-		transition: stroke-dashoffset 350ms var(--ease) var(--t-tips);
-	}
-	.is-arrived .reveal-app {
-		stroke-dashoffset: 0;
-		transition: stroke-dashoffset 750ms var(--ease) var(--t-app-lines);
-	}
-	.pulses circle {
-		fill: var(--accent);
-		opacity: 0;
-		transition: opacity 300ms;
-	}
-	.is-arrived .pulses circle {
-		opacity: 0.9;
-		transition-delay: var(--t-pulses);
-	}
-	/* The arches open outward from the centre (scale and fade), so no draw seam is ever shown. */
-	.mark-arches-hero {
-		fill: none;
-		stroke: var(--accent);
-		stroke-width: 3.2;
-		stroke-linejoin: round;
-		opacity: 0;
-		transform-box: fill-box;
-		transform-origin: center;
-		transform: scale(0.45);
-	}
-	.is-arrived .mark-arches-hero {
-		opacity: 1;
-		transform: scale(1);
-		transition:
-			opacity 300ms var(--ease) var(--t-arches),
-			transform 650ms var(--ease-spring) var(--t-arches);
-	}
-	.mark-tri-hero {
-		fill: var(--accent);
-		opacity: 0;
-		transform-box: fill-box;
-		transform-origin: center;
-		transform: scale(0.3);
-	}
-	.is-arrived .mark-tri-hero {
-		opacity: 1;
-		transform: scale(1);
-		transition:
-			opacity 300ms var(--ease) calc(var(--t-triangles) + var(--t) * 60ms),
-			transform 450ms var(--ease-spring) calc(var(--t-triangles) + var(--t) * 60ms);
-		animation: tri-pulse 2.8s ease-in-out calc(2.4s + var(--t) * 0.35s) infinite;
-	}
-	@keyframes tri-pulse {
-		50% {
-			transform: scale(1.18);
-		}
-	}
-
-	/* Nodes: a sign-in window before, a circle seat after. */
-	.node {
-		position: absolute;
-		left: var(--bx);
-		top: var(--by);
-		width: 30%;
-		height: 11%;
-		rotate: var(--rot);
-		border-radius: 1.6cqw;
+	.screen {
 		background: var(--surface);
-		border: 1px solid var(--border);
-		box-shadow: var(--shadow);
-		font-size: 2.6cqw;
-		line-height: 1.3;
-		transition:
-			left 750ms cubic-bezier(0.65, 0, 0.35, 1),
-			top 750ms cubic-bezier(0.65, 0, 0.35, 1),
-			width 750ms cubic-bezier(0.65, 0, 0.35, 1),
-			height 750ms cubic-bezier(0.65, 0, 0.35, 1),
-			border-radius 750ms cubic-bezier(0.65, 0, 0.35, 1),
-			rotate 750ms cubic-bezier(0.65, 0, 0.35, 1),
-			background-color 250ms,
-			border-color 250ms,
-			box-shadow 250ms;
-		transition-delay: calc(var(--i) * 20ms);
-		animation: win-float 3.2s ease-in-out infinite;
-		animation-delay: calc(var(--i) * -0.4s);
+		color: var(--text);
+		border-radius: 14px 14px 0 0;
+		aspect-ratio: 16 / 8.4;
+		overflow: hidden;
+		text-align: start;
+		display: grid;
+		grid-template-columns: 150px 1fr;
+		font-size: 11px;
+		line-height: 1.5;
 	}
-	@keyframes win-float {
-		50% {
-			translate: 0 -1.5px;
-		}
+	.side {
+		background: var(--surface-sunken);
+		border-inline-end: 1px solid var(--border);
+		padding: 16px 12px;
+		color: var(--text-muted);
+		min-width: 0;
+		overflow: hidden;
 	}
-	.win {
-		position: absolute;
-		inset: 0;
+	.side .me {
 		display: flex;
 		align-items: center;
-		gap: 0.6em;
-		padding-inline: 0.8em;
+		gap: 8px;
 		font-weight: 600;
-		white-space: nowrap;
-		overflow: hidden;
-		transition: opacity 150ms linear;
+		color: var(--text);
+		font-size: 12px;
+		margin-bottom: 14px;
 	}
-	.win :global(.win-icon) {
-		flex-shrink: 0;
-		width: 1.5em;
-		height: 1.5em;
-		padding: 0.3em;
-		box-sizing: content-box;
-		border-radius: 50%;
-		background: var(--surface-sunken);
+	.side .me span {
+		width: 22px;
+		height: 22px;
+		border-radius: 7px;
+		background: var(--accent);
+	}
+	.side ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		gap: 7px;
+	}
+	.side li {
+		padding: 5px 8px;
+		border-radius: 7px;
+		display: flex;
+		align-items: center;
+		gap: 7px;
+		white-space: nowrap;
+		min-width: 0;
+	}
+	.side li span {
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	.side li.on {
+		background: var(--surface);
+		color: var(--text);
+		font-weight: 500;
+		box-shadow: var(--shadow-sm);
+	}
+	.main {
+		padding: 14px 18px;
+		min-width: 0;
+	}
+	.bar {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		margin-bottom: 12px;
+	}
+	.bar .q {
+		flex: 1;
+		height: 26px;
+		border-radius: var(--radius-sm);
+		background: var(--surface-muted);
+		border: 1px solid var(--border);
+		display: flex;
+		align-items: center;
+		padding: 0 10px;
 		color: var(--text-muted);
 	}
-	.node-icon {
-		position: absolute;
-		inset: 0;
-		display: grid;
-		place-items: center;
-		color: var(--node-icon);
-		opacity: 0;
-		transform: scale(0.6);
-		transition:
-			opacity 200ms,
-			transform 300ms var(--ease-spring);
-	}
-	.node-icon :global(svg) {
-		width: 46%;
-		height: 46%;
-	}
-
-	/* Liwan state, in three steps set by hero.ts. */
-	.is-fading .win {
-		opacity: 0;
-	}
-	.is-liwan .node {
-		left: var(--ax);
-		top: var(--ay);
-		width: 13%;
-		height: 13%;
-		border-radius: 50%;
-		rotate: 0deg;
-		animation: none;
-	}
-	.is-liwan .node-ai {
-		width: 12%;
-		height: 12%;
-	}
-	/* Each app lights up when its line reaches it; the AI circle lights first. */
-	.is-arrived .node {
-		background: var(--node-bg);
-		border-color: var(--node-ring);
-		border-width: 0.45cqw;
-		box-shadow: none;
-		transition-delay: calc(var(--t-apps) + var(--i) * 30ms);
-	}
-	.is-arrived .node-ai {
-		transition-delay: 0ms;
-		background: var(--sand);
-		border-color: var(--sand-300);
-		box-shadow:
-			0 0 0 0.9cqw color-mix(in srgb, var(--sand) 45%, transparent),
-			0 0 4cqw var(--glow);
-		animation: ai-halo 3s ease-in-out infinite;
-	}
-	.is-arrived .node-ai .node-icon {
-		color: var(--lavender);
-	}
-	@keyframes ai-halo {
-		50% {
-			box-shadow:
-				0 0 0 1.6cqw color-mix(in srgb, var(--sand) 30%, transparent),
-				0 0 6cqw var(--glow);
-		}
-	}
-	.is-arrived .node-icon {
-		opacity: 1;
-		transform: scale(1);
-		transition-delay: calc(var(--t-apps) + var(--i) * 30ms);
-	}
-	.is-arrived .node-ai .node-icon {
-		transition-delay: 0ms;
-	}
-
-	.node-label {
-		position: absolute;
-		left: var(--lx);
-		top: var(--ly);
-		translate: -50% 0.5cqw;
-		font-size: max(11px, 2.7cqw);
+	.bb {
+		background: var(--accent);
+		color: var(--on-accent);
+		border-radius: var(--radius-sm);
+		padding: 5px 10px;
+		font-size: 10px;
 		font-weight: 600;
-		white-space: nowrap;
-		color: var(--text);
-		opacity: 0;
-		transition: opacity 300ms;
 	}
-	.node-label.above {
-		translate: -50% calc(-100% - 0.5cqw);
+	.pf {
+		width: 26px;
+		height: 26px;
+		border-radius: 50%;
+		background: linear-gradient(135deg, #9d9da8, #14102a);
 	}
-	.is-arrived .node-label {
-		opacity: 1;
-		transition-delay: var(--t-labels);
+	.promo {
+		border-radius: var(--radius);
+		background: var(--surface-muted);
+		padding: 14px 16px;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
+		margin-bottom: 12px;
 	}
-
-	/* Stats. */
-	.stats {
+	.promo b {
+		font-size: 14px;
+		display: block;
+		margin-bottom: 3px;
+	}
+	.promo span {
+		color: var(--text-muted);
+	}
+	.promo .ic {
+		display: flex;
+		gap: 6px;
+	}
+	.tile-ic {
+		width: 28px;
+		height: 28px;
+		border-radius: var(--radius-sm);
+		flex: none;
+		display: inline-grid;
+		place-items: center;
+		background: var(--app-tile);
+		color: var(--app-on);
+	}
+	h6 {
+		font-size: 12px;
+		font-weight: 600;
+		margin: 6px 0 8px;
+		display: flex;
+		justify-content: space-between;
+	}
+	h6 small {
+		color: var(--text-muted);
+		font-weight: 400;
+	}
+	.feed-title {
+		margin-top: 14px;
+	}
+	.grid {
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
-		gap: var(--space-3);
+		gap: 10px;
 	}
-	.stat {
-		display: grid;
-		justify-items: center;
-		padding: var(--space-3);
+	.tile {
+		border: 1px solid var(--border);
 		border-radius: var(--radius);
-		background: var(--warning-bg);
-		color: var(--warning-text);
-		transition:
-			background 400ms var(--ease),
-			color 400ms var(--ease);
+		padding: 10px;
+		display: flex;
+		gap: 8px;
+		align-items: flex-start;
+		min-width: 0;
 	}
-	.stat strong {
-		font-size: var(--text-2xl);
-		line-height: 1.2;
-		font-variant-numeric: tabular-nums;
+	.tile b {
+		display: block;
+		font-size: 11px;
+		font-weight: 600;
 	}
-	.stat span {
-		font-size: var(--text-sm);
-		white-space: nowrap;
+	.tile em {
+		font-style: normal;
+		color: var(--text-muted);
+		font-size: 10px;
+		display: block;
+		line-height: 1.4;
 	}
-	@media (max-width: 520px) {
-		.stats {
-			gap: var(--space-2);
-		}
-		.stat {
-			padding: var(--space-2);
-		}
-		.stat strong {
-			font-size: var(--text-xl);
-		}
-		.stat span {
-			font-size: var(--text-xs);
-		}
+	.tile .go {
+		margin-inline-start: auto;
+		background: var(--surface-muted);
+		border-radius: 6px;
+		padding: 2px 7px;
+		font-size: 10px;
+		font-weight: 600;
+		align-self: center;
 	}
-	.stage:has(.is-arrived) .stat {
-		background: var(--accent-soft);
-		color: var(--accent);
+	.base {
+		height: 14px;
+		background: linear-gradient(#e9e9ea, #c9c9cc);
+		border-radius: 0 0 18px 18px;
+		width: 106%;
+		margin-inline-start: -3%;
+		box-shadow: 0 20px 50px rgb(20 16 42 / 0.22);
 	}
-
-	@media (max-width: 899px) {
-		.hero-grid {
+	.foot {
+		height: 6px;
+		background: #b9b9bd;
+		border-radius: 0 0 10px 10px;
+		width: 30%;
+		margin: 0 auto;
+	}
+	@media (max-width: 760px) {
+		.screen {
 			grid-template-columns: 1fr;
+			aspect-ratio: 16 / 11;
 		}
-		.copy {
-			justify-items: center;
-			text-align: center;
+		.side,
+		.promo .ic,
+		.tile .go {
+			display: none;
 		}
-		.actions {
-			justify-content: center;
+		.grid {
+			grid-template-columns: 1fr 1fr;
+		}
+		.lid {
+			padding: 10px 10px 0;
+			border-radius: var(--radius-card) var(--radius-card) 0 0;
 		}
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.node,
-		.is-arrived .mark-tri-hero,
-		.is-arrived .node-ai,
-		.cut-line {
-			animation: none;
-		}
-		.pulses {
-			display: none;
+		.js .laptop.is-in {
+			transform: none;
 		}
 	}
 </style>

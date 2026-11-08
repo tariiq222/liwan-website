@@ -2,23 +2,30 @@
 // Home section 8: common questions in one framed column. `<details name="faq">` keeps one answer
 // open at a time without a script. The refund period comes from the public pricing object.
 import Icon from '../Icon.astro';
-import Section from '../Section.astro';
 import { getPricing } from '../../lib/pricing';
 import { daysLabel } from '../../scripts/pricing-format';
+import { getCollection } from 'astro:content';
 import { localePath } from '../../i18n';
 
 const pricing = await getPricing();
+const apps = (await getCollection('apps', ({ data }) => data.status === 'available')).map((e) => e.data).sort((a, b) => a.order - b.order);
+const list = (names: string[]) => (names.length > 1 ? `${names.slice(0, -1).join('، ')} و${names.at(-1)}` : (names[0] ?? ''));
+const freeNames = list(apps.filter((a) => a.plan === 'free').map((a) => a.name.ar));
+const paidNames = list(apps.filter((a) => a.plan === 'paid').map((a) => a.name.ar));
 const refundPeriod = pricing ? daysLabel(pricing.refund_days) : 'فترة الضمان';
 
 const FAQ = [
 	{ q: 'هل أحتاج بطاقة ائتمان؟', a: 'لا. تجرّب 14 يومًا كاملة بلا بطاقة.' },
 	{ q: 'ماذا بعد التجربة؟', a: 'تبقى على التطبيقات المجانية دائمًا، وبياناتك محفوظة.' },
 	{ q: 'هل أسترجع مبلغي؟', a: `نعم، كاملًا خلال ${refundPeriod} من أول دفعة.` },
+	{ q: 'وش التطبيقات المجانية ووش المدفوعة؟', a: `المجانية: ${freeNames}. والمدفوعة: ${paidNames}.` },
 	{ q: 'كيف أربط واتساب شركتي؟', a: 'من داخل منصة ليوان بخطوات قليلة. ورسائل واتساب التسويقية تحاسبك عليها ميتا مباشرة.' },
 ];
 ---
 
-<Section id="faq" eyebrow="أسئلة شائعة" title="قبل أن تبدأ" align="center">
+<section class="faq" id="faq">
+	<div class="container">
+	<h2 class="sec" data-reveal>تسأل، ونجيب</h2>
 	<div class="faq-column">
 		<div class="faq-frame" data-reveal>
 			{
@@ -26,7 +33,7 @@ const FAQ = [
 					<details name="faq" open={i === 0}>
 						<summary>
 							<span>{item.q}</span>
-							<Icon name="chevron-down" size={20} />
+							<Icon name="plus" size={20} />
 						</summary>
 						<div class="answer">
 							<p>{item.a}</p>
@@ -41,24 +48,27 @@ const FAQ = [
 			<a class="button" href={localePath('ar', '/contact')}>تواصل معنا</a>
 		</div>
 	</div>
-</Section>
+	</div>
+</section>
 
 <style>
+	.faq {
+		padding-block: 2.5rem clamp(4rem, 3rem + 4vw, 6rem);
+	}
 	.faq-column {
 		display: grid;
 		gap: var(--space-6);
-		max-width: 760px;
-		margin-inline: auto;
+		max-width: 900px;
+		margin: 2.75rem auto 0;
 	}
 	.faq-frame {
-		overflow: hidden;
-		border: 1px solid var(--border);
-		border-radius: var(--radius-lg);
-		background: var(--surface);
-		box-shadow: var(--shadow-sm);
+		display: grid;
+		gap: 12px;
 	}
-	details + details {
-		border-top: 1px solid var(--border);
+	details {
+		border-radius: var(--radius-card);
+		background: var(--surface-muted);
+		overflow: hidden;
 	}
 	summary {
 		display: flex;
@@ -66,7 +76,8 @@ const FAQ = [
 		justify-content: space-between;
 		gap: var(--space-4);
 		min-height: 68px;
-		padding: var(--space-3) var(--space-6);
+		padding: var(--space-4) var(--space-6);
+		font-size: var(--text-lg);
 		font-weight: 600;
 		cursor: pointer;
 		list-style: none;
@@ -76,7 +87,7 @@ const FAQ = [
 		display: none;
 	}
 	summary:hover {
-		background: var(--accent-soft);
+		background: var(--border);
 	}
 	summary:focus-visible {
 		outline-offset: -3px;
@@ -87,11 +98,12 @@ const FAQ = [
 		transition: transform var(--duration) var(--ease);
 	}
 	details[open] summary :global(svg) {
-		transform: rotate(180deg);
+		transform: rotate(45deg);
 	}
 	.answer {
 		padding: 0 var(--space-6) var(--space-6);
-		color: var(--text-muted);
+		color: var(--text-mid);
+		max-width: 760px;
 	}
 	details[open] .answer {
 		animation: answer-in 350ms var(--ease);
@@ -110,8 +122,8 @@ const FAQ = [
 		justify-content: space-between;
 		gap: var(--space-4);
 		padding: var(--space-6);
-		border-radius: var(--radius-lg);
-		background: var(--gradient-sand);
+		border-radius: var(--radius-card);
+		background: var(--surface);
 		border: 1px solid var(--border);
 		font-weight: 600;
 	}

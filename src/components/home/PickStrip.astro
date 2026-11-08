@@ -1,0 +1,130 @@
+---
+// Home "pick what fits" band (approved mock .mocks/home-v4.html): heading, two calls to action,
+// the trust line (claims-gated) and a slow strip of application icons in their brand colours.
+import { getCollection } from 'astro:content';
+import Icon from '../Icon.astro';
+import { claim } from '../../config/claims';
+import { registerUrl } from '../../lib/links';
+import { appColorStyle } from '../../lib/app-color';
+import { localePath } from '../../i18n';
+
+const apps = (await getCollection('apps', ({ data }) => data.status === 'available'))
+	.map((e) => e.data)
+	.sort((a, b) => a.order - b.order);
+// Two identical halves, each wider than the screen, so the loop never shows a gap.
+const half = [...apps, ...apps];
+const strip = [...half, ...half];
+
+const trust = [
+	{ icon: 'x' as const, text: 'ألغِ في أي وقت', show: true },
+	{ icon: 'lock' as const, text: 'بياناتك محفوظة في السعودية', show: claim('saudiHosting') === 'available' },
+].filter((item) => item.show);
+---
+
+<section class="pick">
+	<div class="container">
+		<h2 class="sec" data-reveal>اختر ما يناسبك</h2>
+		<p class="sec-lead" data-reveal style="--i: 1">خذها كلها، أو اكتفِ بالتطبيق الذي تحتاجه.</p>
+		<div class="cta" data-reveal style="--i: 2">
+			<a class="button" href={registerUrl('ar')} data-app-link>ابدأ مجانًا</a>
+			<a class="button secondary" href={localePath('ar', '/pricing/')}>شوف الخطط</a>
+		</div>
+		<ul class="trust" data-reveal style="--i: 3">
+			{
+				trust.map((item) => (
+					<li>
+						<Icon name={item.icon} size={16} /> {item.text}
+					</li>
+				))
+			}
+		</ul>
+	</div>
+	<div class="iconrow" aria-hidden="true">
+		<div class="track">
+			{
+				strip.map((a) => (
+					<span class="ic" style={appColorStyle(a)}>
+						<Icon name={a.icon} size={40} strokeWidth={1.6} />
+					</span>
+				))
+			}
+		</div>
+	</div>
+</section>
+
+<style>
+	.pick {
+		padding-block: 1.875rem 3.75rem;
+		text-align: center;
+		overflow: hidden;
+	}
+	.cta {
+		display: flex;
+		gap: 14px;
+		justify-content: center;
+		flex-wrap: wrap;
+		margin: 1.625rem 0 2.75rem;
+	}
+	.trust {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		justify-content: center;
+		gap: 1.5rem 3.5rem;
+		flex-wrap: wrap;
+		font-size: var(--text-sm);
+		font-weight: 500;
+		color: var(--text-mid);
+	}
+	.trust li {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+	}
+	/* The ends fade with a mask, so the strip works in both directions and on any background.
+	   The padding leaves room for the tile shadows. */
+	.iconrow {
+		display: flex;
+		margin-top: 2.875rem;
+		padding: 24px 0 36px;
+		overflow: hidden;
+		-webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+		mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+	}
+	.track {
+		display: flex;
+		flex: none;
+		animation: slide 40s linear infinite;
+	}
+	.ic {
+		width: 96px;
+		height: 96px;
+		border-radius: 26px;
+		display: grid;
+		place-items: center;
+		flex: none;
+		margin-inline-end: 28px;
+		background: var(--app-tile);
+		color: var(--app-on);
+		box-shadow: 0 14px 28px -14px rgb(20 16 42 / 0.45);
+	}
+	@keyframes slide {
+		to {
+			transform: translateX(50%);
+		}
+	}
+	:global([dir='ltr']) .track {
+		animation-name: slide-ltr;
+	}
+	@keyframes slide-ltr {
+		to {
+			transform: translateX(-50%);
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.track {
+			animation: none;
+		}
+	}
+</style>

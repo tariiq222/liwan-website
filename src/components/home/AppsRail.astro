@@ -1,0 +1,413 @@
+---
+// Home applications rail (approved mock .mocks/home-v4.html): one tall card per application in a
+// horizontal rail, filtered by tabs, with endless arrows on wide screens. Names, icons and links
+// come from src/content/apps; card copy and the sample screen rows from ./home-apps.ts.
+import { getCollection } from 'astro:content';
+import Icon from '../Icon.astro';
+import { localePath } from '../../i18n';
+import { CATEGORIES, HOME_APPS, HOME_ORDER, HOME_TINT } from './home-apps';
+
+const entries = await getCollection('apps', ({ data }) => data.status === 'available');
+const bySlug = new Map(entries.map((e) => [e.data.slug, e.data]));
+const cards = HOME_ORDER.flatMap((slug) => {
+	const data = bySlug.get(slug);
+	const copy = HOME_APPS[slug];
+	return data && copy ? [{ data, copy, tint: HOME_TINT[slug] ?? 'var(--accent)' }] : [];
+});
+---
+
+<section class="apps" id="apps">
+	<div class="container">
+		<div class="pill-row" data-reveal>
+			<span class="eyebrow-pill"><b>14 يومًا مجانًا</b> اختر ما يناسبك وجرّبه</span>
+		</div>
+		<h2 class="sec" data-reveal style="--i: 1">من أول رسالة عميل<br />لآخر مهمة في فريقك</h2>
+		<p class="sec-lead" data-reveal style="--i: 2">كل قسم بتطبيقه، وكلها مترابطة من أول يوم.</p>
+
+		<div class="tabsrow" data-reveal style="--i: 3">
+			<div class="tabs" role="group" aria-label="تصنيف التطبيقات">
+				{
+					CATEGORIES.map((c, i) => (
+						<button type="button" class="tab" data-tab={c.key} aria-pressed={i === 0 ? 'true' : 'false'}>
+							{c.label}
+						</button>
+					))
+				}
+			</div>
+			<div class="arrows">
+				<button type="button" class="arrow" data-rail-prev aria-label="السابق"><Icon name="arrow-right" size={18} /></button>
+				<button type="button" class="arrow" data-rail-next aria-label="التالي"><Icon name="arrow-left" size={18} /></button>
+			</div>
+		</div>
+
+		<div class="rail" data-rail>
+			{
+				cards.map(({ data, copy, tint }) => (
+					<article
+						class:list={['card', { dark: data.slug === 'ai' }]}
+						data-cats={copy.cats.join(' ')}
+						style={`--tint: ${tint}`}
+					>
+						<div class="top">
+							<span class="ic">
+								<Icon name={data.icon} size={22} />
+							</span>
+							<div>
+								<b>{data.name.ar}</b>
+								<small>{copy.tag}</small>
+							</div>
+						</div>
+						<p>{copy.desc}</p>
+						<a class="try" href={localePath('ar', `/apps/${data.slug}/`)}>
+							جرّب التطبيق
+						</a>
+						<div class="shot" aria-hidden="true">
+							{copy.shot.map((line) =>
+								line.kind === 'kpi' ? (
+									<div class="kpi">
+										{line.items.map((k) => (
+											<div>
+												<b>{k.value}</b>
+												<small>{k.label}</small>
+											</div>
+										))}
+									</div>
+								) : line.kind === 'bubble' ? (
+									<div class:list={['bub', { me: line.me }]}>{line.text}</div>
+								) : (
+									<div class="row">
+										<span class="dot" style={`background: ${HOME_TINT[line.dot] ?? 'var(--accent)'}`} />
+										{line.done ? <s>{line.text}</s> : line.text}
+										{line.tag && <span class="tag">{line.tag}</span>}
+									</div>
+								),
+							)}
+						</div>
+					</article>
+				))
+			}
+		</div>
+	</div>
+</section>
+
+<script>
+	const rail = document.querySelector<HTMLElement>('[data-rail]');
+	const tabs = [...document.querySelectorAll<HTMLButtonElement>('[data-tab]')];
+
+	function filter(cat: string): void {
+		if (!rail) return;
+		rail.querySelectorAll<HTMLElement>('[data-cats]').forEach((card) => {
+			card.hidden = !(card.dataset.cats ?? '').split(' ').includes(cat);
+		});
+		rail.scrollTo({ left: 0 });
+	}
+	tabs.forEach((tab) =>
+		tab.addEventListener('click', () => {
+			tabs.forEach((t) => t.setAttribute('aria-pressed', String(t === tab)));
+			filter(tab.dataset.tab ?? 'all');
+		}),
+	);
+
+	// Endless arrows: move the first or last visible card to the other end, so there is always one
+	// more card on each side. In RTL "next" scrolls leftward.
+	let busy = false;
+	const visible = () => [...(rail?.children ?? [])].filter((c) => !(c as HTMLElement).hidden) as HTMLElement[];
+	const step = () => {
+		const c = visible();
+		return c.length > 1 ? Math.abs(c[1].getBoundingClientRect().left - c[0].getBoundingClientRect().left) : 340;
+	};
+	const jump = (dx: number) => {
+		if (!rail) return;
+		rail.style.scrollSnapType = 'none';
+		rail.scrollLeft += dx;
+		void rail.offsetWidth;
+		rail.style.scrollSnapType = '';
+	};
+	const after = (fn: () => void) => {
+		let done = false;
+		const end = () => {
+			if (done) return;
+			done = true;
+			rail?.removeEventListener('scrollend', end);
+			fn();
+			busy = false;
+		};
+		rail?.addEventListener('scrollend', end);
+		setTimeout(end, 700);
+	};
+	const dir = document.documentElement.dir === 'rtl' ? -1 : 1;
+	document.querySelector('[data-rail-next]')?.addEventListener('click', () => {
+		const cards = visible();
+		if (!rail || busy || cards.length < 2) return;
+		busy = true;
+		const st = step();
+		after(() => {
+			rail.append(cards[0]);
+			jump(-dir * st);
+		});
+		rail.scrollBy({ left: dir * st, behavior: 'smooth' });
+	});
+	document.querySelector('[data-rail-prev]')?.addEventListener('click', () => {
+		const cards = visible();
+		if (!rail || busy || cards.length < 2) return;
+		busy = true;
+		const st = step();
+		rail.prepend(cards[cards.length - 1]);
+		jump(dir * st);
+		after(() => {});
+		rail.scrollBy({ left: -dir * st, behavior: 'smooth' });
+	});
+</script>
+
+<style>
+	.apps {
+		padding-block: clamp(4rem, 3rem + 4vw, 6rem) 4.375rem;
+	}
+	.pill-row {
+		text-align: center;
+	}
+	.pill-row .eyebrow-pill {
+		background: var(--surface-muted);
+		box-shadow: none;
+	}
+	.tabsrow {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 10px;
+		margin: 2.125rem 0 2.25rem;
+		position: relative;
+	}
+	.tabs {
+		display: flex;
+		gap: 10px;
+	}
+	.tab {
+		height: 36px;
+		padding: 0 16px;
+		border: 0;
+		border-radius: var(--radius);
+		background: var(--surface-muted);
+		color: var(--text);
+		font: inherit;
+		font-size: var(--text-sm);
+		font-weight: 500;
+		cursor: pointer;
+		white-space: nowrap;
+	}
+	.tab[aria-pressed='true'] {
+		background: var(--accent);
+		color: var(--on-accent);
+	}
+	.arrows {
+		position: absolute;
+		inset-inline-end: 0;
+		display: flex;
+		gap: 8px;
+	}
+	.arrow {
+		width: 38px;
+		height: 38px;
+		border: 0;
+		border-radius: var(--radius);
+		background: var(--surface-muted);
+		color: var(--text);
+		display: grid;
+		place-items: center;
+		cursor: pointer;
+	}
+	.arrow:hover {
+		background: var(--border);
+	}
+	.rail {
+		display: flex;
+		gap: 22px;
+		overflow-x: auto;
+		scroll-snap-type: x mandatory;
+		padding: 18px 12px 40px;
+		margin-inline: -12px;
+		scroll-padding-inline: 12px;
+		scrollbar-width: none;
+	}
+	.rail::-webkit-scrollbar {
+		display: none;
+	}
+
+	/* Card: the application's tint as a soft light gradient (dark mode mixes into the surface). */
+	.card {
+		scroll-snap-align: start;
+		flex: none;
+		width: 318px;
+		height: 540px;
+		border-radius: var(--radius-lg);
+		padding: 26px 24px 0;
+		display: flex;
+		flex-direction: column;
+		position: relative;
+		overflow: hidden;
+		color: var(--text);
+		background:
+			radial-gradient(120% 70% at 85% 0%, color-mix(in oklab, var(--tint) 14%, var(--surface)), transparent 70%),
+			linear-gradient(170deg, color-mix(in oklab, var(--tint) 8%, var(--surface)), color-mix(in oklab, var(--tint) 32%, var(--surface)));
+		transition: transform 0.45s var(--ease);
+	}
+	.card[hidden] {
+		display: none;
+	}
+	.card:hover {
+		transform: scale(1.035);
+	}
+	.top {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		margin-bottom: 18px;
+	}
+	.top .ic {
+		width: 48px;
+		height: 48px;
+		border-radius: var(--radius);
+		display: grid;
+		place-items: center;
+		color: #fff;
+		background: var(--tint);
+		flex: none;
+	}
+	.top b {
+		display: block;
+		font-size: 17px;
+		font-weight: 700;
+		line-height: 1.2;
+	}
+	.top small {
+		font-size: 12px;
+		opacity: 0.75;
+	}
+	.card p {
+		font-size: var(--text-sm);
+		line-height: 1.6;
+		min-height: 70px;
+	}
+	.try {
+		margin: 14px 0 18px;
+		align-self: flex-start;
+		background: var(--surface);
+		color: var(--text);
+		border-radius: var(--radius);
+		padding: 8px 14px;
+		font-size: 13px;
+		font-weight: 600;
+		text-decoration: none;
+	}
+	.shot {
+		margin-top: auto;
+		background: var(--surface);
+		border-radius: var(--radius) var(--radius) 0 0;
+		padding: 12px;
+		font-size: 11px;
+		min-height: 200px;
+	}
+	.row {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 7px 8px;
+		border-radius: 7px;
+		background: var(--surface-muted);
+	}
+	.row + .row {
+		margin-top: 6px;
+	}
+	.row s {
+		opacity: 0.6;
+	}
+	.dot {
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		flex: none;
+	}
+	.tag {
+		margin-inline-start: auto;
+		font-size: 10px;
+		opacity: 0.7;
+	}
+	.kpi {
+		display: flex;
+		gap: 8px;
+		margin-bottom: 8px;
+	}
+	.kpi div {
+		flex: 1;
+		border-radius: var(--radius-sm);
+		padding: 8px;
+		background: var(--surface-muted);
+	}
+	.kpi b {
+		display: block;
+		font-size: 16px;
+	}
+	.kpi small {
+		opacity: 0.7;
+		font-size: 10px;
+	}
+	.bub {
+		max-width: 80%;
+		padding: 7px 10px;
+		border-radius: var(--radius);
+		background: var(--surface-muted);
+		margin-bottom: 6px;
+	}
+	.bub.me {
+		background: light-dark(#dcf8c6, #1f3d2a);
+		margin-inline-start: auto;
+	}
+
+	/* Liwan AI: deep ink card with a soft violet glow, the same in both themes. */
+	.card.dark {
+		color: #fff;
+		background:
+			radial-gradient(110% 70% at 90% 0%, rgb(124 92 255 / 0.38), transparent 58%),
+			radial-gradient(90% 60% at 0% 100%, rgb(236 72 153 / 0.16), transparent 62%),
+			linear-gradient(165deg, #221a4a, #14102a 55%, #0a0816);
+		box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.09);
+	}
+	.card.dark .ic {
+		background: rgb(255 255 255 / 0.1);
+		box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.2);
+	}
+	.card.dark .try {
+		background: #fff;
+		color: #14102a;
+	}
+	.card.dark .shot {
+		background: rgb(255 255 255 / 0.06);
+		color: #fff;
+		box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
+	}
+	.card.dark .row,
+	.card.dark .kpi div,
+	.card.dark .bub {
+		background: rgb(255 255 255 / 0.08);
+	}
+	.card.dark .bub.me {
+		background: rgb(124 92 255 / 0.35);
+	}
+
+	@media (max-width: 760px) {
+		.tabsrow {
+			justify-content: flex-start;
+			overflow-x: auto;
+			scrollbar-width: none;
+			padding-bottom: 4px;
+		}
+		.arrows {
+			display: none;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.card:hover {
+			transform: none;
+		}
+	}
+</style>

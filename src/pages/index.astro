@@ -1,25 +1,24 @@
 ---
+// Home page, in the order of the approved mock (.mocks/home-v4.html, 2026-11-08).
 import Base from '../layouts/Base.astro';
 import Hero from '../components/home/Hero.astro';
-import TrustStrip from '../components/home/TrustStrip.astro';
-import AiSection from '../components/home/AiSection.astro';
-import AppsSection from '../components/home/AppsSection.astro';
-import StepsSection from '../components/home/StepsSection.astro';
+import AppsRail from '../components/home/AppsRail.astro';
+import PickStrip from '../components/home/PickStrip.astro';
 import PricingGlance from '../components/home/PricingGlance.astro';
-import StartSection from '../components/home/StartSection.astro';
+import HowSteps from '../components/home/HowSteps.astro';
+import UseCases from '../components/home/UseCases.astro';
+import FeatureGrid from '../components/home/FeatureGrid.astro';
 import FaqSection from '../components/home/FaqSection.astro';
-import ClosingCta from '../components/home/ClosingCta.astro';
 import { t } from '../i18n';
 ---
 
 <Base locale="ar" title={t('ar', 'brand.tagline')} path="/">
 	<Hero />
-	<TrustStrip />
-	<AiSection />
-	<AppsSection />
-	<StepsSection />
+	<AppsRail />
+	<PickStrip />
 	<PricingGlance />
-	<StartSection />
+	<HowSteps />
+	<UseCases />
+	<FeatureGrid />
 	<FaqSection />
-	<ClosingCta />
 </Base>

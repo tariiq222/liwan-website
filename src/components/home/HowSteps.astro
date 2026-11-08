@@ -1,0 +1,445 @@
+---
+// Home "how to start" (approved mock .mocks/home-v4.html): three steps beside a product window.
+// On wide screens the section pins while the visitor scrolls and each step lights in turn; on
+// phones the steps stack and the window cycles slowly. Names come from src/content/apps; people
+// and company names in the window are sample data.
+import { getCollection } from 'astro:content';
+import Icon from '../Icon.astro';
+import { appColorStyle } from '../../lib/app-color';
+import { t } from '../../i18n';
+
+const platform = t('ar', 'brand.platform');
+const apps = (await getCollection('apps', ({ data }) => data.status === 'available'))
+	.map((e) => e.data)
+	.sort((a, b) => a.order - b.order);
+const bySlug = new Map(apps.map((a) => [a.slug, a]));
+const side = ['crm', 'inbox', 'tasks', 'meetings', 'ai'].flatMap((s) => (bySlug.has(s) ? [bySlug.get(s)!] : []));
+const enabled = new Set(['crm', 'inbox', 'tasks', 'chat', 'ai']);
+const people = ['crm', 'tasks', 'documents', 'meetings'].flatMap((s) => (bySlug.has(s) ? [bySlug.get(s)!] : []));
+
+const STEPS = [
+	{ title: 'افتح حساب شركتك', line: 'اسم الشركة ورقم جوالك، ويجيك رمز التفعيل على واتساب. مجانًا 14 يومًا، بلا بطاقة.' },
+	{ title: 'فعّل التطبيقات التي تحتاجها', line: 'اختر التطبيقات اللي تحتاجها واضغط «تفعيل»، وتشتغل مع بعض مباشرة على نفس البيانات.' },
+	{ title: 'ادعُ فريقك واختر اشتراكك', line: 'أضف زملاءك وحدد صلاحية كل واحد. ابدأ مجانًا، وأضف التطبيقات والمستخدمين متى ما احتجت.' },
+];
+---
+
+<section class="how" id="how">
+	<div class="container">
+		<div class="pin" data-how>
+			<div class="pin-in">
+				<h2 class="sec" data-reveal>كيف تبدأ مع {platform}</h2>
+				<p class="sec-lead" data-reveal style="--i: 1">
+					افتح حسابك، فعّل التطبيقات التي تحتاجها، وادعُ فريقك. من دون تنصيب ولا تجهيزات.
+				</p>
+				<div class="grid">
+					<ol class="steps">
+						{
+							STEPS.map((s, i) => (
+								<li class:list={['step', { on: i === 0 }]} data-step={i}>
+									<h3>{s.title}</h3>
+									<p>{s.line}</p>
+								</li>
+							))
+						}
+					</ol>
+					<div class="win" aria-hidden="true">
+						<aside class="side">
+							<div class="dots"><span></span><span></span><span></span></div>
+							<ul>
+								<li class="on"><Icon name="search" size={12} /> <span>استكشف</span></li>
+								{
+									side.map((a) => (
+										<li>
+											<Icon name={a.icon} size={12} /> <span>{a.name.ar}</span>
+										</li>
+									))
+								}
+							</ul>
+						</aside>
+						<div class="pane">
+							<div class="view on" data-view="0">
+								<h5>مرحبًا بك في {platform}</h5>
+								<div class="sub">خطوة واحدة وتدخل</div>
+								<div class="field"><span>اسم الشركة</span><b>شركة الندى للتجارة</b></div>
+								<div class="field"><span>رقم الجوال</span><b dir="ltr">05X XXX XXXX</b></div>
+								<div class="field"><span>رمز التفعيل (واتساب)</span><b class="ok">تم التحقق ✓</b></div>
+								<div class="chips"><span class="on">الرياض</span><span>جدة</span><span>الدمام</span><span>مدينة أخرى</span></div>
+								<span class="bb">ادخل إلى شركتك</span>
+							</div>
+							<div class="view" data-view="1">
+								<h5>التطبيقات</h5>
+								<div class="sub">فعّل ما تحتاجه الآن، والباقي متى ما احتجته</div>
+								<div class="appgrid">
+									{
+										apps.map((a) => (
+											<div>
+												<span style={appColorStyle(a)}>
+													<Icon name={a.icon} size={12} />
+												</span>
+												<i>{a.name.ar}</i>
+												<em class:list={{ off: !enabled.has(a.slug) }}>{enabled.has(a.slug) ? 'مفعّل' : 'تفعيل'}</em>
+											</div>
+										))
+									}
+								</div>
+							</div>
+							<div class="view" data-view="2">
+								<h5>فريقك واشتراكك</h5>
+								<div class="sub">4 أعضاء · 14 يومًا متبقية من التجربة</div>
+								<div class="people">
+									{people.map((a, i) => <span class="av" style={appColorStyle(a)}>{['س', 'م', 'ن', 'ع'][i]}</span>)}
+									<span class="av more">+</span>
+								</div>
+								<div class="field"><span>سارة العتيبي</span><b>مديرة مبيعات · كل الصلاحيات</b></div>
+								<div class="field"><span>محمد القحطاني</span><b>مندوب · العملاء والرسائل فقط</b></div>
+								<div class="field"><span>نورة الشهري</span><b>محاسبة · العمليات والمستندات</b></div>
+								<span class="bb">احفظ وابدأ</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<script>
+	const pin = document.querySelector<HTMLElement>('[data-how]');
+	const steps = [...document.querySelectorAll<HTMLElement>('[data-step]')];
+	const views = [...document.querySelectorAll<HTMLElement>('[data-view]')];
+	const setStep = (i: number) => {
+		steps.forEach((s, j) => s.classList.toggle('on', j === i));
+		views.forEach((v, j) => v.classList.toggle('on', j === i));
+	};
+	if (pin && matchMedia('(min-width: 901px)').matches) {
+		const onScroll = () => {
+			const r = pin.getBoundingClientRect();
+			const span = pin.offsetHeight - innerHeight;
+			const p = Math.min(0.999, Math.max(0, -r.top / Math.max(span, 1)));
+			setStep(Math.floor(p * steps.length));
+		};
+		addEventListener('scroll', onScroll, { passive: true });
+		onScroll();
+	} else if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+		let i = 0;
+		setInterval(() => {
+			i = (i + 1) % steps.length;
+			setStep(i);
+		}, 4000);
+	}
+</script>
+
+<style>
+	.how {
+		padding-block: clamp(4rem, 3rem + 4vw, 6rem);
+	}
+	.grid {
+		display: grid;
+		grid-template-columns: 1fr 1.3fr;
+		gap: 60px;
+		align-items: start;
+		margin-top: 3.75rem;
+	}
+	.steps {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+	}
+	.step {
+		padding: 28px 0;
+		padding-inline-start: 26px;
+		border-inline-start: 3px solid var(--border);
+		transition:
+			border-color 0.35s,
+			opacity 0.35s;
+	}
+	.step.on {
+		border-color: var(--accent);
+	}
+	.step h3 {
+		font-size: var(--text-2xl);
+		margin-bottom: 10px;
+	}
+	.step p {
+		color: var(--text-mid);
+		max-width: 360px;
+	}
+
+	.win {
+		background: var(--surface);
+		border-radius: var(--radius-lg);
+		border: 1px solid var(--border);
+		box-shadow: 0 30px 80px rgb(0 0 0 / 0.12);
+		overflow: hidden;
+		aspect-ratio: 16 / 10.5;
+		display: grid;
+		grid-template-columns: 150px 1fr;
+		font-size: 12px;
+		line-height: 1.5;
+	}
+	.side {
+		background: var(--surface-sunken);
+		border-inline-end: 1px solid var(--border);
+		padding: 16px 12px;
+		font-size: 11px;
+		color: var(--text-muted);
+		min-width: 0;
+		overflow: hidden;
+	}
+	.dots {
+		display: flex;
+		gap: 5px;
+		margin-bottom: 16px;
+	}
+	.dots span {
+		width: 9px;
+		height: 9px;
+		border-radius: 50%;
+	}
+	.dots span:nth-child(1) {
+		background: #ff5f57;
+	}
+	.dots span:nth-child(2) {
+		background: #febc2e;
+	}
+	.dots span:nth-child(3) {
+		background: #28c840;
+	}
+	.side ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		gap: 7px;
+	}
+	.side li {
+		padding: 5px 8px;
+		border-radius: 7px;
+		display: flex;
+		align-items: center;
+		gap: 7px;
+		white-space: nowrap;
+		min-width: 0;
+	}
+	.side li span {
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	.side li.on {
+		background: var(--surface);
+		color: var(--text);
+		font-weight: 500;
+		box-shadow: var(--shadow-sm);
+	}
+	.pane {
+		padding: 18px 20px;
+		position: relative;
+	}
+	.view {
+		position: absolute;
+		inset: 18px 20px;
+		opacity: 0;
+		transform: translateY(10px);
+		transition:
+			opacity 0.4s,
+			transform 0.4s;
+		pointer-events: none;
+	}
+	.view.on {
+		opacity: 1;
+		transform: none;
+	}
+	h5 {
+		font-size: 15px;
+		font-weight: 700;
+		margin: 0 0 4px;
+	}
+	.sub {
+		color: var(--text-muted);
+		font-size: 11px;
+		margin-bottom: 14px;
+	}
+	.field {
+		border: 1px solid var(--border);
+		border-radius: var(--radius-sm);
+		padding: 9px 12px;
+		margin-bottom: 8px;
+		display: flex;
+		justify-content: space-between;
+		gap: 12px;
+		color: var(--text-mid);
+	}
+	.field b {
+		color: var(--text);
+		font-weight: 500;
+	}
+	.field .ok {
+		color: var(--success);
+		font-weight: 600;
+	}
+	.chips {
+		display: flex;
+		gap: 6px;
+		flex-wrap: wrap;
+		margin: 8px 0 14px;
+	}
+	.chips span {
+		border: 1px solid var(--border);
+		border-radius: var(--radius-sm);
+		padding: 4px 10px;
+		font-size: 11px;
+	}
+	.chips span.on {
+		background: var(--accent);
+		color: var(--on-accent);
+		border-color: var(--accent);
+	}
+	.bb {
+		display: inline-block;
+		background: var(--accent);
+		color: var(--on-accent);
+		border-radius: var(--radius-sm);
+		padding: 8px 14px;
+		font-weight: 600;
+	}
+	.appgrid {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 8px;
+		margin-top: 8px;
+	}
+	.appgrid div {
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		padding: 8px;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		font-size: 11px;
+		font-weight: 500;
+		min-width: 0;
+	}
+	.appgrid span {
+		width: 24px;
+		height: 24px;
+		border-radius: 7px;
+		display: inline-grid;
+		place-items: center;
+		flex: none;
+		background: var(--app-tile);
+		color: var(--app-on);
+	}
+	.appgrid i {
+		font-style: normal;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	.appgrid em {
+		margin-inline-start: auto;
+		font-style: normal;
+		font-size: 10px;
+		color: var(--success);
+		font-weight: 600;
+	}
+	.appgrid em.off {
+		color: var(--text-muted);
+	}
+	.people {
+		display: flex;
+		margin: 10px 0 14px;
+	}
+	.av {
+		width: 30px;
+		height: 30px;
+		border-radius: 50%;
+		border: 2px solid var(--surface);
+		display: inline-grid;
+		place-items: center;
+		font-size: 11px;
+		font-weight: 600;
+		background: var(--app-tile);
+		color: var(--app-on);
+		margin-inline-end: -8px;
+	}
+	.av.more {
+		background: var(--surface-muted);
+		color: var(--text);
+	}
+
+	/* Wide screens: the heading stays pinned while the steps play out in the middle of the screen. */
+	@media (min-width: 901px) {
+		.how {
+			padding: 0;
+		}
+		.pin {
+			height: 300vh;
+			position: relative;
+		}
+		.pin-in {
+			position: sticky;
+			top: 64px;
+			height: calc(100vh - 64px);
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			padding-block: 28px;
+		}
+		.grid {
+			margin-top: clamp(24px, 5vh, 56px);
+			align-items: center;
+			grid-template-columns: minmax(260px, 0.85fr) 1.3fr;
+		}
+		.win {
+			max-height: calc(100vh - 330px);
+			width: 100%;
+		}
+		.steps {
+			gap: 14px;
+			align-content: center;
+		}
+		.step {
+			padding-block: 6px;
+			opacity: 0.45;
+		}
+		.step.on {
+			opacity: 1;
+		}
+		.step h3 {
+			margin-bottom: 0;
+		}
+		.step p {
+			max-height: 0;
+			overflow: hidden;
+			transition:
+				max-height 0.45s ease,
+				margin 0.45s ease;
+			margin: 0;
+		}
+		.step.on p {
+			max-height: 120px;
+			margin-top: 4px;
+		}
+	}
+	@media (max-width: 900px) {
+		.grid {
+			grid-template-columns: 1fr;
+			gap: 30px;
+		}
+		.win {
+			aspect-ratio: auto;
+			min-height: 380px;
+			grid-template-columns: 1fr;
+		}
+		.side {
+			display: none;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.view {
+			transition: none;
+		}
+	}
+</style>
