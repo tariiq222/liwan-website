@@ -48,8 +48,8 @@ const current = localePath(locale, path);
 				<Icon name="moon" size={18} class="to-dark" />
 				<Icon name="sun" size={18} class="to-light" />
 			</button>
-			<a class="button ghost login" href={loginUrl(locale)} data-app-link>{t(locale, 'cta.login')}</a>
-			<a class="button cta" href={registerUrl(locale)} data-app-link>{t(locale, 'cta.start')}</a>
+			<a class="button small ghost login" href={loginUrl(locale)} data-app-link>{t(locale, 'cta.login')}</a>
+			<a class="button small cta" href={registerUrl(locale)} data-app-link>{t(locale, 'cta.start')}</a>
 			<button
 				class="menu-button"
 				type="button"
@@ -133,7 +133,7 @@ const current = localePath(locale, path);
 		position: sticky;
 		top: 0;
 		z-index: 50;
-		background: color-mix(in srgb, var(--bg) 78%, transparent);
+		background: color-mix(in srgb, var(--bg) 92%, transparent);
 		backdrop-filter: saturate(1.4) blur(14px);
 		-webkit-backdrop-filter: saturate(1.4) blur(14px);
 		border-bottom: 1px solid transparent;
@@ -147,7 +147,7 @@ const current = localePath(locale, path);
 		display: flex;
 		align-items: center;
 		gap: var(--space-6);
-		min-height: 68px;
+		min-height: 64px;
 	}
 	.brand {
 		display: inline-flex;
@@ -164,15 +164,15 @@ const current = localePath(locale, path);
 	}
 	.links a {
 		padding: 0.4rem 0.8rem;
-		border-radius: var(--radius-full);
+		border-radius: var(--radius-sm);
 		color: var(--text);
 		text-decoration: none;
 		transition: background var(--duration) var(--ease);
 	}
 	.links a:hover,
 	.links a[aria-current='page'] {
-		background: var(--accent-soft);
-		color: var(--accent);
+		background: var(--surface-muted);
+		color: var(--text);
 	}
 	.actions {
 		display: flex;
@@ -190,7 +190,7 @@ const current = localePath(locale, path);
 		text-decoration: none;
 	}
 	.lang:hover {
-		color: var(--accent);
+		color: var(--text);
 	}
 	.icon-button {
 		display: grid;
@@ -198,7 +198,7 @@ const current = localePath(locale, path);
 		width: 40px;
 		height: 40px;
 		border: 1px solid var(--border);
-		border-radius: var(--radius-full);
+		border-radius: var(--radius);
 		background: transparent;
 		color: var(--text-muted);
 		cursor: pointer;
@@ -207,8 +207,8 @@ const current = localePath(locale, path);
 			border-color var(--duration) var(--ease);
 	}
 	.icon-button:hover {
-		color: var(--accent);
-		border-color: var(--accent);
+		color: var(--text);
+		border-color: var(--border-strong);
 	}
 	/* Show the moon on a light page and the sun on a dark one. */
 	.theme-button :global(.to-light) {
@@ -234,7 +234,7 @@ const current = localePath(locale, path);
 		width: 44px;
 		height: 44px;
 		border: 1px solid var(--border);
-		border-radius: var(--radius-full);
+		border-radius: var(--radius);
 		background: var(--surface);
 		color: var(--text);
 		cursor: pointer;

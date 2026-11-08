@@ -3,51 +3,70 @@
 :root {
 	color-scheme: light dark;
 
-	/* Brand colors (product identity). */
-	--lavender: #7843c6;
-	--lavender-dark: #c2aae5;
-	--sand: #eadfc8;
+	/* Brand ink (docs/brand.md). Lavender is no longer a brand colour. */
 	--ink: #14102a;
-	--brown: #6b4e2e;
-
-	/* Lavender and sand steps, derived from the two brand colors for tints and hover states. */
-	--lavender-50: #f5f0fb;
-	--lavender-100: #ebe1f7;
-	--lavender-200: #d6c3ee;
-	--lavender-600: #6634ae;
-	--lavender-800: #3f1f70;
-	--sand-50: #faf6ee;
-	--sand-100: #f4ecdc;
-	--sand-300: #dccaa5;
+	--ink-hover: #2b2545;
+	--ink-pressed: #3a3550;
+	/* Sand is kept for Sadu details only. */
+	--sand: #eadfc8;
 
 	/* Roles. light-dark() follows prefers-color-scheme unless [data-theme] forces a side. */
-	--bg: light-dark(#fcfbf8, #100c20);
-	--surface: light-dark(#ffffff, #1a1631);
-	--surface-sunken: light-dark(var(--sand-50), #0b0917);
-	--surface-sand: light-dark(var(--sand), #1f1a2c);
-	--text: light-dark(#14102a, #f4f1ea);
-	--text-muted: light-dark(#5c566f, #aaa3c0);
-	--border: light-dark(#e4ddcf, #2a2546);
-	--border-strong: light-dark(#cfc4ad, #3e3766);
-	--accent: light-dark(#7843c6, #c2aae5);
-	--accent-hover: light-dark(#6634ae, #d6c3ee);
-	--accent-soft: light-dark(var(--lavender-50), #241d42);
-	--on-accent: light-dark(#ffffff, #14102a);
-	--earth: light-dark(#6b4e2e, #dccaa5);
-	--focus: light-dark(#7843c6, #c2aae5);
+	--bg: light-dark(#ffffff, #27272e);
+	--surface: light-dark(#ffffff, #2f2f37);
+	--surface-muted: light-dark(#f4f4f5, #2f2f37);
+	--surface-sunken: light-dark(#f4f4f5, #222228);
+	--text: light-dark(#14102a, #f3f3f6);
+	--text-mid: light-dark(#3a3550, #d6d6de);
+	--text-muted: light-dark(#6b6b76, #a9a9b5);
+	--border: light-dark(#e8e8eb, #3a3a44);
+	--border-strong: light-dark(#d4d4da, #4a4a56);
+	--accent: light-dark(#14102a, #f3f3f6);
+	--accent-hover: light-dark(#2b2545, #ffffff);
+	--accent-pressed: light-dark(#3a3550, #e4e4ea);
+	--accent-soft: light-dark(#f4f4f5, #2f2f37);
+	--on-accent: light-dark(#ffffff, #0a0a0c);
+	--focus: light-dark(#14102a, #f3f3f6);
 
-	/* Status colors follow common convention, not the brand: green = free or available,
-	   amber = coming soon. The brand lavender is kept for brand labels such as «ليوان AI». */
-	--success: light-dark(#15803d, #4ade80);
+	/* Status colours (docs/brand.md). */
+	--success: light-dark(#16a34a, #4ade80);
 	--success-bg: light-dark(#dcf5e4, rgb(34 197 94 / 0.16));
 	--success-text: light-dark(#14632f, #86efac);
+	--info: light-dark(#1d4ed8, #93b4ff);
 	--warning: light-dark(#d97706, #fbbf24);
 	--warning-bg: light-dark(#fdefd2, rgb(245 158 11 / 0.16));
 	--warning-text: light-dark(#8a4b00, #fcd34d);
+	--error: light-dark(#dc2626, #f87171);
+
+	/* Application colours (docs/brand.md). Free applications use the ink; each paid application
+	   has a tile colour and a deeper button shade. Never invent a colour for an application. */
+	--app-free: var(--accent);
+	--app-free-on: var(--on-accent);
+	--app-crm: light-dark(#5b8def, #78a3f5);
+	--app-crm-action: #2f62c9;
+	--app-inbox: light-dark(#2ad67a, #3ee08a);
+	--app-inbox-action: #15803d;
+	--app-projects: light-dark(#4f5bd5, #7480ee);
+	--app-projects-action: #3d47b8;
+	--app-hr: light-dark(#e0644f, #ef7d6a);
+	--app-hr-action: #c2412d;
+	--app-finance: light-dark(#1f8a5b, #34b07a);
+	--app-finance-action: #166c47;
+	--app-appointments: light-dark(#8bb513, #9fca2a);
+	--app-appointments-action: #557309;
+
+	/* Website-only surfaces from the approved home mock (docs/brand.md). */
+	--hero-sky: light-dark(
+		linear-gradient(180deg, #d4e9fb 0%, #e2f0fc 35%, #eff7fe 68%, #f8fbff 88%, #fff 100%),
+		linear-gradient(180deg, #2d3446 0%, #2a2f3d 45%, #27272e 100%)
+	);
+	--glow: light-dark(rgb(20 16 42 / 0.16), rgb(0 0 0 / 0.4));
 
 	/* Type. */
 	--font-ar: 'IBM Plex Sans Arabic', system-ui, sans-serif;
 	--font-en: 'IBM Plex Sans', system-ui, sans-serif;
+	/* Rubik 600-800 is for large display text only: page titles, the hero headline, section
+	   titles and big numbers. Never buttons, navigation, tables or small text. */
+	--font-display: 'Rubik', 'IBM Plex Sans Arabic', 'IBM Plex Sans', system-ui, sans-serif;
 	/* Type scale. IBM Plex Sans Arabic reads large, so the scale is modest; the upper sizes grow
 	   with the viewport between a phone (first value) and a wide screen (last value). */
 	--text-xs: 0.8125rem;
@@ -69,34 +88,16 @@
 	--space-12: 3rem;
 	--space-16: 4rem;
 	--space-24: 6rem;
+	/* One radius system (docs/brand.md): inner 8, control 12, card 18, surface 24.
+	   --radius-full is for round things only (dots, avatars, switches). */
 	--radius-sm: 8px;
-	--radius: 14px;
-	--radius-lg: 22px;
+	--radius: 12px;
+	--radius-card: 18px;
+	--radius-lg: 24px;
 	--radius-full: 999px;
 	--shadow-sm: 0 1px 2px light-dark(rgb(20 16 42 / 0.06), rgb(0 0 0 / 0.3));
 	--shadow: 0 1px 2px light-dark(rgb(20 16 42 / 0.05), rgb(0 0 0 / 0.3)), 0 8px 24px light-dark(rgb(20 16 42 / 0.07), rgb(0 0 0 / 0.35));
-	--shadow-lg: 0 2px 4px light-dark(rgb(20 16 42 / 0.05), rgb(0 0 0 / 0.3)), 0 24px 56px light-dark(rgb(60 30 110 / 0.14), rgb(0 0 0 / 0.5));
-
-	/* Gradients. All built from the brand colors; no new hues. */
-	--gradient-brand: linear-gradient(135deg, #8f5ad8 0%, #7843c6 45%, #5b2fa3 100%);
-	--gradient-brand-dark: linear-gradient(135deg, #d6c3ee 0%, #c2aae5 50%, #a586d6 100%);
-	--gradient-accent: light-dark(var(--gradient-brand), var(--gradient-brand-dark));
-	--gradient-text: light-dark(
-		linear-gradient(120deg, #5b2fa3 0%, #7843c6 40%, #a274e0 70%, #6b4e2e 120%),
-		linear-gradient(120deg, #e9ddf8 0%, #c2aae5 45%, #eadfc8 100%)
-	);
-	--gradient-sand: light-dark(
-		linear-gradient(160deg, #faf6ee 0%, #f1e6d0 100%),
-		linear-gradient(160deg, #1f1a2c 0%, #151126 100%)
-	);
-	--gradient-border: light-dark(
-		linear-gradient(135deg, #c2aae5, #eadfc8 50%, #7843c6),
-		linear-gradient(135deg, #7843c6, #463f72 50%, #c2aae5)
-	);
-	--aurora-1: light-dark(rgb(120 67 198 / 0.22), rgb(120 67 198 / 0.26));
-	--aurora-2: light-dark(rgb(234 223 200 / 0.9), rgb(194 170 229 / 0.09));
-	--aurora-3: light-dark(rgb(194 170 229 / 0.35), rgb(107 78 46 / 0.16));
-	--glow: light-dark(rgb(120 67 198 / 0.28), rgb(194 170 229 / 0.18));
+	--shadow-lg: 0 2px 4px light-dark(rgb(20 16 42 / 0.05), rgb(0 0 0 / 0.3)), 0 24px 56px light-dark(rgb(20 16 42 / 0.14), rgb(0 0 0 / 0.5));
 
 	/* Motion. */
 	--ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -105,7 +106,7 @@
 	--duration-slow: 700ms;
 
 	--gutter: clamp(16px, 4vw, 32px);
-	--max-width: 1160px;
+	--max-width: 1200px;
 }
 
 :root[data-theme='light'] {
