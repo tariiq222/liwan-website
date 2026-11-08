@@ -64,7 +64,7 @@ function init(form: HTMLFormElement): void {
 			widgetId = window.turnstile?.render(widget, {
 				sitekey: siteKey,
 				language: 'ar',
-				theme: 'auto',
+				theme: 'light',
 				callback: (value: string) => {
 					token = value;
 					setError('turnstile', '');

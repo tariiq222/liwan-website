@@ -1,5 +1,5 @@
 ---
-// Site footer (spec 2I): slim Sadu band, brand column, three link columns, bottom line.
+// Site footer (spec 2I): brand column, three link columns, bottom line.
 // No email address anywhere: the domain cannot receive mail.
 import Mark from './Mark.astro';
 import { localePath, otherLocale, t, type DictKey, type Locale } from '../i18n';
@@ -36,7 +36,6 @@ const columns: { title: DictKey; links: FooterLink[] }[] = [
 ];
 ---
 
-<div class="footer-band" aria-hidden="true"><span class="sadu-band"></span></div>
 <footer class="site-footer">
 	<div class="container grid">
 		<div class="brand-col">
@@ -73,14 +72,6 @@ const columns: { title: DictKey; links: FooterLink[] }[] = [
 </footer>
 
 <style>
-	.footer-band {
-		background: var(--bg);
-		color: var(--sand);
-		padding-top: var(--space-2);
-	}
-	.footer-band .sadu-band {
-		height: 22px;
-	}
 	.site-footer {
 		background: var(--bg);
 		border-top: 1px solid var(--border);

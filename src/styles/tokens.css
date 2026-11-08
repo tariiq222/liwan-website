@@ -2,64 +2,61 @@
    change docs/brand.md first, then this file. Every page reads these tokens, so a change here
    changes the whole site. */
 :root {
-	color-scheme: light dark;
+	/* The site is light only (owner, 2026-11-08). */
+	color-scheme: light;
 
 	/* Brand ink (docs/brand.md). Lavender is no longer a brand colour. */
 	--ink: #14102a;
 	--ink-hover: #2b2545;
 	--ink-pressed: #3a3550;
-	/* Sand is kept for Sadu details only. */
-	--sand: #eadfc8;
 
-	/* Roles. light-dark() follows prefers-color-scheme unless [data-theme] forces a side. */
-	--bg: light-dark(#ffffff, #27272e);
-	--surface: light-dark(#ffffff, #2f2f37);
-	--surface-muted: light-dark(#f4f4f5, #2f2f37);
-	--surface-sunken: light-dark(#f4f4f5, #222228);
-	--text: light-dark(#14102a, #f3f3f6);
-	--text-mid: light-dark(#3a3550, #d6d6de);
-	--text-muted: light-dark(#6b6b76, #a9a9b5);
-	--border: light-dark(#e8e8eb, #3a3a44);
-	--border-strong: light-dark(#d4d4da, #4a4a56);
-	--accent: light-dark(#14102a, #f3f3f6);
-	--accent-hover: light-dark(#2b2545, #ffffff);
-	--accent-pressed: light-dark(#3a3550, #e4e4ea);
-	--accent-soft: light-dark(#f4f4f5, #2f2f37);
-	--on-accent: light-dark(#ffffff, #0a0a0c);
-	--focus: light-dark(#14102a, #f3f3f6);
+	/* Roles. */
+	--bg: #ffffff;
+	--surface: #ffffff;
+	--surface-muted: #f4f4f5;
+	--surface-sunken: #f4f4f5;
+	--text: #14102a;
+	--text-mid: #3a3550;
+	--text-muted: #6b6b76;
+	--border: #e8e8eb;
+	--border-strong: #d4d4da;
+	--accent: #14102a;
+	--accent-hover: #2b2545;
+	--accent-pressed: #3a3550;
+	--accent-soft: #f4f4f5;
+	--on-accent: #ffffff;
+	--focus: #14102a;
 
 	/* Status colours (docs/brand.md). */
-	--success: light-dark(#16a34a, #4ade80);
-	--success-bg: light-dark(#dcf5e4, rgb(34 197 94 / 0.16));
-	--success-text: light-dark(#14632f, #86efac);
-	--info: light-dark(#1d4ed8, #93b4ff);
-	--warning: light-dark(#d97706, #fbbf24);
-	--warning-bg: light-dark(#fdefd2, rgb(245 158 11 / 0.16));
-	--warning-text: light-dark(#8a4b00, #fcd34d);
-	--error: light-dark(#dc2626, #f87171);
+	--success: #16a34a;
+	--success-bg: #dcf5e4;
+	--success-text: #14632f;
+	--info: #1d4ed8;
+	--warning: #d97706;
+	--warning-bg: #fdefd2;
+	--warning-text: #8a4b00;
+	--error: #dc2626;
 
 	/* Application colours (docs/brand.md). Free applications use the ink; each paid application
 	   has a tile colour and a deeper button shade. Never invent a colour for an application. */
 	--app-free: var(--accent);
 	--app-free-on: var(--on-accent);
-	--app-crm: light-dark(#5b8def, #78a3f5);
+	--app-crm: #5b8def;
 	--app-crm-action: #2f62c9;
-	--app-inbox: light-dark(#2ad67a, #3ee08a);
+	--app-inbox: #2ad67a;
 	--app-inbox-action: #15803d;
-	--app-projects: light-dark(#4f5bd5, #7480ee);
+	--app-projects: #4f5bd5;
 	--app-projects-action: #3d47b8;
-	--app-hr: light-dark(#e0644f, #ef7d6a);
+	--app-hr: #e0644f;
 	--app-hr-action: #c2412d;
-	--app-finance: light-dark(#1f8a5b, #34b07a);
+	--app-finance: #1f8a5b;
 	--app-finance-action: #166c47;
-	--app-appointments: light-dark(#8bb513, #9fca2a);
+	--app-appointments: #8bb513;
 	--app-appointments-action: #557309;
 
 	/* Website-only surfaces from the approved home mock (docs/brand.md). */
-	/* light-dark() takes colours only, so the dark sky is set in the theme blocks below. */
 	--hero-sky: linear-gradient(180deg, #d4e9fb 0%, #e2f0fc 35%, #eff7fe 68%, #f8fbff 88%, #fff 100%);
-	--hero-sky-dark: linear-gradient(180deg, #17346b 0%, #1d3460 30%, #232c4a 62%, #27272e 100%);
-	--glow: light-dark(rgb(20 16 42 / 0.16), rgb(0 0 0 / 0.4));
+	--glow: rgb(20 16 42 / 0.16);
 
 	/* Type. */
 	--font-ar: 'IBM Plex Sans Arabic', system-ui, sans-serif;
@@ -95,9 +92,9 @@
 	--radius-card: 18px;
 	--radius-lg: 24px;
 	--radius-full: 999px;
-	--shadow-sm: 0 1px 2px light-dark(rgb(20 16 42 / 0.06), rgb(0 0 0 / 0.3));
-	--shadow: 0 1px 2px light-dark(rgb(20 16 42 / 0.05), rgb(0 0 0 / 0.3)), 0 8px 24px light-dark(rgb(20 16 42 / 0.07), rgb(0 0 0 / 0.35));
-	--shadow-lg: 0 2px 4px light-dark(rgb(20 16 42 / 0.05), rgb(0 0 0 / 0.3)), 0 24px 56px light-dark(rgb(20 16 42 / 0.14), rgb(0 0 0 / 0.5));
+	--shadow-sm: 0 1px 2px rgb(20 16 42 / 0.06);
+	--shadow: 0 1px 2px rgb(20 16 42 / 0.05), 0 8px 24px rgb(20 16 42 / 0.07);
+	--shadow-lg: 0 2px 4px rgb(20 16 42 / 0.05), 0 24px 56px rgb(20 16 42 / 0.14);
 
 	/* Motion. */
 	--ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -107,21 +104,6 @@
 
 	--gutter: clamp(16px, 4vw, 32px);
 	--max-width: 1200px;
-}
-
-:root[data-theme='light'] {
-	color-scheme: light;
-}
-
-:root[data-theme='dark'] {
-	color-scheme: dark;
-	--hero-sky: var(--hero-sky-dark);
-}
-
-@media (prefers-color-scheme: dark) {
-	:root:not([data-theme='light']) {
-		--hero-sky: var(--hero-sky-dark);
-	}
 }
 
 @media (prefers-reduced-motion: reduce) {

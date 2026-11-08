@@ -1,5 +1,5 @@
 ---
-// Internal identity reference: colors, type, buttons, labels, cards, Sadu and the mark, in light and dark.
+// Internal identity reference: colors, type, buttons, labels, cards and the mark. The site is light only.
 // Not linked from the site, kept out of the sitemap and marked noindex.
 import Base from '../layouts/Base.astro';
 import { getCollection } from 'astro:content';
@@ -15,7 +15,6 @@ const brandColors = [
 	{ name: 'حبر ليوان', token: '--ink', hex: '#14102A', role: 'اللون الأساسي: الأزرار الرئيسية والعناوين والأرقام وتطبيقات المجان' },
 	{ name: 'حبر عند المرور', token: '--ink-hover', hex: '#2B2545', role: 'الزر الرئيسي عند مرور المؤشر' },
 	{ name: 'حبر عند الضغط', token: '--ink-pressed', hex: '#3A3550', role: 'الزر الرئيسي عند الضغط، والنص المتوسط' },
-	{ name: 'رملي', token: '--sand', hex: '#EADFC8', role: 'تفاصيل السدو فقط' },
 ];
 
 const roleColors = [
@@ -42,14 +41,6 @@ const typeScale = [
 	{ label: 'صغير', size: '--text-sm', weight: 400, ar: 'بلا بطاقة ائتمان، والإلغاء في أي وقت.', en: 'No card needed. Cancel any time.' },
 ];
 
-const motifs = [
-	{ file: 'sadu-triangle', name: 'المثلث', w: 34, h: 42 },
-	{ file: 'sadu-dot', name: 'النقطة', w: 28, h: 26 },
-	{ file: 'sadu-diamond', name: 'المعيّن', w: 66, h: 94 },
-	{ file: 'sadu-tree', name: 'الشجرة', w: 80, h: 82 },
-	{ file: 'sadu-panel', name: 'اللوح', w: 116, h: 120 },
-];
-
 // Sample cards read their names from src/content/apps, never retyped.
 const sampleApps = apps.slice(0, 3).map(({ data }) => ({
 	name: data.name.ar,
@@ -66,12 +57,7 @@ const sampleApps = apps.slice(0, 3).map(({ data }) => ({
 			<div>
 				<span class="eyebrow">مرجع داخلي</span>
 				<h1>هوية ليوان</h1>
-				<p class="lead">الألوان والخطوط والأزرار والوسوم والسدو كما تظهر في الموقع. المرجع المكتوب هو docs/brand.md، وهذه الصفحة تعرضه.</p>
-			</div>
-			<div class="theme-switch" role="group" aria-label="المظهر">
-				<button type="button" data-set-theme="light">فاتح</button>
-				<button type="button" data-set-theme="dark">داكن</button>
-				<button type="button" data-set-theme="auto" aria-pressed="true">تلقائي</button>
+				<p class="lead">الألوان والخطوط والأزرار والوسوم كما تظهر في الموقع. المرجع المكتوب هو docs/brand.md، وهذه الصفحة تعرضه.</p>
 			</div>
 		</section>
 
@@ -79,8 +65,6 @@ const sampleApps = apps.slice(0, 3).map(({ data }) => ({
 		<section class="container">
 			<div class="sample-hero" data-replay>
 				<div class="aurora" aria-hidden="true"></div>
-				<span class="sadu hero-motif start float" style="--sadu: url('/brand/sadu/sadu-panel.svg')" aria-hidden="true"></span>
-				<span class="sadu hero-motif end float" style="--sadu: url('/brand/sadu/sadu-panel.svg'); animation-delay: -3s" aria-hidden="true"></span>
 				<div class="hero-copy">
 					<Mark size={64} animated />
 					<span class="badge free" data-reveal style="--i: 1">مجاني لأول 3 مستخدمين</span>
@@ -91,7 +75,6 @@ const sampleApps = apps.slice(0, 3).map(({ data }) => ({
 						<a class="button secondary large" href="#">شاهد التطبيقات</a>
 					</div>
 				</div>
-				<span class="sadu-band hero-band drift" aria-hidden="true"></span>
 			</div>
 			<button type="button" class="button ghost small replay" data-replay-button>إعادة الحركة</button>
 		</section>
@@ -128,7 +111,7 @@ const sampleApps = apps.slice(0, 3).map(({ data }) => ({
 		<section class="container block">
 			<header class="block-head">
 				<h2>الألوان</h2>
-				<p>الحبر هو لون الهوية، ومعه رماديات محايدة. الرملي للسدو فقط، والبنفسجي لم يعد من الهوية.</p>
+				<p>الحبر هو لون الهوية، ومعه رماديات محايدة. البنفسجي والرملي لم يعودا من الهوية.</p>
 			</header>
 			<div class="swatches">
 				{brandColors.map((c) => (
@@ -150,7 +133,7 @@ const sampleApps = apps.slice(0, 3).map(({ data }) => ({
 					</div>
 				))}
 			</div>
-			<h3 class="sub">أدوار الألوان (تتغير مع المظهر)</h3>
+			<h3 class="sub">أدوار الألوان</h3>
 			<div class="roles">
 				{roleColors.map((c) => (
 					<div class="role">
@@ -226,25 +209,6 @@ const sampleApps = apps.slice(0, 3).map(({ data }) => ({
 
 		<section class="container block">
 			<header class="block-head">
-				<h2>السدو</h2>
-				<p>نقوش السدو من هوية المنتج. نستخدمها فواصل وزخارف خفيفة، لا خلفيات مزدحمة.</p>
-			</header>
-			<div class="band-demos">
-				<div class="band-demo"><span class="sadu-band" style="color: var(--sand)"></span><small>رملي</small></div>
-				<div class="band-demo"><span class="sadu-band" style="color: var(--text-muted)"></span><small>رمادي</small></div>
-			</div>
-			<div class="motifs">
-				{motifs.map((m) => (
-					<figure>
-						<span class="sadu" style={`--sadu: url('/brand/sadu/${m.file}.svg'); width: ${m.w}px; height: ${m.h}px; color: var(--accent)`}></span>
-						<figcaption>{m.name}</figcaption>
-					</figure>
-				))}
-			</div>
-		</section>
-
-		<section class="container block">
-			<header class="block-head">
 				<h2>خلفية السماء</h2>
 				<p>سماء فاتحة تتلاشى إلى الأبيض، خلف أعلى الصفحة الرئيسية وصفحات التطبيقات والأسعار. العنوان والأزرار فوقها بلون الحبر. الهوية ما فيها تدرجات غير هذه.</p>
 			</header>
@@ -275,11 +239,6 @@ const sampleApps = apps.slice(0, 3).map(({ data }) => ({
 					</div>
 					<strong>ظهور متتابع</strong>
 					<small>كل عنصر يتأخر قليلًا عن الذي قبله</small>
-				</div>
-				<div class="card motion-card">
-					<span class="sadu-band drift" style="color: var(--sand); width: 100%"></span>
-					<strong>سدو يتحرك</strong>
-					<small>شريط بطيء جدًا يعطي إحساس النسيج</small>
 				</div>
 			</div>
 			<button type="button" class="button ghost small replay" data-replay-button>إعادة الحركة</button>
@@ -328,16 +287,6 @@ const sampleApps = apps.slice(0, 3).map(({ data }) => ({
 		}),
 	);
 
-	const root = document.documentElement;
-	const buttons = document.querySelectorAll<HTMLButtonElement>('[data-set-theme]');
-	buttons.forEach((b) =>
-		b.addEventListener('click', () => {
-			const theme = b.dataset.setTheme;
-			if (theme === 'auto') root.removeAttribute('data-theme');
-			else root.setAttribute('data-theme', theme ?? '');
-			buttons.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-		}),
-	);
 </script>
 
 <style>
@@ -361,27 +310,6 @@ const sampleApps = apps.slice(0, 3).map(({ data }) => ({
 		color: var(--text-muted);
 		font-size: var(--text-lg);
 		max-width: 60ch;
-	}
-	.theme-switch {
-		display: inline-flex;
-		padding: 4px;
-		border: 1px solid var(--border);
-		border-radius: var(--radius-full);
-		background: var(--surface);
-	}
-	.theme-switch button {
-		font: inherit;
-		font-size: var(--text-sm);
-		border: 0;
-		background: transparent;
-		color: var(--text-muted);
-		padding: 0.3rem 0.9rem;
-		border-radius: var(--radius-full);
-		cursor: pointer;
-	}
-	.theme-switch button[aria-pressed='true'] {
-		background: var(--accent);
-		color: var(--on-accent);
 	}
 
 	/* Sample hero. */
@@ -413,28 +341,6 @@ const sampleApps = apps.slice(0, 3).map(({ data }) => ({
 		flex-wrap: wrap;
 		justify-content: center;
 		gap: var(--space-3);
-	}
-	.hero-motif {
-		position: absolute;
-		width: 180px;
-		height: 186px;
-		top: var(--space-8);
-		color: var(--accent);
-		opacity: 0.09;
-	}
-	.hero-motif.start {
-		inset-inline-start: -40px;
-	}
-	.hero-motif.end {
-		inset-inline-end: -40px;
-		transform: scaleX(-1);
-	}
-	.hero-band {
-		position: absolute;
-		inset-inline: 0;
-		bottom: var(--space-6);
-		color: var(--accent);
-		opacity: 0.35;
 	}
 
 	/* Blocks. */
@@ -511,8 +417,7 @@ const sampleApps = apps.slice(0, 3).map(({ data }) => ({
 		align-items: end;
 		gap: var(--space-8);
 	}
-	.sizes figure,
-	.motifs figure {
+	.sizes figure {
 		margin: 0;
 		display: grid;
 		justify-items: center;
@@ -633,10 +538,6 @@ const sampleApps = apps.slice(0, 3).map(({ data }) => ({
 		background: var(--app-tile, var(--app-free));
 		color: var(--app-on, var(--app-free-on));
 	}
-	.app-icon .sadu {
-		width: 18px;
-		height: 26px;
-	}
 	.app-card h3 {
 		font-size: var(--text-lg);
 	}
@@ -644,21 +545,6 @@ const sampleApps = apps.slice(0, 3).map(({ data }) => ({
 		color: var(--text-muted);
 	}
 
-	/* Sadu. */
-	.band-demos {
-		display: grid;
-		gap: var(--space-4);
-	}
-	.band-demo {
-		display: grid;
-		gap: var(--space-1);
-	}
-	.motifs {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: end;
-		gap: var(--space-12);
-	}
 
 	.replay {
 		justify-self: start;
@@ -706,8 +592,7 @@ const sampleApps = apps.slice(0, 3).map(({ data }) => ({
 		text-align: center;
 	}
 	.motion-card :global(svg),
-	.motion-card .stagger,
-	.motion-card .sadu-band {
+	.motion-card .stagger {
 		margin-bottom: auto;
 		margin-top: var(--space-4);
 	}
@@ -745,9 +630,6 @@ const sampleApps = apps.slice(0, 3).map(({ data }) => ({
 		.type-row {
 			grid-template-columns: 1fr;
 			gap: var(--space-2);
-		}
-		.hero-motif {
-			display: none;
 		}
 	}
 	.sub-note {

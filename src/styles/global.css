@@ -187,20 +187,6 @@ p {
 	font-weight: 600;
 }
 
-/* Sadu motifs are single-color SVGs drawn through a CSS mask, so they take any token color. */
-.sadu {
-	display: block;
-	background: currentColor;
-	-webkit-mask: var(--sadu) center / contain no-repeat;
-	mask: var(--sadu) center / contain no-repeat;
-}
-.sadu-band {
-	display: block;
-	height: 28px;
-	background: currentColor;
-	-webkit-mask: url('/brand/sadu/sadu-band-slim.svg') center / auto 100% repeat-x;
-	mask: url('/brand/sadu/sadu-band-slim.svg') center / auto 100% repeat-x;
-}
 
 /* Small pill above a hero or section heading: a dark label, then a plain line. */
 .eyebrow-pill {
@@ -213,7 +199,7 @@ p {
 	font-size: var(--text-sm);
 	color: var(--text-mid);
 	box-shadow:
-		0 0 0 1px light-dark(rgb(20 16 42 / 0.06), rgb(255 255 255 / 0.08)),
+		0 0 0 1px rgb(20 16 42 / 0.06),
 		0 1px 2px rgb(20 16 42 / 0.05);
 }
 .eyebrow-pill b {
@@ -226,23 +212,12 @@ p {
 	line-height: 1.5;
 }
 
-/* Centered home section title with a small Sadu diamond above it, and its lead line. */
+/* Centered home section title and its lead line. */
 h2.sec {
 	font-size: clamp(2.125rem, 1.2rem + 3.2vw, 3.25rem);
 	text-align: center;
 	margin: 0 auto 16px;
 	max-width: 900px;
-}
-h2.sec::before {
-	content: '';
-	display: block;
-	width: 10px;
-	height: 15px;
-	margin: 0 auto 14px;
-	background: var(--text);
-	opacity: 0.35;
-	-webkit-mask: url('/brand/sadu/sadu-diamond.svg') center / contain no-repeat;
-	mask: url('/brand/sadu/sadu-diamond.svg') center / contain no-repeat;
 }
 .sec-lead {
 	font-size: var(--text-lg);
