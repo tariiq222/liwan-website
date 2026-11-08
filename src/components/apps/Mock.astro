@@ -92,6 +92,8 @@ const bars = [72, 48, 86];
 
 <style>
 	.mock {
+		/* Product screens keep their light colours in dark mode too, like a screenshot. */
+		color-scheme: light;
 		border: 1px solid var(--border);
 		border-radius: var(--radius-lg);
 		background: var(--surface);
@@ -181,7 +183,7 @@ const bars = [72, 48, 86];
 	}
 	.chip {
 		padding: 0 0.6rem;
-		border-radius: var(--radius-full);
+		border-radius: var(--radius-sm);
 		background: var(--accent-soft);
 		color: var(--accent);
 		font-size: var(--text-xs);
@@ -229,7 +231,7 @@ const bars = [72, 48, 86];
 	.approve {
 		justify-self: end;
 		padding: 0.15rem 1rem;
-		border-radius: var(--radius-full);
+		border-radius: var(--radius-sm);
 		background: var(--accent);
 		color: var(--on-accent);
 		font-size: var(--text-xs);
@@ -255,7 +257,7 @@ const bars = [72, 48, 86];
 		display: block;
 		height: 100%;
 		border-radius: 4px;
-		background: var(--gradient-accent);
+		background: var(--accent);
 	}
 	.week {
 		display: grid;

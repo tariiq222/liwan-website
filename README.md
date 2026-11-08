@@ -25,7 +25,10 @@ drives navigation and the application pages.
 
 ## Where decisions live
 
-- `docs/decisions/2026-11-07-site-design.md`: approved site decisions (section 1A overrides the rest).
+- `docs/brand.md`: the visual identity (colours, application colours, type, corners). The only
+  source for how the site looks; `src/styles/tokens.css` follows it.
+- `docs/decisions/2026-11-07-site-design.md`: approved site decisions (section 1A overrides the rest;
+  its colour notes are superseded by `docs/brand.md`).
 - `docs/plan.md`: execution plan (its PR1 and PR2 are superseded by the product's package P4c).
 - `src/brand/SOURCE.md`: where the brand assets were copied from.
 

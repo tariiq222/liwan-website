@@ -3,6 +3,13 @@
 Date: 2026-11-07. Status: owner decisions recorded in session; no code written. This document
 records approved requirements only. It does not claim any implementation exists.
 
+> **Visual identity superseded (owner, 2026-11-08).** Colours, type, corners, buttons and
+> gradients are defined only in [`docs/brand.md`](../brand.md). Wherever this document names
+> lavender (`#7843c6`, `#c2aae5`), sand backgrounds or bands, brown, gradients or fully round
+> buttons, read the matching value from `docs/brand.md` instead: brand ink for lavender, the
+> muted grey surface for sand backgrounds, sand for Sadu details only. Layout, copy, structure and
+> every other decision here still apply.
+
 ## 1. Intent
 
 The landing page, product pages and pricing page move out of the product repository into an

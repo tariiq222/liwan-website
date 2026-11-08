@@ -1,5 +1,5 @@
 ---
-// Home section 9: the lavender closing call to action. The Sadu band and the footer that follow
+// Home closing call to action: an ink block. The Sadu band and the footer that follow
 // belong to the layout.
 import Mark from '../Mark.astro';
 import { loginUrl, registerUrl } from '../../lib/links';
@@ -34,7 +34,7 @@ const { title = 'جاهز تجمع شركتك في مكان واحد؟', line = 
 		overflow: hidden;
 		isolation: isolate;
 		padding-block: clamp(4.5rem, 3rem + 6vw, 8rem);
-		background: var(--gradient-brand);
+		background: var(--ink);
 		color: #fff;
 		text-align: center;
 	}
@@ -52,14 +52,14 @@ const { title = 'جاهز تجمع شركتك في مكان واحد؟', line = 
 		inset-inline-start: -10%;
 		width: 55%;
 		aspect-ratio: 1;
-		background: rgb(255 255 255 / 0.16);
+		background: rgb(255 255 255 / 0.1);
 	}
 	.closing::after {
 		inset-block-end: -40%;
 		inset-inline-end: -5%;
 		width: 50%;
 		aspect-ratio: 1;
-		background: rgb(234 223 200 / 0.18);
+		background: rgb(255 255 255 / 0.08);
 	}
 	.inner {
 		display: grid;
@@ -70,7 +70,7 @@ const { title = 'جاهز تجمع شركتك في مكان واحد؟', line = 
 		margin-bottom: var(--space-2);
 	}
 	h2 {
-		font-size: var(--text-3xl);
+		font-size: var(--text-display);
 	}
 	p {
 		max-width: 36rem;
@@ -86,11 +86,11 @@ const { title = 'جاهز تجمع شركتك في مكان واحد؟', line = 
 	}
 	.button.white:not(.secondary):not(.ghost) {
 		background: #fff;
-		color: var(--lavender-800);
+		color: var(--ink);
 		box-shadow: 0 10px 28px -10px rgb(20 16 42 / 0.5);
 	}
 	.button.white:not(.secondary):not(.ghost):hover {
-		background: var(--sand-50);
+		background: #f4f4f5;
 	}
 	.button.outline {
 		border-color: rgb(255 255 255 / 0.7);

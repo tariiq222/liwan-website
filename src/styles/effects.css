@@ -1,80 +1,40 @@
 /* Gradients, light effects and motion shared by every page.
    Motion respects prefers-reduced-motion: entrances show at once and loops stop. */
 
-/* Primary button: brand gradient, soft glow and a light sheen that sweeps on hover. */
+/* Primary button: solid ink (docs/brand.md). A small lift on hover, a press on click. */
 .button:not(.secondary):not(.ghost) {
-	position: relative;
-	overflow: hidden;
-	isolation: isolate;
-	background: var(--gradient-accent);
-	box-shadow: 0 6px 18px -6px var(--glow);
 	transition:
 		transform var(--duration) var(--ease),
+		background var(--duration) var(--ease),
 		box-shadow var(--duration) var(--ease);
-}
-.button:not(.secondary):not(.ghost)::after {
-	content: '';
-	position: absolute;
-	inset: 0;
-	z-index: -1;
-	background: linear-gradient(105deg, transparent 30%, rgb(255 255 255 / 0.35) 50%, transparent 70%);
-	transform: translateX(-120%);
-	transition: transform 0s;
 }
 .button:not(.secondary):not(.ghost):hover {
 	transform: translateY(-1px);
-	box-shadow: 0 10px 26px -8px var(--glow);
-}
-.button:not(.secondary):not(.ghost):hover::after {
-	transform: translateX(120%);
-	transition: transform 800ms var(--ease);
+	box-shadow: 0 10px 24px -12px var(--glow);
 }
 .button:active {
 	transform: translateY(0) scale(0.98);
 }
 
-/* Text gradient for one highlighted phrase in a heading. */
+/* Kept for older markup: a highlighted phrase stays plain ink (docs/brand.md has no gradients). */
 .text-gradient {
-	background: var(--gradient-text);
-	-webkit-background-clip: text;
-	background-clip: text;
-	color: transparent;
-	-webkit-box-decoration-break: clone;
-	box-decoration-break: clone;
+	color: inherit;
 }
 
-/* Gradient hairline border for featured cards. */
+/* Featured cards: a plain hairline border. */
 .gradient-border {
-	border: 1px solid transparent;
-	background:
-		linear-gradient(var(--surface), var(--surface)) padding-box,
-		var(--gradient-border) border-box;
+	border: 1px solid var(--border);
+	background: var(--surface);
 }
 
-/* Soft drifting light behind a hero or a featured section. Put it as the first child of a
-   position: relative container with overflow: hidden. */
+/* Page-hero backdrop: the light sky from the home hero, fading to the page background. Put it as
+   the first child of a position: relative container. */
 .aurora {
 	position: absolute;
-	inset: -20%;
+	inset: 0;
 	z-index: 0;
 	pointer-events: none;
-	filter: blur(60px);
-	background:
-		radial-gradient(38% 42% at 25% 30%, var(--aurora-1), transparent 70%),
-		radial-gradient(34% 38% at 75% 25%, var(--aurora-2), transparent 70%),
-		radial-gradient(40% 40% at 55% 80%, var(--aurora-3), transparent 70%);
-	animation: aurora-drift 22s var(--ease) infinite alternate;
-}
-@keyframes aurora-drift {
-	0% {
-		transform: translate3d(0, 0, 0) scale(1);
-	}
-	50% {
-		transform: translate3d(4%, -3%, 0) scale(1.08);
-	}
-	100% {
-		transform: translate3d(-3%, 4%, 0) scale(1.02);
-	}
+	background: var(--hero-sky);
 }
 
 /* Pointer spotlight: a soft glow follows the cursor inside the card (see src/scripts/motion.ts). */
@@ -186,7 +146,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.aurora,
 	.sadu-band.drift,
 	.float {
 		animation: none;
@@ -205,8 +164,5 @@
 	}
 	.mark-anim.is-in * {
 		animation: none !important;
-	}
-	.button:not(.secondary):not(.ghost):hover::after {
-		transition: none;
 	}
 }

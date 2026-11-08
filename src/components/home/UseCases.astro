@@ -1,0 +1,143 @@
+---
+// Home "how companies use it" (approved mock .mocks/home-v4.html): three dark cards, one per team,
+// each describing what it does with the platform. These are use cases, not customer quotes.
+import { getCollection } from 'astro:content';
+import Icon from '../Icon.astro';
+import { claim } from '../../config/claims';
+import { HOME_TINT } from './home-apps';
+
+// Each card glows in the tints of the applications it describes (home-apps.ts).
+const glow = (main: string, soft: string) => [
+	`color-mix(in srgb, ${main} 65%, transparent)`,
+	`color-mix(in srgb, ${soft} 30%, transparent)`,
+];
+
+const apps = new Map((await getCollection('apps')).map((e) => [e.data.slug, e.data]));
+const ai = apps.get('ai');
+const inbox = apps.get('inbox');
+const operations = apps.get('operations');
+const channels = claim('whatsapp') === 'available' && claim('tiktok') === 'available';
+
+const CASES = [
+	ai && {
+		icon: ai.icon,
+		glow: glow(HOME_TINT.crm, HOME_TINT.ai),
+		text: `تسأل ${ai.name.ar} عن وضع الصفقات أو مهام الفريق، ويجاوبك بالعربي من بيانات شركتك بدل ما تفتح كل تطبيق.`,
+		who: 'صاحب الشركة',
+		line: 'يعرف وضع شغله في دقيقة',
+	},
+	inbox &&
+		channels && {
+			icon: inbox.icon,
+			glow: glow(HOME_TINT.inbox, HOME_TINT.meetings),
+			text: 'رسائل واتساب وتيك توك تجي في صندوق واحد، ولكل محادثة مسؤول، فما يبقى عميل ينتظر بدون رد.',
+			who: 'فريق المبيعات',
+			line: 'صندوق مشترك بدل جوالات متفرقة',
+		},
+	operations && {
+		icon: operations.icon,
+		glow: glow(HOME_TINT.operations, HOME_TINT.chat),
+		text: 'طلبات الإجازة والشراء تمشي في مسار واضح، وتعرف وين وقف كل طلب ومين عنده.',
+		who: 'الإدارة والمالية',
+		line: 'موافقات بلا ملاحقة',
+	},
+].filter((c): c is NonNullable<typeof c> & object => Boolean(c));
+---
+
+<section class="words">
+	<div class="container">
+		<h2 class="sec" data-reveal>كيف تستخدمها الشركات</h2>
+		<div class="tgrid">
+			{
+				CASES.map((c, i) => (
+					<article class="tcard" data-reveal style={`--i: ${i}; --g1: ${c.glow[0]}; --g2: ${c.glow[1]}`}>
+						<p class="qt">{c.text}</p>
+						<div class="who">
+							<span class="av">
+								<Icon name={c.icon} size={18} />
+							</span>
+							<div>
+								<b>{c.who}</b>
+								<small>{c.line}</small>
+							</div>
+						</div>
+					</article>
+				))
+			}
+		</div>
+	</div>
+</section>
+
+<style>
+	.words {
+		padding-block: 2.5rem clamp(4rem, 3rem + 4vw, 6rem);
+	}
+	.tgrid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 22px;
+		margin-top: 3.125rem;
+	}
+	/* The same glow layout on every card: the main colour rising from the bottom, a softer one in
+	   the top corner. The cards stay dark in both themes. */
+	.tcard {
+		color: #fff;
+		border-radius: var(--radius-lg);
+		min-height: 420px;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		padding: 26px;
+		background-color: #0b0a10;
+		background-image:
+			radial-gradient(110% 70% at 50% 100%, var(--g1), transparent 72%),
+			radial-gradient(60% 45% at 100% 0%, var(--g2), transparent 70%);
+		box-shadow: 0 24px 50px -24px rgb(20 16 42 / 0.45);
+		transition: transform 0.45s var(--ease);
+	}
+	.tcard:hover {
+		transform: translateY(-6px);
+	}
+	.qt {
+		font-size: var(--text-xl);
+		font-weight: 600;
+		line-height: 1.55;
+		margin: 22px 0;
+	}
+	.who {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+	}
+	.av {
+		width: 40px;
+		height: 40px;
+		display: grid;
+		place-items: center;
+		border-radius: 50%;
+		background: rgb(255 255 255 / 0.2);
+		border: 1px solid rgb(255 255 255 / 0.35);
+		flex: none;
+	}
+	.who b {
+		display: block;
+		font-size: var(--text-sm);
+	}
+	.who small {
+		color: rgb(255 255 255 / 0.75);
+		font-size: var(--text-xs);
+	}
+	@media (max-width: 900px) {
+		.tgrid {
+			grid-template-columns: 1fr;
+		}
+		.tcard {
+			min-height: 300px;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.tcard:hover {
+			transform: none;
+		}
+	}
+</style>

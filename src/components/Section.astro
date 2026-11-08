@@ -1,6 +1,6 @@
 ---
 // A page section with an optional eyebrow, heading and lead line above its content.
-// `tone` sets the background: plain page, warm sand, or sunken. `align` centers the heading.
+// `tone` sets the background: plain page, a muted grey band ('sand' is kept as an alias), or sunken. `align` centers the heading.
 interface Props {
 	id?: string;
 	eyebrow?: string;
@@ -34,7 +34,7 @@ const { id, eyebrow, title, lead, tone = 'plain', align = 'start', class: classN
 		padding-block: clamp(4rem, 3rem + 4vw, 7rem);
 	}
 	.tone-sand {
-		background: var(--gradient-sand);
+		background: var(--surface-muted);
 	}
 	.tone-sunken {
 		background: var(--surface-sunken);
@@ -51,10 +51,10 @@ const { id, eyebrow, title, lead, tone = 'plain', align = 'start', class: classN
 		text-align: center;
 	}
 	.section-head h2 {
-		font-size: var(--text-3xl);
+		font-size: var(--text-display);
 	}
 	.section-lead {
-		color: var(--text-muted);
+		color: var(--text-mid);
 		font-size: var(--text-lg);
 	}
 </style>

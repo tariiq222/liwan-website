@@ -2,30 +2,39 @@
 // Internal identity reference: colors, type, buttons, labels, cards, Sadu and the mark, in light and dark.
 // Not linked from the site, kept out of the sitemap and marked noindex.
 import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
 import Mark from '../components/Mark.astro';
+import Icon from '../components/Icon.astro';
+import { appColorStyle } from '../lib/app-color';
+import { t } from '../i18n';
+
+// Values mirror docs/brand.md, the single source for the identity.
+const platform = t('ar', 'brand.platform');
 
 const brandColors = [
-	{ name: 'بنفسجي ليوان', token: '--lavender', hex: '#7843C6', role: 'اللون الأساسي: الأزرار والروابط والشعار' },
-	{ name: 'بنفسجي فاتح', token: '--lavender-dark', hex: '#C2AAE5', role: 'اللون الأساسي في الوضع الداكن' },
-	{ name: 'رملي', token: '--sand', hex: '#EADFC8', role: 'خلفيات دافئة والسدو' },
-	{ name: 'حبر', token: '--ink', hex: '#14102A', role: 'النص وخلفية الوضع الداكن' },
-	{ name: 'بني', token: '--brown', hex: '#6B4E2E', role: 'لمسة أرضية في السدو والوسوم' },
+	{ name: 'حبر ليوان', token: '--ink', hex: '#14102A', role: 'اللون الأساسي: الأزرار الرئيسية والعناوين والأرقام وتطبيقات المجان' },
+	{ name: 'حبر عند المرور', token: '--ink-hover', hex: '#2B2545', role: 'الزر الرئيسي عند مرور المؤشر' },
+	{ name: 'حبر عند الضغط', token: '--ink-pressed', hex: '#3A3550', role: 'الزر الرئيسي عند الضغط، والنص المتوسط' },
+	{ name: 'رملي', token: '--sand', hex: '#EADFC8', role: 'تفاصيل السدو فقط' },
 ];
 
 const roleColors = [
 	{ name: 'الخلفية', token: '--bg' },
 	{ name: 'السطح', token: '--surface' },
-	{ name: 'سطح رملي', token: '--surface-sunken' },
+	{ name: 'سطح رمادي', token: '--surface-muted' },
 	{ name: 'النص', token: '--text' },
+	{ name: 'نص متوسط', token: '--text-mid' },
 	{ name: 'نص ثانوي', token: '--text-muted' },
 	{ name: 'الحدود', token: '--border' },
-	{ name: 'تمييز ناعم', token: '--accent-soft' },
 	{ name: 'التمييز', token: '--accent' },
 ];
 
+// Application colours: free applications share the ink, paid ones keep their own colour.
+const apps = (await getCollection('apps', ({ data }) => data.status !== 'hidden')).sort((x, y) => x.data.order - y.data.order);
+
 const typeScale = [
-	{ label: 'عرض', size: '--text-display', weight: 700, ar: 'كل أعمال شركتك في مكان واحد', en: 'Your whole company, one place' },
-	{ label: 'عنوان 1', size: '--text-3xl', weight: 700, ar: 'تطبيقات تتكلم مع بعض', en: 'Apps that talk to each other' },
+	{ label: 'عرض', display: true, size: '--text-display', weight: 700, ar: 'كل أعمال شركتك في مكان واحد', en: 'Your whole company, one place' },
+	{ label: 'عنوان 1', display: true, size: '--text-3xl', weight: 700, ar: 'تطبيقات تتكلم مع بعض', en: 'Apps that talk to each other' },
 	{ label: 'عنوان 2', size: '--text-2xl', weight: 700, ar: 'ابدأ مجانًا مع فريقك', en: 'Start free with your team' },
 	{ label: 'عنوان 3', size: '--text-xl', weight: 600, ar: 'رسائل عملائك في صندوق واحد', en: 'Every customer message in one inbox' },
 	{ label: 'كبير', size: '--text-lg', weight: 400, ar: 'كل تطبيق يقرأ من نفس البيانات، فلا تنسخ شيئًا مرتين.', en: 'Every app reads the same data, so nothing is typed twice.' },
@@ -41,11 +50,14 @@ const motifs = [
 	{ file: 'sadu-panel', name: 'اللوح', w: 116, h: 120 },
 ];
 
-const sampleApps = [
-	{ name: 'المهام', line: 'كل مهمة لها مسؤول وموعد.', badge: 'free' },
-	{ name: 'المحادثات', line: 'فريقك يتكلم في مكان واحد.', badge: 'free' },
-	{ name: 'تيليجرام', line: 'رسائل تيليجرام في صندوق العملاء.', badge: 'soon' },
-];
+// Sample cards read their names from src/content/apps, never retyped.
+const sampleApps = apps.slice(0, 3).map(({ data }) => ({
+	name: data.name.ar,
+	line: data.summary.ar,
+	badge: data.status === 'soon' ? 'soon' : data.plan === 'free' ? 'free' : 'available',
+	icon: data.icon,
+	color: appColorStyle(data),
+}));
 ---
 
 <Base locale="ar" title="هوية ليوان" path="/brand-kit/" noindex>
@@ -54,7 +66,7 @@ const sampleApps = [
 			<div>
 				<span class="eyebrow">مرجع داخلي</span>
 				<h1>هوية ليوان</h1>
-				<p class="lead">الألوان والخطوط والأزرار والوسوم والسدو كما ستظهر في الموقع. أي تعديل هنا يطبق على كل الصفحات.</p>
+				<p class="lead">الألوان والخطوط والأزرار والوسوم والسدو كما تظهر في الموقع. المرجع المكتوب هو docs/brand.md، وهذه الصفحة تعرضه.</p>
 			</div>
 			<div class="theme-switch" role="group" aria-label="المظهر">
 				<button type="button" data-set-theme="light">فاتح</button>
@@ -72,7 +84,7 @@ const sampleApps = [
 				<div class="hero-copy">
 					<Mark size={64} animated />
 					<span class="badge free" data-reveal style="--i: 1">مجاني لأول 3 مستخدمين</span>
-					<h2 class="display" data-reveal style="--i: 2">كل أعمال شركتك في مكان واحد <span class="text-gradient">وبذكاء واحد</span></h2>
+					<h2 class="display" data-reveal style="--i: 2">كل أعمال شركتك في مكان واحد وبذكاء واحد</h2>
 					<p class="lead" data-reveal style="--i: 3">العملاء والرسائل والمهام والاجتماعات في نظام عربي واحد، يقرأ من بيانات واحدة.</p>
 					<div class="actions" data-reveal style="--i: 4">
 						<a class="button large" href="#">ابدأ مجانًا</a>
@@ -91,20 +103,16 @@ const sampleApps = [
 			</header>
 			<div class="logo-grid">
 				<div class="logo-tile on-bg">
-					<div class="lockup"><Mark size={44} /><span>ليوان</span></div>
+					<div class="lockup"><Mark size={44} /><span>{platform}</span></div>
 					<small>على الخلفية</small>
 				</div>
-				<div class="logo-tile on-lavender">
-					<div class="lockup"><Mark size={44} inverted /><span>ليوان</span></div>
-					<small>على البنفسجي</small>
-				</div>
 				<div class="logo-tile on-ink">
-					<div class="lockup"><Mark size={44} inverted /><span>ليوان</span></div>
+					<div class="lockup"><Mark size={44} inverted /><span>{platform}</span></div>
 					<small>على الحبر</small>
 				</div>
-				<div class="logo-tile on-sand">
-					<div class="lockup"><Mark size={44} /><span>ليوان</span></div>
-					<small>على الرملي</small>
+				<div class="logo-tile on-sky">
+					<div class="lockup"><Mark size={44} /><span>{platform}</span></div>
+					<small>على خلفية السماء</small>
 				</div>
 			</div>
 			<div class="sizes">
@@ -120,7 +128,7 @@ const sampleApps = [
 		<section class="container block">
 			<header class="block-head">
 				<h2>الألوان</h2>
-				<p>خمسة ألوان من هوية المنتج، ومنها نشتق كل شيء في الموقع.</p>
+				<p>الحبر هو لون الهوية، ومعه رماديات محايدة. الرملي للسدو فقط، والبنفسجي لم يعد من الهوية.</p>
 			</header>
 			<div class="swatches">
 				{brandColors.map((c) => (
@@ -129,6 +137,16 @@ const sampleApps = [
 						<strong>{c.name}</strong>
 						<code dir="ltr">{c.hex}</code>
 						<small>{c.role}</small>
+					</div>
+				))}
+			</div>
+			<h3 class="sub">ألوان التطبيقات</h3>
+			<p class="sub-note">لكل تطبيق لون واحد ثابت لأيقونته وزره. تطبيقات المجان تأخذ لون الحبر.</p>
+			<div class="app-swatches">
+				{apps.map(({ data }) => (
+					<div class="app-swatch" style={appColorStyle(data)}>
+						<span class="app-tile"><Icon name={data.icon} size={22} /></span>
+						<small>{data.name.ar}</small>
 					</div>
 				))}
 			</div>
@@ -149,7 +167,7 @@ const sampleApps = [
 		<section class="container block">
 			<header class="block-head">
 				<h2>الخط</h2>
-				<p>IBM Plex Sans Arabic للعربي، وIBM Plex Sans للإنجليزي. نفس العائلة، فيتناسق الخطان في السطر الواحد.</p>
+				<p>IBM Plex Sans Arabic لكل النصوص، وIBM Plex Sans للإنجليزي. Rubik للعناوين الكبيرة والأرقام الكبيرة فقط، ولا يُستخدم في الأزرار أو القوائم أو الجداول.</p>
 			</header>
 			<div class="type-list">
 				{typeScale.map((t) => (
@@ -159,8 +177,8 @@ const sampleApps = [
 							<code dir="ltr">{t.size}</code>
 						</div>
 						<div class="type-samples">
-							<p style={`font-size: var(${t.size}); font-weight: ${t.weight}; line-height: 1.35`}>{t.ar}</p>
-							<p lang="en" dir="ltr" class="en" style={`font-size: var(${t.size}); font-weight: ${t.weight}; line-height: 1.35`}>{t.en}</p>
+							<p style={`font-size: var(${t.size}); font-weight: ${t.weight}; line-height: 1.35;${t.display ? ' font-family: var(--font-display)' : ''}`}>{t.ar}</p>
+							<p lang="en" dir="ltr" class="en" style={`font-size: var(${t.size}); font-weight: ${t.weight}; line-height: 1.35;${t.display ? ' font-family: var(--font-display)' : ''}`}>{t.en}</p>
 						</div>
 					</div>
 				))}
@@ -170,7 +188,7 @@ const sampleApps = [
 		<section class="container block">
 			<header class="block-head">
 				<h2>الأزرار والوسوم</h2>
-				<p>زر رئيسي واحد في كل قسم. الحالات بألوانها المعروفة: الأخضر لـ«مجاني» و«متاح الآن»، والكهرماني لـ«قريبًا». البنفسجي لوسوم الهوية فقط.</p>
+				<p>زر رئيسي واحد في كل قسم. الحالات بألوانها المعروفة: الأخضر لـ«مجاني» و«متاح الآن»، والكهرماني لـ«قريبًا». الزر الرئيسي حبر مصمت، والثانوي أبيض بإطار حبر.</p>
 			</header>
 			<div class="row">
 				<a class="button large" href="#">ابدأ مجانًا</a>
@@ -196,8 +214,8 @@ const sampleApps = [
 				{sampleApps.map((a) => (
 					<article class="card app-card">
 						<div class="app-top">
-							<span class="app-icon"><span class="sadu" style="--sadu: url('/brand/sadu/sadu-diamond.svg')" aria-hidden="true"></span></span>
-							<span class={`badge ${a.badge}`}>{a.badge === 'free' ? 'مجاني' : 'قريبًا'}</span>
+							<span class="app-icon" style={a.color}><Icon name={a.icon} size={20} /></span>
+							<span class={`badge ${a.badge}`}>{a.badge === 'free' ? 'مجاني' : a.badge === 'soon' ? 'قريبًا' : 'متاح الآن'}</span>
 						</div>
 						<h3>{a.name}</h3>
 						<p>{a.line}</p>
@@ -212,9 +230,8 @@ const sampleApps = [
 				<p>نقوش السدو من هوية المنتج. نستخدمها فواصل وزخارف خفيفة، لا خلفيات مزدحمة.</p>
 			</header>
 			<div class="band-demos">
-				<div class="band-demo"><span class="sadu-band" style="color: var(--accent)"></span><small>بنفسجي</small></div>
-				<div class="band-demo"><span class="sadu-band" style="color: var(--sand-300)"></span><small>رملي</small></div>
-				<div class="band-demo"><span class="sadu-band" style="color: var(--earth)"></span><small>بني</small></div>
+				<div class="band-demo"><span class="sadu-band" style="color: var(--sand)"></span><small>رملي</small></div>
+				<div class="band-demo"><span class="sadu-band" style="color: var(--text-muted)"></span><small>رمادي</small></div>
 			</div>
 			<div class="motifs">
 				{motifs.map((m) => (
@@ -228,28 +245,15 @@ const sampleApps = [
 
 		<section class="container block">
 			<header class="block-head">
-				<h2>التدرجات</h2>
-				<p>كل التدرجات من ألوان الهوية نفسها. نستخدمها في الزر الرئيسي، وكلمة مهمة في العنوان، وحدود البطاقة المميزة، والضوء الخفيف خلف الأقسام.</p>
+				<h2>خلفية السماء</h2>
+				<p>سماء فاتحة تتلاشى إلى الأبيض، خلف أعلى الصفحة الرئيسية وصفحات التطبيقات والأسعار. العنوان والأزرار فوقها بلون الحبر. الهوية ما فيها تدرجات غير هذه.</p>
 			</header>
 			<div class="gradients">
 				<figure>
-					<div class="g-tile" style="background: var(--gradient-accent)"></div>
-					<figcaption><strong>تدرج ليوان</strong><code dir="ltr">--gradient-accent</code></figcaption>
-				</figure>
-				<figure>
-					<div class="g-tile" style="background: var(--gradient-sand)"></div>
-					<figcaption><strong>تدرج رملي</strong><code dir="ltr">--gradient-sand</code></figcaption>
-				</figure>
-				<figure>
-					<div class="g-tile g-aurora"><div class="aurora" aria-hidden="true"></div></div>
-					<figcaption><strong>ضوء متحرك</strong><code dir="ltr">.aurora</code></figcaption>
-				</figure>
-				<figure>
-					<div class="g-tile gradient-border g-border"><span>بطاقة مميزة</span></div>
-					<figcaption><strong>حد متدرج</strong><code dir="ltr">.gradient-border</code></figcaption>
+					<div class="g-tile" style="background: var(--hero-sky)"></div>
+					<figcaption><strong>سماء الصفحة</strong><code dir="ltr">--hero-sky</code></figcaption>
 				</figure>
 			</div>
-			<p class="g-text">كل تطبيقاتك <span class="text-gradient">تقرأ من مصدر واحد</span></p>
 		</section>
 
 		<section class="container block">
@@ -273,7 +277,7 @@ const sampleApps = [
 					<small>كل عنصر يتأخر قليلًا عن الذي قبله</small>
 				</div>
 				<div class="card motion-card">
-					<span class="sadu-band drift" style="color: var(--accent); width: 100%"></span>
+					<span class="sadu-band drift" style="color: var(--sand); width: 100%"></span>
 					<strong>سدو يتحرك</strong>
 					<small>شريط بطيء جدًا يعطي إحساس النسيج</small>
 				</div>
@@ -282,10 +286,10 @@ const sampleApps = [
 			<h3 class="sub">بطاقات تتجاوب مع المؤشر</h3>
 			<div class="cards">
 				{sampleApps.map((a, i) => (
-					<article class="card app-card gradient-border lift" data-spotlight data-reveal style={`--i: ${i}`}>
+					<article class="card app-card lift" data-spotlight data-reveal style={`--i: ${i}`}>
 						<div class="app-top">
-							<span class="app-icon"><span class="sadu" style="--sadu: url('/brand/sadu/sadu-diamond.svg')" aria-hidden="true"></span></span>
-							<span class={`badge ${a.badge}`}>{a.badge === 'free' ? 'مجاني' : 'قريبًا'}</span>
+							<span class="app-icon" style={a.color}><Icon name={a.icon} size={20} /></span>
+							<span class={`badge ${a.badge}`}>{a.badge === 'free' ? 'مجاني' : a.badge === 'soon' ? 'قريبًا' : 'متاح الآن'}</span>
 						</div>
 						<h3>{a.name}</h3>
 						<p>{a.line}</p>
@@ -297,12 +301,13 @@ const sampleApps = [
 		<section class="container block">
 			<header class="block-head">
 				<h2>الشكل والعمق</h2>
-				<p>زوايا ناعمة، وظلال خفيفة. الأزرار والوسوم دائرية بالكامل.</p>
+				<p>نظام زوايا واحد بأربعة مقاسات: 8 للقطع الداخلية، 12 للأزرار والحقول، 18 للبطاقات، 24 للأسطح الكبيرة.</p>
 			</header>
 			<div class="depth">
-				<div class="depth-tile" style="border-radius: var(--radius-sm); box-shadow: var(--shadow-sm)">صغير</div>
-				<div class="depth-tile" style="border-radius: var(--radius); box-shadow: var(--shadow)">متوسط</div>
-				<div class="depth-tile" style="border-radius: var(--radius-lg); box-shadow: var(--shadow-lg)">كبير</div>
+				<div class="depth-tile" style="border-radius: var(--radius-sm); box-shadow: var(--shadow-sm)">8</div>
+				<div class="depth-tile" style="border-radius: var(--radius); box-shadow: var(--shadow-sm)">12</div>
+				<div class="depth-tile" style="border-radius: var(--radius-card); box-shadow: var(--shadow)">18</div>
+				<div class="depth-tile" style="border-radius: var(--radius-lg); box-shadow: var(--shadow-lg)">24</div>
 			</div>
 		</section>
 	</div>
@@ -486,27 +491,19 @@ const sampleApps = [
 	.on-bg {
 		background: var(--surface);
 	}
-	.on-lavender {
-		background: var(--lavender);
-		color: #fff;
-	}
 	.on-ink {
 		background: var(--ink);
 		color: #fff;
 	}
-	.on-sand {
-		background: var(--sand);
+	.on-sky {
+		background: var(--hero-sky);
 		color: var(--ink);
 	}
-	.on-sand :global(svg) {
-		color: var(--lavender) !important;
-	}
-	.on-lavender small,
 	.on-ink small {
 		color: rgb(255 255 255 / 0.7);
 	}
-	.on-sand small {
-		color: var(--brown);
+	.on-sky small {
+		color: var(--text-muted);
 	}
 	.sizes {
 		display: flex;
@@ -632,9 +629,9 @@ const sampleApps = [
 		place-items: center;
 		width: 44px;
 		height: 44px;
-		border-radius: var(--radius-full);
-		background: var(--accent-soft);
-		color: var(--accent);
+		border-radius: var(--radius);
+		background: var(--app-tile, var(--app-free));
+		color: var(--app-on, var(--app-free-on));
 	}
 	.app-icon .sadu {
 		width: 18px;
@@ -692,26 +689,6 @@ const sampleApps = [
 		height: 140px;
 		border-radius: var(--radius-lg);
 		border: 1px solid var(--border);
-	}
-	.g-aurora {
-		position: relative;
-		overflow: hidden;
-		background: var(--bg);
-	}
-	.g-aurora .aurora {
-		filter: blur(30px);
-	}
-	.g-border {
-		display: grid;
-		place-items: center;
-		border-color: transparent;
-		color: var(--text-muted);
-		box-shadow: var(--shadow);
-	}
-	.g-text {
-		font-size: var(--text-3xl);
-		font-weight: 700;
-		line-height: 1.3;
 	}
 
 	/* Motion demos. */
@@ -772,5 +749,36 @@ const sampleApps = [
 		.hero-motif {
 			display: none;
 		}
+	}
+	.sub-note {
+		color: var(--text-muted);
+		margin-bottom: var(--space-4);
+	}
+	.app-swatches {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-4);
+		margin-bottom: var(--space-8);
+	}
+	.app-swatch {
+		display: grid;
+		justify-items: center;
+		gap: var(--space-2);
+		width: 96px;
+		text-align: center;
+	}
+	.app-tile {
+		display: grid;
+		place-items: center;
+		width: 56px;
+		height: 56px;
+		border-radius: var(--radius);
+		background: var(--app-tile);
+		color: var(--app-on);
+	}
+	.app-swatch small {
+		color: var(--text-muted);
+		font-size: var(--text-xs);
+		line-height: 1.4;
 	}
 </style>

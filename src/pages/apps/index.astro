@@ -77,6 +77,8 @@ function priceLine(data: (typeof tiles)[number]): string {
 				tiles.map((data, i) => (
 					<AppCard
 						icon={data.icon}
+						slug={data.slug}
+						plan={data.plan}
 						name={data.name.ar}
 						benefit={data.summary.ar}
 						price={priceLine(data)}

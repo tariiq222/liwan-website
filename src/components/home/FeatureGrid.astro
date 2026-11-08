@@ -1,0 +1,224 @@
+---
+// Home "try it free" block (approved mock .mocks/home-v4.html): a call to action, four short
+// promises and, in the middle, a glass isometric grid of the applications that drops into place
+// when it scrolls in. The grid is drawn at build time from src/content/apps.
+import { getCollection } from 'astro:content';
+import Icon from '../Icon.astro';
+import { ICONS, type IconName } from '../../brand/icons';
+import { claim } from '../../config/claims';
+import { registerUrl } from '../../lib/links';
+import { HOME_AI_END, HOME_TINT } from './home-apps';
+
+const apps = new Map((await getCollection('apps', ({ data }) => data.status === 'available')).map((e) => [e.data.slug, e.data]));
+const ai = apps.get('ai');
+
+const cards = [
+	{ icon: 'layers' as IconName, title: 'تطبيقات تشتغل مع بعض', text: 'كل تطبيق مصمم لطريقة شغل الشركات السعودية، ويشتغل مع بقية التطبيقات على نفس البيانات.', show: true },
+	{ icon: 'check' as IconName, title: 'المجاني لك دائمًا', text: 'تطبيقات الفريق المجانية تبقى معك بعد التجربة، بلا مدة ولا بطاقة، وبياناتك محفوظة.', show: true },
+	{
+		icon: 'sparkles' as IconName,
+		title: ai ? `${ai.name.ar} بصلاحياتك` : '',
+		text: 'يقرأ بصلاحياتك أنت، ولا يغيّر شيئًا إلا بموافقتك.',
+		show: Boolean(ai),
+	},
+	{ icon: 'lock' as IconName, title: 'بياناتك في السعودية', text: 'تُستضاف بيانات شركتك داخل المملكة العربية السعودية.', show: claim('saudiHosting') === 'available' },
+].filter((c) => c.show);
+
+// Isometric glass tiles. Every application has its own tint here (owner, 2026-11-08).
+const S = 100;
+const G = 26;
+const R = 24;
+const H = 8;
+const ISO = 'matrix(.8660254 .5 -.8660254 .5 0 0)';
+const layout: [string, number, number][] = [
+	['crm', 0, 0],
+	['tasks', 1, 0],
+	['inbox', 2, 0],
+	['meetings', 3, 0],
+	['documents', 0, 1],
+	['ai', 1, 1],
+	['chat', 2, 1],
+	['operations', 3, 1],
+];
+const grid = layout.filter(([slug]) => apps.has(slug)).sort((a, b) => a[1] + a[2] - (b[1] + b[2]));
+const W = 4 * S + 3 * G;
+const D = 2 * S + G;
+let defs = '<defs>';
+for (const [slug] of grid) {
+	const c = HOME_TINT[slug];
+	const c2 = slug === 'ai' ? HOME_AI_END : c;
+	defs += `<linearGradient id="gl-${slug}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c}" stop-opacity=".8"/><stop offset="1" stop-color="${c2}" stop-opacity=".55"/></linearGradient>`;
+}
+defs +=
+	'<linearGradient id="shine" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".45" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>';
+defs += '<filter id="soft" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="12"/></filter></defs>';
+let tiles = '';
+grid.forEach(([slug, cx, cy], i) => {
+	const c = HOME_TINT[slug];
+	const icon = ICONS[apps.get(slug)!.icon as IconName];
+	const x = cx * (S + G);
+	const y = cy * (S + G);
+	let t = `<g class="tile${slug === 'ai' ? ' ai' : ''}" style="--i:${i}">`;
+	t += `<rect transform="translate(0 ${H + 16}) ${ISO}" x="${x + 8}" y="${y + 8}" width="${S - 16}" height="${S - 16}" rx="${R}" fill="${c}" opacity=".35" filter="url(#soft)"/>`;
+	for (let d = H; d > 0; d -= 2) t += `<rect transform="translate(0 ${d}) ${ISO}" x="${x}" y="${y}" width="${S}" height="${S}" rx="${R}" fill="${c}" opacity=".22"/>`;
+	t += `<g transform="${ISO}"><rect x="${x}" y="${y}" width="${S}" height="${S}" rx="${R}" fill="url(#gl-${slug})"/>`;
+	t += `<rect x="${x}" y="${y}" width="${S}" height="${S}" rx="${R}" fill="url(#shine)"/>`;
+	t += `<rect x="${x + 0.75}" y="${y + 0.75}" width="${S - 1.5}" height="${S - 1.5}" rx="${R - 0.75}" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="1.5"/>`;
+	t += `<g transform="translate(${x + S / 2 - 25} ${y + S / 2 - 25}) scale(2.1)" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${icon}</g></g></g>`;
+	tiles += t;
+});
+const minX = -0.8660254 * D - 30;
+const maxX = 0.8660254 * W + 30;
+const stackSvg = `<svg viewBox="${minX} -190 ${maxX - minX} ${0.5 * (W + D) + H + 250}" aria-hidden="true">${defs}${tiles}</svg>`;
+---
+
+<section class="unlock">
+	<div class="container">
+		<h2 class="sec" data-reveal>جرّبها 14 يومًا مجانًا<br />بلا بطاقة، وألغِ متى ما تبي</h2>
+		<div class="cta" data-reveal style="--i: 1">
+			<a class="button" href={registerUrl('ar')} data-app-link>ابدأ تجربتك المجانية</a>
+		</div>
+		<div class="fgrid">
+			{
+				cards.slice(0, 1).map((c) => (
+					<article class="fcard" data-reveal>
+						<Icon name={c.icon} size={28} />
+						<h3>{c.title}</h3>
+						<p>{c.text}</p>
+					</article>
+				))
+			}
+			<div class="stack" data-reveal="fade" set:html={stackSvg} />
+			{
+				cards.slice(1).map((c, i) => (
+					<article class="fcard" data-reveal style={`--i: ${i + 1}`}>
+						<Icon name={c.icon} size={28} />
+						<h3>{c.title}</h3>
+						<p>{c.text}</p>
+					</article>
+				))
+			}
+		</div>
+	</div>
+</section>
+
+<style>
+	.unlock {
+		overflow-x: clip;
+		text-align: center;
+		padding-block: 3.75rem clamp(4rem, 3rem + 4vw, 6rem);
+	}
+	.cta {
+		margin-top: 1.625rem;
+	}
+	.fgrid {
+		display: grid;
+		grid-template-columns: 1fr 1.1fr 1fr;
+		grid-template-rows: auto auto;
+		gap: 22px;
+		margin-top: 4.375rem;
+		align-items: stretch;
+	}
+	.fcard {
+		background: var(--surface);
+		border: 1.5px solid var(--border);
+		border-radius: var(--radius-card);
+		padding: 28px 26px;
+		text-align: start;
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-end;
+		min-height: 230px;
+		transition:
+			transform 0.45s var(--ease),
+			box-shadow 0.35s ease;
+	}
+	.fcard:hover {
+		transform: translateY(-4px);
+		box-shadow: 0 18px 40px -18px rgb(20 16 42 / 0.25);
+	}
+	.fcard :global(svg) {
+		margin-bottom: auto;
+	}
+	.fcard h3 {
+		font-size: var(--text-xl);
+		margin: 30px 0 8px;
+	}
+	.fcard p {
+		font-size: var(--text-sm);
+		color: var(--text-mid);
+	}
+	.stack {
+		grid-row: 1 / span 2;
+		grid-column: 2;
+		position: relative;
+		min-height: 520px;
+		display: grid;
+		place-items: center;
+	}
+	.stack :global(svg) {
+		width: min(640px, 135%);
+		max-width: none;
+		height: auto;
+		overflow: visible;
+	}
+	/* Entrance: each tile drops onto the grid in turn; Liwan AI then floats gently. */
+	.js .stack :global(.tile) {
+		opacity: 0;
+	}
+	.js .stack.is-in :global(.tile) {
+		animation: drop 0.75s cubic-bezier(0.34, 1.45, 0.55, 1) both;
+		animation-delay: calc(var(--i) * 110ms + 150ms);
+	}
+	.js .stack.is-in :global(.tile.ai) {
+		animation:
+			drop 0.75s cubic-bezier(0.34, 1.45, 0.55, 1) both,
+			hover 4.5s ease-in-out infinite;
+		animation-delay: calc(var(--i) * 110ms + 150ms), 1.6s;
+	}
+	@keyframes drop {
+		from {
+			opacity: 0;
+			transform: translateY(-150px);
+		}
+		35% {
+			opacity: 1;
+		}
+		to {
+			opacity: 1;
+			transform: none;
+		}
+	}
+	@keyframes hover {
+		0%,
+		100% {
+			transform: translateY(0);
+		}
+		50% {
+			transform: translateY(-16px);
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.js .stack :global(.tile) {
+			opacity: 1;
+			animation: none !important;
+		}
+		.fcard:hover {
+			transform: none;
+		}
+	}
+	@media (max-width: 900px) {
+		.fgrid {
+			grid-template-columns: 1fr;
+		}
+		.stack {
+			grid-row: auto;
+			grid-column: auto;
+			min-height: 360px;
+			order: -1;
+		}
+		.stack :global(svg) {
+			width: min(560px, 115%);
+		}
+	}
+</style>
